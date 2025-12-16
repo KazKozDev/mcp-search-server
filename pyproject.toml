@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "mcp-search-server"
-version = "0.1.1"
+version = "0.1.2"
 description = "MCP server for web search, PDF parsing, and content extraction"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -20,12 +20,13 @@ dependencies = [
     "readability-lxml>=0.8.1",
     "PyPDF2>=3.0.0",
     "pdfplumber>=0.10.0",
-    "duckduckgo-search>=4.0.0",
     "wikipedia-api>=0.6.0",
     "pytz>=2024.0",
     "feedparser>=6.0.11",
     "httpx>=0.28.1",
     "requests>=2.32.5",
+    "selenium>=4.0.0",
+    "webdriver-manager>=4.0.0",
 ]
 
 [project.optional-dependencies]
@@ -51,3 +52,8 @@ target-version = ['py310']
 [tool.ruff]
 line-length = 100
 target-version = "py310"
+
+[tool.pytest.ini_options]
+filterwarnings = [
+    "ignore::DeprecationWarning:dateutil\\.tz\\.tz",
+]

@@ -14,7 +14,6 @@ from mcp.types import (
 import mcp.server.stdio
 
 from .tools.duckduckgo import search_duckduckgo
-from .tools.healthcheck import healthcheck
 from .tools.maps_tool import search_maps
 from .tools.wikipedia import search_wikipedia, get_wikipedia_summary
 from .tools.link_parser import extract_content_from_url
@@ -100,11 +99,6 @@ async def list_tools() -> list[Tool]:
                 },
                 "required": ["query"],
             },
-        ),
-        Tool(
-            name="healthcheck",
-            description="Run quick healthcheck across providers (DDG web/news, RSS, Wikipedia, content extractor).",
-            inputSchema={"type": "object", "properties": {}, "required": []},
         ),
         Tool(
             name="search_wikipedia",
@@ -284,12 +278,6 @@ async def call_tool(
                 formatted_output += f"**Snippet:** {result.get('snippet','')}\n\n"
             return [TextContent(type="text", text=formatted_output)]
 
-        elif name == "healthcheck":
-            result = await healthcheck()
-            import json
-
-            return [TextContent(type="text", text=json.dumps(result, ensure_ascii=False, indent=2))]
-
         elif name == "search_wikipedia":
             query = arguments.get("query")
             limit = arguments.get("limit", 5)
@@ -373,8 +361,6 @@ async def call_tool(
                 return [TextContent(type="text", text=formatted_output)]
 
             # Format successful result
-            import json
-
             formatted_output = "# 🕐 Current Date and Time\n\n"
             formatted_output += f"**Timezone:** {result['timezone']}\n"
             formatted_output += f"**Date:** {result['date']}\n"

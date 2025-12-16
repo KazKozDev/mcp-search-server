@@ -1,6 +1,6 @@
 """Tests for the MCP server."""
+
 import pytest
-from mcp.types import Tool
 
 
 def test_basic_imports():
@@ -28,7 +28,7 @@ def test_server_exists():
     from mcp_search_server.server import app
 
     assert app is not None
-    assert hasattr(app, 'name')
+    assert hasattr(app, "name")
     assert app.name == "mcp-search-server"
 
 

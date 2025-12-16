@@ -8,17 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- Initial release of MCP Search Server
-- Web search using DuckDuckGo with time filtering (day, week, month, year)
-- Wikipedia search and article summaries
-- Web content extraction with multiple parsing methods
-- PDF parsing support
-- DateTime tool with timezone awareness
-- Geolocation tool for IP-based location detection
-- Multi-source parallel search
-- Result caching (24 hours TTL)
-- Comprehensive documentation
-- Time-filtered search for finding recent news and updates
+- None
 
 ### Changed
 - None
@@ -33,6 +23,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - None
 
 ### Security
+- None
+
+## [0.1.2] - 2025-12-16
+
+### Added
+- Selenium-based DuckDuckGo search implementation
+- Example MCP client configuration file (mcp_config.json)
+
+### Changed
+- DuckDuckGo search now uses Selenium by default
+
+### Removed
+- DuckDuckGo images/videos helper module (media_search)
+- duckduckgo-search dependency
+- healthcheck tool
+
+### Fixed
 - None
 
 ## [0.1.0] - 2025-12-15

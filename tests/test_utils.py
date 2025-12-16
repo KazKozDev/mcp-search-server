@@ -1,4 +1,5 @@
 """Tests for utility functions."""
+
 import pytest
 from mcp_search_server.utils import run_parallel_searches
 

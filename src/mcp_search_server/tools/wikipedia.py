@@ -1,5 +1,6 @@
 """Wikipedia search implementation for MCP server."""
 
+import asyncio
 import logging
 import re
 from typing import Dict, List, Any
@@ -25,15 +26,36 @@ class WikipediaTool:
     async def _make_api_request(self, lang: str, params: Dict) -> Dict:
         """Helper to make async Wikipedia API requests."""
         url = self.api_base_url.format(lang=lang)
-        try:
-            async with httpx.AsyncClient() as client:
-                response = await client.get(url, params=params, headers=self.headers, timeout=15)
-                response.raise_for_status()
-                return response.json()
-        except httpx.RequestError as e:
-            raise ConnectionError(f"Failed to connect to Wikipedia ({lang}): {e}") from e
-        except Exception as e:
-            raise Exception(f"Error querying Wikipedia ({lang}): {e}") from e
+
+        def _should_retry(status_code: int | None) -> bool:
+            if status_code is None:
+                return True
+            return status_code in {408, 429, 500, 502, 503, 504}
+
+        max_retries = 3
+        base_backoff_seconds = 1.0
+        timeout_seconds = 15
+
+        async with httpx.AsyncClient(headers=self.headers, timeout=timeout_seconds) as client:
+            for attempt in range(max_retries):
+                try:
+                    response = await client.get(url, params=params)
+                    response.raise_for_status()
+                    return response.json()
+                except httpx.HTTPStatusError as exc:
+                    status = exc.response.status_code if exc.response is not None else None
+                    if attempt >= max_retries - 1 or not _should_retry(status):
+                        raise Exception(
+                            f"Error querying Wikipedia ({lang}): HTTP {status}"
+                        ) from exc
+                except httpx.RequestError as exc:
+                    if attempt >= max_retries - 1:
+                        raise ConnectionError(
+                            f"Failed to connect to Wikipedia ({lang}): {exc}"
+                        ) from exc
+
+                backoff = base_backoff_seconds * (2**attempt)
+                await asyncio.sleep(backoff)
 
     async def search(self, query: str, limit: int = 5) -> List[Dict[str, Any]]:
         """Search Wikipedia for articles matching a query."""
@@ -48,6 +70,7 @@ class WikipediaTool:
             "srsearch": query,
             "format": "json",
             "srlimit": limit,
+            "srprop": "snippet|size|wordcount",
         }
 
         data = await self._make_api_request(self.language, params)
@@ -60,6 +83,8 @@ class WikipediaTool:
                 title = item.get("title", "")
                 snippet = self._clean_html(item.get("snippet", ""))
                 pageid = item.get("pageid", 0)
+                size = int(item.get("size", 0) or 0)
+                word_count = int(item.get("wordcount", 0) or 0)
 
                 results.append(
                     {
@@ -67,6 +92,8 @@ class WikipediaTool:
                         "snippet": snippet,
                         "pageid": pageid,
                         "url": f"https://{self.language}.wikipedia.org/wiki/{quote(title.replace(' ', '_'))}",
+                        "size": size,
+                        "wordcount": word_count,
                     }
                 )
 
@@ -100,13 +127,18 @@ class WikipediaTool:
         """Get the extract (text content) of a Wikipedia page."""
         params = {
             "action": "query",
-            "prop": "extracts|info",
+            "prop": "extracts|info|pageimages|categories|revisions",
             "exintro": "1" if intro_only else "0",
             "explaintext": "1",
             "titles": title,
             "format": "json",
             "inprop": "url",
             "redirects": "1",
+            "piprop": "thumbnail",
+            "pithumbsize": "300",
+            "cllimit": "20",
+            "rvprop": "timestamp",
+            "rvlimit": "1",
         }
 
         data = await self._make_api_request(self.language, params)
@@ -125,6 +157,33 @@ class WikipediaTool:
         )
         extract = page.get("extract", "")
 
+        thumbnail = None
+        if isinstance(page.get("thumbnail"), dict):
+            thumbnail = page.get("thumbnail", {}).get("source")
+
+        categories: List[str] = []
+        if isinstance(page.get("categories"), list):
+            for cat in page.get("categories", []):
+                title_raw = cat.get("title", "") if isinstance(cat, dict) else ""
+                if title_raw.startswith("Category:"):
+                    title_raw = title_raw.replace("Category:", "", 1)
+                if title_raw:
+                    categories.append(title_raw)
+
+        last_updated = ""
+        if isinstance(page.get("revisions"), list) and page["revisions"]:
+            last_updated = page["revisions"][0].get("timestamp", "")
+
+        sections: List[Dict[str, Any]] = []
+        try:
+            sections_data = await self._get_page_sections(page_title)
+            sections = sections_data
+        except Exception as exc:
+            logger.debug(f"Failed to fetch sections for '{page_title}': {exc}")
+
+        word_count = len(extract.split()) if extract else 0
+        page_length = int(page.get("length", 0) or 0)
+
         return {
             "title": page_title,
             "pageid": int(page_id),
@@ -132,7 +191,45 @@ class WikipediaTool:
             "language": self.language,
             "extract": extract,
             "summary": extract if intro_only else extract[:500] + "...",
+            "thumbnail": thumbnail,
+            "categories": categories,
+            "sections": sections,
+            "last_updated": last_updated,
+            "word_count": word_count,
+            "page_length": page_length,
         }
+
+    async def _get_page_sections(self, title: str) -> List[Dict[str, Any]]:
+        params = {
+            "action": "parse",
+            "page": title,
+            "prop": "sections",
+            "format": "json",
+        }
+
+        data = await self._make_api_request(self.language, params)
+        raw_sections = data.get("parse", {}).get("sections", [])
+        sections: List[Dict[str, Any]] = []
+
+        if not isinstance(raw_sections, list):
+            return sections
+
+        for section in raw_sections:
+            if not isinstance(section, dict):
+                continue
+            try:
+                sections.append(
+                    {
+                        "title": section.get("line", ""),
+                        "level": int(section.get("level", 1) or 1),
+                        "index": int(section.get("index", 0) or 0),
+                        "anchor": section.get("anchor", ""),
+                    }
+                )
+            except Exception:
+                continue
+
+        return sections
 
     def _clean_html(self, text: str) -> str:
         """Clean HTML tags and entities from text."""

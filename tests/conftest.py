@@ -1,4 +1,5 @@
 """Pytest configuration and fixtures."""
+
 import pytest
 
 
@@ -9,11 +10,11 @@ def sample_search_results():
         {
             "title": "Example Result 1",
             "url": "https://example.com/1",
-            "snippet": "This is a sample search result snippet"
+            "snippet": "This is a sample search result snippet",
         },
         {
             "title": "Example Result 2",
             "url": "https://example.com/2",
-            "snippet": "Another sample search result snippet"
-        }
+            "snippet": "Another sample search result snippet",
+        },
     ]
