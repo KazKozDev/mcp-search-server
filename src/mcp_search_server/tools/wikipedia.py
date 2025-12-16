@@ -13,10 +13,11 @@ class WikipediaTool:
     """Tool for searching and retrieving Wikipedia content."""
 
     def __init__(self, language: str = "en"):
+        from mcp_search_server import __version__
         self.api_base_url = "https://{lang}.wikipedia.org/w/api.php"
         self.language = language
         self.headers = {
-            'User-Agent': 'mcp-search-server/0.1.0 (https://github.com/your-username/mcp-search-server; your-email@example.com) httpx/0.28'
+            'User-Agent': f'mcp-search-server/{__version__} (+https://github.com/KazKozDev/mcp-search-server)'
         }
 
     async def _make_api_request(self, lang: str, params: Dict) -> Dict:
