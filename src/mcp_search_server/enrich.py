@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 from .cache_store import get_cached_json, set_cached_json
 from .config_loader import get_cache_ttl_seconds

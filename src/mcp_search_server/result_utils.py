@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import re
 from difflib import SequenceMatcher
-from typing import Any, Dict, Iterable, List, Optional
+from typing import Any, Dict, Iterable, List
 from urllib.parse import parse_qsl, urlencode, urlparse, urlunparse
 
 

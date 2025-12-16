@@ -183,7 +183,7 @@ class DuckDuckGoSearcher:
                                 term in text.lower()
                                 for term in ["captcha", "blocked", "too many requests"]
                             ):
-                                logger.warning(f"CAPTCHA or blocking detected. Retrying...")
+                                logger.warning("CAPTCHA or blocking detected. Retrying...")
                                 retry_count += 1
                                 await asyncio.sleep(2**retry_count + random.uniform(0.5, 1.5))
                                 continue

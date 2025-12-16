@@ -15,22 +15,12 @@ import mcp.server.stdio
 from .tools.duckduckgo import search_duckduckgo
 from .tools.healthcheck import healthcheck
 from .tools.maps_tool import search_maps
-from .tools.media_search import search_images, search_videos
-from .tools.rss_tool import list_news_sources, search_rss
 from .tools.wikipedia import search_wikipedia, get_wikipedia_summary
 from .tools.link_parser import extract_content_from_url
 from .tools.pdf_parser import parse_pdf
-from .tools.datetime_tool import get_current_datetime, list_timezones
-from .tools.geolocation import get_location_by_ip, get_timezone_from_ip
+from .tools.datetime_tool import get_current_datetime
+from .tools.geolocation import get_location_by_ip
 from .enrich import enrich_results
-from .result_utils import dedupe_and_limit_results
-from .config_loader import (
-    get_dedupe_enabled,
-    get_normalize_urls_enabled,
-    get_results_max_per_domain,
-    get_title_similarity_threshold,
-)
-from .utils import run_parallel_searches
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -389,7 +379,7 @@ async def call_tool(name: str, arguments: Any) -> list[TextContent | ImageConten
 
             # Format successful result
             import json
-            formatted_output = f"# 🕐 Current Date and Time\n\n"
+            formatted_output = "# 🕐 Current Date and Time\n\n"
             formatted_output += f"**Timezone:** {result['timezone']}\n"
             formatted_output += f"**Date:** {result['date']}\n"
             formatted_output += f"**Time:** {result['time']}\n"
@@ -425,7 +415,7 @@ async def call_tool(name: str, arguments: Any) -> list[TextContent | ImageConten
                 return [TextContent(type="text", text=formatted_output)]
 
             # Format successful result
-            formatted_output = f"# 📍 Location Information\n\n"
+            formatted_output = "# 📍 Location Information\n\n"
             formatted_output += f"**IP Address:** {result.get('ip', 'N/A')}\n\n"
 
             formatted_output += "## Location\n\n"
@@ -435,14 +425,14 @@ async def call_tool(name: str, arguments: Any) -> list[TextContent | ImageConten
             if result.get('zip'):
                 formatted_output += f"**ZIP Code:** {result.get('zip')}\n"
 
-            formatted_output += f"\n## Timezone\n\n"
+            formatted_output += "\n## Timezone\n\n"
             formatted_output += f"**Timezone:** {result.get('timezone', 'N/A')}\n"
 
-            formatted_output += f"\n## Coordinates\n\n"
+            formatted_output += "\n## Coordinates\n\n"
             formatted_output += f"**Latitude:** {result.get('latitude', 'N/A')}\n"
             formatted_output += f"**Longitude:** {result.get('longitude', 'N/A')}\n"
 
-            formatted_output += f"\n## Network Information\n\n"
+            formatted_output += "\n## Network Information\n\n"
             formatted_output += f"**ISP:** {result.get('isp', 'N/A')}\n"
             formatted_output += f"**Organization:** {result.get('organization', 'N/A')}\n"
             if result.get('as_number'):

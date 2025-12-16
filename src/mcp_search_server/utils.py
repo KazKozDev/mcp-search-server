@@ -1,7 +1,6 @@
 """Utility functions for MCP Search Server."""
 import asyncio
 import time
-from collections import defaultdict
 from typing import Any, Callable, Dict, List
 from functools import wraps
 import logging
