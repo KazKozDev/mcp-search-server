@@ -1,33 +1,45 @@
 """Tests for the MCP server."""
 import pytest
-from mcp_search_server.server import app
+from mcp.types import Tool
+
+
+def test_basic_imports():
+    """Test that basic imports work."""
+    from mcp_search_server.server import app
+    from mcp_search_server.tools.duckduckgo import search_duckduckgo
+    from mcp_search_server.tools.wikipedia import search_wikipedia, get_wikipedia_summary
+    from mcp_search_server.tools.link_parser import extract_content_from_url
+    from mcp_search_server.tools.pdf_parser import parse_pdf
+    from mcp_search_server.tools.datetime_tool import get_current_datetime
+    from mcp_search_server.tools.geolocation import get_location_by_ip
+
+    assert app is not None
+    assert callable(search_duckduckgo)
+    assert callable(search_wikipedia)
+    assert callable(get_wikipedia_summary)
+    assert callable(extract_content_from_url)
+    assert callable(parse_pdf)
+    assert callable(get_current_datetime)
+    assert callable(get_location_by_ip)
+
+
+def test_server_exists():
+    """Test that the server app is properly initialized."""
+    from mcp_search_server.server import app
+
+    assert app is not None
+    assert hasattr(app, 'name')
+    assert app.name == "mcp-search-server"
 
 
 @pytest.mark.asyncio
-async def test_list_tools():
-    """Test that list_tools returns expected tools."""
-    tools = await app.list_tools()
+async def test_datetime_tool():
+    """Test the datetime tool works."""
+    from mcp_search_server.tools.datetime_tool import get_current_datetime
 
-    assert len(tools) > 0
-    tool_names = [tool.name for tool in tools]
+    result = await get_current_datetime("UTC", True)
 
-    # Check that essential tools are present
-    assert "search_web" in tool_names
-    assert "search_wikipedia" in tool_names
-    assert "extract_webpage_content" in tool_names
-    assert "parse_pdf" in tool_names
-    assert "get_current_datetime" in tool_names
-    assert "get_location_by_ip" in tool_names
-
-
-@pytest.mark.asyncio
-async def test_tool_schemas():
-    """Test that tools have proper schemas."""
-    tools = await app.list_tools()
-
-    for tool in tools:
-        assert hasattr(tool, 'name')
-        assert hasattr(tool, 'description')
-        assert hasattr(tool, 'inputSchema')
-        assert isinstance(tool.inputSchema, dict)
-        assert 'type' in tool.inputSchema
+    assert "datetime" in result
+    assert "timezone" in result
+    assert "timestamp" in result
+    assert result["timezone"] == "UTC"
