@@ -144,6 +144,11 @@ test_news_search.py
 mcp-config.json
 config.local.json
 
+# MCP Registry publisher auth tokens
+.mcpregistry_*
+
+mcp-server-metadata.json
+
 # Temporary files
 *.tmp
 *.bak
