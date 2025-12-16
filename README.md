@@ -1,5 +1,10 @@
-# MCP Search Server
 
+
+<p align="center">
+  <img width="304" alt="log" src="https://github.com/user-attachments/assets/d831a711-9ddd-406a-b984-46e5693959c8" />
+</p>
+
+# MCP Search Server
 <!-- mcp-name: io.github.KazKozDev/search -->
 
 mcp-name: io.github.KazKozDev/search
@@ -12,14 +17,14 @@ mcp-name: io.github.KazKozDev/search
 
 MCP (Model Context Protocol) server for web search, content extraction, and PDF parsing.
 
-**🔓 No API keys required! No registration needed!** All tools work out of the box using free public APIs.
+All tools work out of the box using free public APIs. **No API keys required. No registration needed.**
 
-**🌍 Context-Aware AI**: Built-in tools for real-time datetime and geolocation detection give LLMs the ability to understand "here and now" - enabling timezone-aware responses, location-based content, and time-sensitive information without manual configuration.
+**Context-Aware AI**: Built-in tools for real-time datetime and geolocation detection give LLMs the ability to understand "here and now" - enabling timezone-aware responses, location-based content, and time-sensitive information without manual configuration.
 
 ## Features
 
-- **DateTime Tool**: Get current date and time with timezone awareness - lets LLMs know what time it is right now
-- **Geolocation**: IP-based location detection with timezone, coordinates, and ISP info - helps LLMs understand where users are located
+- **DateTime Tool**: Get current date and time with timezone awareness 
+- **Geolocation**: IP-based location detection with timezone, coordinates, and ISP info 
 - **Web Search**: Search the web using DuckDuckGo
 - **Wikipedia Search**: Search and retrieve Wikipedia articles
 - **Web Content Extraction**: Extract clean text from web pages using multiple parsing methods
