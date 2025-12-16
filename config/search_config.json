@@ -23,7 +23,7 @@
   },
   "maps": {
     "nominatim_endpoint": "https://nominatim.openstreetmap.org/search",
-    "user_agent": "mcp-search-server/0.1 (+https://localhost)"
+    "user_agent": "mcp-search-server/0.1 (+https://github.com/KazKozDev/mcp-search-server)"
   },
   "rss_sources": [
     {
