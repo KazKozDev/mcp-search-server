@@ -1,4 +1,5 @@
 {
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-10-17/server.schema.json",
   "name": "io.github.KazKozDev/search",
   "title": "MCP Search Server",
   "description": "Web search, content extraction, PDF parsing, plus datetime and geolocation tools. No API keys.",
