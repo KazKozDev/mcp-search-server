@@ -1,0 +1,16 @@
+# MCP Search Server - Requirements
+# Install with: pip install -r requirements.txt
+
+mcp>=0.9.0
+aiohttp>=3.9.0
+beautifulsoup4>=4.12.0
+newspaper3k>=0.2.8
+readability-lxml>=0.8.1
+PyPDF2>=3.0.0
+pdfplumber>=0.10.0
+duckduckgo-search>=4.0.0
+wikipedia-api>=0.6.0
+pytz>=2024.0
+feedparser>=6.0.11
+httpx>=0.28.1
+requests>=2.32.5

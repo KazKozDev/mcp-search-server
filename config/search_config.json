@@ -1,0 +1,51 @@
+{
+  "cache": {
+    "dir": "~/.mcp-search-cache",
+    "ttl_seconds": {
+      "web": 21600,
+      "news": 1200,
+      "rss": 900,
+      "enrich": 86400
+    }
+  },
+  "results": {
+    "max_per_domain": 3,
+    "dedupe": {
+      "enabled": true,
+      "title_similarity_threshold": 0.92,
+      "normalize_urls": true
+    }
+  },
+  "enrich": {
+    "default_enabled": false,
+    "top_k": 3,
+    "max_chars": 600
+  },
+  "maps": {
+    "nominatim_endpoint": "https://nominatim.openstreetmap.org/search",
+    "user_agent": "mcp-search-server/0.1 (+https://localhost)"
+  },
+  "rss_sources": [
+    {
+      "id": "lenta",
+      "name": "Lenta.ru",
+      "url": "https://lenta.ru/rss",
+      "region": "ru",
+      "language": "ru"
+    },
+    {
+      "id": "ria",
+      "name": "RIA Novosti",
+      "url": "https://ria.ru/export/rss2/archive/index.xml",
+      "region": "ru",
+      "language": "ru"
+    },
+    {
+      "id": "bbc",
+      "name": "BBC World",
+      "url": "https://feeds.bbci.co.uk/news/world/rss.xml",
+      "region": "world",
+      "language": "en"
+    }
+  ]
+}
