@@ -9,7 +9,6 @@
     "url": "https://github.com/KazKozDev/mcp-search-server",
     "source": "github"
   },
-  "license": "MIT",
   "packages": [
     {
       "registryType": "pypi",
