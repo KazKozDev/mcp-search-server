@@ -147,4 +147,5 @@ config.local.json
 # Temporary files
 *.tmp
 *.bak
+*.backup
 *.log
