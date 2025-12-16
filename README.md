@@ -1,5 +1,11 @@
 # MCP Search Server
 
+[![PyPI version](https://badge.fury.io/py/mcp-search-server.svg)](https://badge.fury.io/py/mcp-search-server)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![CI](https://github.com/KazKozDev/mcp-search-server/actions/workflows/ci.yml/badge.svg)](https://github.com/KazKozDev/mcp-search-server/actions/workflows/ci.yml)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+
 MCP (Model Context Protocol) server for web search, content extraction, and PDF parsing.
 
 **🔓 No API keys required! No registration needed!** All tools work out of the box using free public APIs.
