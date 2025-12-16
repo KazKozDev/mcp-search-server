@@ -7,6 +7,10 @@ on:
 jobs:
   publish:
     runs-on: ubuntu-latest
+    environment: pypi
+    permissions:
+      id-token: write  # Required for trusted publishing
+      contents: read
 
     steps:
     - uses: actions/checkout@v4
@@ -15,14 +19,24 @@ jobs:
       uses: actions/setup-python@v5
       with:
         python-version: '3.11'
+        cache: 'pip'
 
-    - name: Install dependencies
+    - name: Install build dependencies
       run: |
         python -m pip install --upgrade pip
         pip install build twine
 
+    - name: Install package dependencies
+      run: pip install -e ".[dev]"
+
+    - name: Run tests before publishing
+      run: pytest
+
     - name: Build package
       run: python -m build
+
+    - name: Check package with twine
+      run: twine check dist/*
 
     - name: Publish to PyPI
       env:
