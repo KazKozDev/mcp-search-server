@@ -1,6 +1,6 @@
 
 
-<img width="404" alt="log" src="https://github.com/user-attachments/assets/d831a711-9ddd-406a-b984-46e5693959c8" />
+<img width="304" alt="log" src="https://github.com/user-attachments/assets/d831a711-9ddd-406a-b984-46e5693959c8" />
 
 # MCP Search Server
 <!-- mcp-name: io.github.KazKozDev/search -->
