@@ -10,14 +10,16 @@ MCP (Model Context Protocol) server for web search, content extraction, and PDF 
 
 **🔓 No API keys required! No registration needed!** All tools work out of the box using free public APIs.
 
+**🌍 Context-Aware AI**: Built-in tools for real-time datetime and geolocation detection give LLMs the ability to understand "here and now" - enabling timezone-aware responses, location-based content, and time-sensitive information without manual configuration.
+
 ## Features
 
+- **DateTime Tool**: Get current date and time with timezone awareness - lets LLMs know what time it is right now
+- **Geolocation**: IP-based location detection with timezone, coordinates, and ISP info - helps LLMs understand where users are located
 - **Web Search**: Search the web using DuckDuckGo
 - **Wikipedia Search**: Search and retrieve Wikipedia articles
 - **Web Content Extraction**: Extract clean text from web pages using multiple parsing methods
 - **PDF Parsing**: Extract text from PDF files
-- **DateTime Tool**: Get current date and time with timezone awareness
-- **Geolocation**: IP-based location detection with timezone, coordinates, and ISP info
 - **Multi-Source Search**: Parallel search across multiple sources
 
 ## Installation
