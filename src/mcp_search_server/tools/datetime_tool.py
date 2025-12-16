@@ -1,12 +1,12 @@
 """DateTime tool for MCP Search Server - provides current date and time information."""
+
 from datetime import datetime, timezone
 from typing import Dict, Any
 import pytz
 
 
 async def get_current_datetime(
-    timezone_name: str = "UTC",
-    include_details: bool = True
+    timezone_name: str = "UTC", include_details: bool = True
 ) -> Dict[str, Any]:
     """
     Get current date and time with timezone information.
@@ -37,24 +37,26 @@ async def get_current_datetime(
         }
 
         if include_details:
-            result.update({
-                "year": now.year,
-                "month": now.month,
-                "day": now.day,
-                "hour": now.hour,
-                "minute": now.minute,
-                "second": now.second,
-                "day_of_week": now.strftime("%A"),
-                "day_of_week_num": now.weekday() + 1,  # 1 = Monday, 7 = Sunday
-                "week_number": now.isocalendar()[1],
-                "formatted": {
-                    "full": now.strftime("%A, %B %d, %Y %H:%M:%S %Z"),
-                    "date_long": now.strftime("%B %d, %Y"),
-                    "date_short": now.strftime("%d/%m/%Y"),
-                    "time_12h": now.strftime("%I:%M:%S %p"),
-                    "time_24h": now.strftime("%H:%M:%S"),
+            result.update(
+                {
+                    "year": now.year,
+                    "month": now.month,
+                    "day": now.day,
+                    "hour": now.hour,
+                    "minute": now.minute,
+                    "second": now.second,
+                    "day_of_week": now.strftime("%A"),
+                    "day_of_week_num": now.weekday() + 1,  # 1 = Monday, 7 = Sunday
+                    "week_number": now.isocalendar()[1],
+                    "formatted": {
+                        "full": now.strftime("%A, %B %d, %Y %H:%M:%S %Z"),
+                        "date_long": now.strftime("%B %d, %Y"),
+                        "date_short": now.strftime("%d/%m/%Y"),
+                        "time_12h": now.strftime("%I:%M:%S %p"),
+                        "time_24h": now.strftime("%H:%M:%S"),
+                    },
                 }
-            })
+            )
 
         return result
 
@@ -62,9 +64,14 @@ async def get_current_datetime(
         return {
             "error": f"Unknown timezone: {timezone_name}",
             "available_timezones_sample": [
-                "UTC", "Europe/Moscow", "Europe/London", "America/New_York",
-                "America/Los_Angeles", "Asia/Tokyo", "Asia/Shanghai"
-            ]
+                "UTC",
+                "Europe/Moscow",
+                "Europe/London",
+                "America/New_York",
+                "America/Los_Angeles",
+                "Asia/Tokyo",
+                "Asia/Shanghai",
+            ],
         }
     except Exception as e:
         return {"error": f"Error getting datetime: {str(e)}"}
@@ -101,16 +108,12 @@ async def list_timezones(region: str = "all") -> Dict[str, Any]:
             return {
                 "total_timezones": len(all_timezones),
                 "sample_by_region": result,
-                "note": "Use region parameter to get full list for specific region"
+                "note": "Use region parameter to get full list for specific region",
             }
         else:
             # Filter by region
             filtered = [tz for tz in all_timezones if tz.startswith(region)]
-            return {
-                "region": region,
-                "timezones": filtered,
-                "count": len(filtered)
-            }
+            return {"region": region, "timezones": filtered, "count": len(filtered)}
 
     except Exception as e:
         return {"error": f"Error listing timezones: {str(e)}"}

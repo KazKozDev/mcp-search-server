@@ -1,4 +1,5 @@
 """Wikipedia search implementation for MCP server."""
+
 import logging
 import re
 from typing import Dict, List, Any
@@ -14,10 +15,11 @@ class WikipediaTool:
 
     def __init__(self, language: str = "en"):
         from mcp_search_server import __version__
+
         self.api_base_url = "https://{lang}.wikipedia.org/w/api.php"
         self.language = language
         self.headers = {
-            'User-Agent': f'mcp-search-server/{__version__} (+https://github.com/KazKozDev/mcp-search-server)'
+            "User-Agent": f"mcp-search-server/{__version__} (+https://github.com/KazKozDev/mcp-search-server)"
         }
 
     async def _make_api_request(self, lang: str, params: Dict) -> Dict:
@@ -25,9 +27,7 @@ class WikipediaTool:
         url = self.api_base_url.format(lang=lang)
         try:
             async with httpx.AsyncClient() as client:
-                response = await client.get(
-                    url, params=params, headers=self.headers, timeout=15
-                )
+                response = await client.get(url, params=params, headers=self.headers, timeout=15)
                 response.raise_for_status()
                 return response.json()
         except httpx.RequestError as e:
@@ -43,30 +43,32 @@ class WikipediaTool:
             raise Exception("Query cannot be empty")
 
         params = {
-            'action': 'query',
-            'list': 'search',
-            'srsearch': query,
-            'format': 'json',
-            'srlimit': limit
+            "action": "query",
+            "list": "search",
+            "srsearch": query,
+            "format": "json",
+            "srlimit": limit,
         }
 
         data = await self._make_api_request(self.language, params)
 
         try:
-            raw_results = data.get('query', {}).get('search', [])
+            raw_results = data.get("query", {}).get("search", [])
             results = []
 
             for item in raw_results[:limit]:
-                title = item.get('title', '')
-                snippet = self._clean_html(item.get('snippet', ''))
-                pageid = item.get('pageid', 0)
+                title = item.get("title", "")
+                snippet = self._clean_html(item.get("snippet", ""))
+                pageid = item.get("pageid", 0)
 
-                results.append({
-                    'title': title,
-                    'snippet': snippet,
-                    'pageid': pageid,
-                    'url': f"https://{self.language}.wikipedia.org/wiki/{quote(title.replace(' ', '_'))}"
-                })
+                results.append(
+                    {
+                        "title": title,
+                        "snippet": snippet,
+                        "pageid": pageid,
+                        "url": f"https://{self.language}.wikipedia.org/wiki/{quote(title.replace(' ', '_'))}",
+                    }
+                )
 
             return results
 
@@ -87,7 +89,7 @@ class WikipediaTool:
             search_results = await self.search(title, limit=1)
 
             if search_results:
-                actual_title = search_results[0]['title']
+                actual_title = search_results[0]["title"]
                 logger.info(f"Using search result: {actual_title}")
                 summary_data = await self._get_page_extract(actual_title, intro_only=True)
                 return summary_data
@@ -97,44 +99,48 @@ class WikipediaTool:
     async def _get_page_extract(self, title: str, intro_only: bool = False) -> Dict[str, Any]:
         """Get the extract (text content) of a Wikipedia page."""
         params = {
-            'action': 'query',
-            'prop': 'extracts|info',
-            'exintro': '1' if intro_only else '0',
-            'explaintext': '1',
-            'titles': title,
-            'format': 'json',
-            'inprop': 'url',
-            'redirects': '1'
+            "action": "query",
+            "prop": "extracts|info",
+            "exintro": "1" if intro_only else "0",
+            "explaintext": "1",
+            "titles": title,
+            "format": "json",
+            "inprop": "url",
+            "redirects": "1",
         }
 
         data = await self._make_api_request(self.language, params)
-        pages = data.get('query', {}).get('pages', {})
+        pages = data.get("query", {}).get("pages", {})
 
-        if '-1' in pages and 'missing' in pages['-1']:
+        if "-1" in pages and "missing" in pages["-1"]:
             raise Exception(f"Wikipedia article '{title}' not found")
 
         page_id = next(iter(pages.keys()))
         page = pages[page_id]
 
-        page_title = page.get('title', title)
-        page_url = page.get('fullurl', f"https://{self.language}.wikipedia.org/wiki/{quote(page_title.replace(' ', '_'))}")
-        extract = page.get('extract', '')
+        page_title = page.get("title", title)
+        page_url = page.get(
+            "fullurl",
+            f"https://{self.language}.wikipedia.org/wiki/{quote(page_title.replace(' ', '_'))}",
+        )
+        extract = page.get("extract", "")
 
         return {
-            'title': page_title,
-            'pageid': int(page_id),
-            'url': page_url,
-            'language': self.language,
-            'extract': extract,
-            'summary': extract if intro_only else extract[:500] + "..."
+            "title": page_title,
+            "pageid": int(page_id),
+            "url": page_url,
+            "language": self.language,
+            "extract": extract,
+            "summary": extract if intro_only else extract[:500] + "...",
         }
 
     def _clean_html(self, text: str) -> str:
         """Clean HTML tags and entities from text."""
         import html as html_module
-        text = re.sub(r'<[^>]+>', ' ', text)
+
+        text = re.sub(r"<[^>]+>", " ", text)
         text = html_module.unescape(text)
-        text = re.sub(r'\s+', ' ', text).strip()
+        text = re.sub(r"\s+", " ", text).strip()
         return text
 
 

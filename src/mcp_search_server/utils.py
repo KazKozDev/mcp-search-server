@@ -1,4 +1,5 @@
 """Utility functions for MCP Search Server."""
+
 import asyncio
 import time
 from typing import Any, Callable, Dict, List
@@ -76,18 +77,13 @@ async def run_parallel(*tasks: Callable, max_concurrent: int = 3) -> List[Any]:
                 logger.error(f"Task failed: {e}")
                 return {"error": str(e)}
 
-    results = await asyncio.gather(
-        *[wrapped_task(task) for task in tasks],
-        return_exceptions=True
-    )
+    results = await asyncio.gather(*[wrapped_task(task) for task in tasks], return_exceptions=True)
 
     return results
 
 
 async def run_parallel_searches(
-    query: str,
-    search_functions: List[tuple[str, Callable]],
-    max_concurrent: int = 3
+    query: str, search_functions: List[tuple[str, Callable]], max_concurrent: int = 3
 ) -> Dict[str, Any]:
     """
     Run multiple search functions in parallel.
@@ -136,21 +132,21 @@ async def run_parallel_searches(
 
 def with_rate_limit(service: str):
     """Decorator to add rate limiting to async functions."""
+
     def decorator(func):
         @wraps(func)
         async def wrapper(*args, **kwargs):
             limiter = get_rate_limiter(service)
             await limiter.acquire(service)
             return await func(*args, **kwargs)
+
         return wrapper
+
     return decorator
 
 
 async def retry_with_backoff(
-    func: Callable,
-    max_retries: int = 3,
-    base_delay: float = 1.0,
-    max_delay: float = 10.0
+    func: Callable, max_retries: int = 3, base_delay: float = 1.0, max_delay: float = 10.0
 ) -> Any:
     """
     Retry an async function with exponential backoff.
@@ -176,10 +172,8 @@ async def retry_with_backoff(
             last_exception = e
 
             if attempt < max_retries - 1:
-                delay = min(base_delay * (2 ** attempt), max_delay)
-                logger.warning(
-                    f"Retry {attempt + 1}/{max_retries} after {delay:.1f}s. Error: {e}"
-                )
+                delay = min(base_delay * (2**attempt), max_delay)
+                logger.warning(f"Retry {attempt + 1}/{max_retries} after {delay:.1f}s. Error: {e}")
                 await asyncio.sleep(delay)
             else:
                 logger.error(f"All {max_retries} retries failed: {e}")
@@ -189,6 +183,7 @@ async def retry_with_backoff(
 
 def measure_time(func):
     """Decorator to measure and log execution time."""
+
     @wraps(func)
     async def wrapper(*args, **kwargs):
         start = time.time()
@@ -201,4 +196,5 @@ def measure_time(func):
             duration = time.time() - start
             logger.error(f"{func.__name__} failed after {duration:.2f}s: {e}")
             raise
+
     return wrapper

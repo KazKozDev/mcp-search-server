@@ -67,9 +67,7 @@ async def search_videos(
 ) -> List[Dict[str, Any]]:
     """Search videos using DuckDuckGo via ddg library."""
     ttl = get_cache_ttl_seconds("web")
-    cache_key = (
-        f"ddg_videos|q={query}|limit={limit}|region={region}|timelimit={timelimit}|safesearch={safesearch}"
-    )
+    cache_key = f"ddg_videos|q={query}|limit={limit}|region={region}|timelimit={timelimit}|safesearch={safesearch}"
     cached = get_cached_json(cache_key, ttl_seconds=ttl, no_cache=no_cache)
     if isinstance(cached, list):
         return cached[:limit]

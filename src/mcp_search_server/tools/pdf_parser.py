@@ -1,4 +1,5 @@
 """PDF Parser Tool - Extract text from PDF files."""
+
 import logging
 import aiohttp
 import io
@@ -21,10 +22,12 @@ async def parse_pdf(url: str, max_chars: int = 50000) -> str:
         pdf_library = None
         try:
             import PyPDF2  # noqa: F401
+
             pdf_library = "pypdf2"
         except ImportError:
             try:
                 import pdfplumber  # noqa: F401
+
                 pdf_library = "pdfplumber"
             except ImportError:
                 logger.error("No PDF parsing library found. Install PyPDF2 or pdfplumber.")

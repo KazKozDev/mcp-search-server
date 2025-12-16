@@ -72,7 +72,9 @@ async def list_news_sources(
 async def _fetch_text(url: str, *, timeout_seconds: int = 10) -> Optional[str]:
     try:
         async with aiohttp.ClientSession() as session:
-            async with session.get(url, timeout=aiohttp.ClientTimeout(total=timeout_seconds)) as resp:
+            async with session.get(
+                url, timeout=aiohttp.ClientTimeout(total=timeout_seconds)
+            ) as resp:
                 if resp.status != 200:
                     return None
                 return await resp.text()
@@ -123,9 +125,7 @@ async def search_rss(
             continue
         fetch_jobs.append((src, asyncio.create_task(_fetch_text(url))))
 
-    raw_feeds = await asyncio.gather(
-        *[task for _, task in fetch_jobs], return_exceptions=True
-    )
+    raw_feeds = await asyncio.gather(*[task for _, task in fetch_jobs], return_exceptions=True)
 
     results: List[Dict[str, Any]] = []
     for (src, _), raw in zip(fetch_jobs, raw_feeds):

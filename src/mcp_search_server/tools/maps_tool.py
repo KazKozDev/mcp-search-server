@@ -44,7 +44,9 @@ async def search_maps(
 
     try:
         async with aiohttp.ClientSession(headers=headers) as session:
-            async with session.get(endpoint, params=params, timeout=aiohttp.ClientTimeout(total=10)) as resp:
+            async with session.get(
+                endpoint, params=params, timeout=aiohttp.ClientTimeout(total=10)
+            ) as resp:
                 if resp.status != 200:
                     return []
                 data = await resp.json()

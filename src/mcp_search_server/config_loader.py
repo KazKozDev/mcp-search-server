@@ -75,12 +75,7 @@ def get_cache_dir() -> Path:
 
 def get_cache_ttl_seconds(kind: str) -> int:
     """Return TTL for cache kind ('web'|'news'|'rss'|'enrich')."""
-    ttl = (
-        load_search_config()
-        .get("cache", {})
-        .get("ttl_seconds", {})
-        .get(kind, 3600)
-    )
+    ttl = load_search_config().get("cache", {}).get("ttl_seconds", {}).get(kind, 3600)
     try:
         return int(ttl)
     except Exception:

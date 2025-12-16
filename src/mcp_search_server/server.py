@@ -1,4 +1,5 @@
 """MCP Search Server - Web search, PDF parsing, and content extraction."""
+
 import asyncio
 import logging
 from typing import Any
@@ -38,10 +39,7 @@ async def list_tools() -> list[Tool]:
             inputSchema={
                 "type": "object",
                 "properties": {
-                    "query": {
-                        "type": "string",
-                        "description": "The search query"
-                    },
+                    "query": {"type": "string", "description": "The search query"},
                     "mode": {
                         "type": "string",
                         "description": "Search mode: 'web' for regular web search, 'news' for DuckDuckGo News",
@@ -51,12 +49,12 @@ async def list_tools() -> list[Tool]:
                     "limit": {
                         "type": "integer",
                         "description": "Maximum number of results to return (default: 10)",
-                        "default": 10
+                        "default": 10,
                     },
                     "timelimit": {
                         "type": ["string", "null"],
                         "description": "Filter results by time: 'd' (past day), 'w' (past week), 'm' (past month), 'y' (past year), null (all time)",
-                        "enum": ["d", "w", "m", "y", None]
+                        "enum": ["d", "w", "m", "y", None],
                     },
                     "region": {
                         "type": "string",
@@ -81,10 +79,10 @@ async def list_tools() -> list[Tool]:
                         "type": "integer",
                         "description": "Max preview chars per result (default: 600)",
                         "default": 600,
-                    }
+                    },
                 },
-                "required": ["query"]
-            }
+                "required": ["query"],
+            },
         ),
         Tool(
             name="search_maps",
@@ -114,18 +112,15 @@ async def list_tools() -> list[Tool]:
             inputSchema={
                 "type": "object",
                 "properties": {
-                    "query": {
-                        "type": "string",
-                        "description": "The search query"
-                    },
+                    "query": {"type": "string", "description": "The search query"},
                     "limit": {
                         "type": "integer",
                         "description": "Maximum number of results to return (default: 5)",
-                        "default": 5
-                    }
+                        "default": 5,
+                    },
                 },
-                "required": ["query"]
-            }
+                "required": ["query"],
+            },
         ),
         Tool(
             name="get_wikipedia_summary",
@@ -133,13 +128,10 @@ async def list_tools() -> list[Tool]:
             inputSchema={
                 "type": "object",
                 "properties": {
-                    "title": {
-                        "type": "string",
-                        "description": "The Wikipedia article title"
-                    }
+                    "title": {"type": "string", "description": "The Wikipedia article title"}
                 },
-                "required": ["title"]
-            }
+                "required": ["title"],
+            },
         ),
         Tool(
             name="extract_webpage_content",
@@ -147,13 +139,10 @@ async def list_tools() -> list[Tool]:
             inputSchema={
                 "type": "object",
                 "properties": {
-                    "url": {
-                        "type": "string",
-                        "description": "The URL to extract content from"
-                    }
+                    "url": {"type": "string", "description": "The URL to extract content from"}
                 },
-                "required": ["url"]
-            }
+                "required": ["url"],
+            },
         ),
         Tool(
             name="parse_pdf",
@@ -161,18 +150,15 @@ async def list_tools() -> list[Tool]:
             inputSchema={
                 "type": "object",
                 "properties": {
-                    "url": {
-                        "type": "string",
-                        "description": "The URL of the PDF file"
-                    },
+                    "url": {"type": "string", "description": "The URL of the PDF file"},
                     "max_chars": {
                         "type": "integer",
                         "description": "Maximum characters to extract (default: 50000)",
-                        "default": 50000
-                    }
+                        "default": 50000,
+                    },
                 },
-                "required": ["url"]
-            }
+                "required": ["url"],
+            },
         ),
         Tool(
             name="get_current_datetime",
@@ -183,16 +169,16 @@ async def list_tools() -> list[Tool]:
                     "timezone": {
                         "type": "string",
                         "description": "Timezone name (e.g., 'UTC', 'Europe/Moscow', 'America/New_York'). Default: 'UTC'",
-                        "default": "UTC"
+                        "default": "UTC",
                     },
                     "include_details": {
                         "type": "boolean",
                         "description": "Include additional details like day of week, week number, etc. Default: true",
-                        "default": True
-                    }
+                        "default": True,
+                    },
                 },
-                "required": []
-            }
+                "required": [],
+            },
         ),
         Tool(
             name="get_location_by_ip",
@@ -205,14 +191,16 @@ async def list_tools() -> list[Tool]:
                         "description": "IP address to lookup (e.g., '8.8.8.8'). If not provided, detects the server's public IP location.",
                     }
                 },
-                "required": []
-            }
-        )
+                "required": [],
+            },
+        ),
     ]
 
 
 @app.call_tool()
-async def call_tool(name: str, arguments: Any) -> list[TextContent | ImageContent | EmbeddedResource]:
+async def call_tool(
+    name: str, arguments: Any
+) -> list[TextContent | ImageContent | EmbeddedResource]:
     """Handle tool calls."""
     try:
         if name == "search_web":
@@ -231,9 +219,15 @@ async def call_tool(name: str, arguments: Any) -> list[TextContent | ImageConten
 
             if mode is None:
                 lowered_query = query.lower()
-                mode = "news" if any(term in lowered_query for term in ["новост", "news", "сейчас"]) else "web"
+                mode = (
+                    "news"
+                    if any(term in lowered_query for term in ["новост", "news", "сейчас"])
+                    else "web"
+                )
 
-            logger.info(f"Searching web for: {query} (mode={mode}, timelimit={timelimit}, region={region})")
+            logger.info(
+                f"Searching web for: {query} (mode={mode}, timelimit={timelimit}, region={region})"
+            )
             results = await search_duckduckgo(
                 query=query,
                 limit=limit,
@@ -293,6 +287,7 @@ async def call_tool(name: str, arguments: Any) -> list[TextContent | ImageConten
         elif name == "healthcheck":
             result = await healthcheck()
             import json
+
             return [TextContent(type="text", text=json.dumps(result, ensure_ascii=False, indent=2))]
 
         elif name == "search_wikipedia":
@@ -379,6 +374,7 @@ async def call_tool(name: str, arguments: Any) -> list[TextContent | ImageConten
 
             # Format successful result
             import json
+
             formatted_output = "# 🕐 Current Date and Time\n\n"
             formatted_output += f"**Timezone:** {result['timezone']}\n"
             formatted_output += f"**Date:** {result['date']}\n"
@@ -395,7 +391,9 @@ async def call_tool(name: str, arguments: Any) -> list[TextContent | ImageConten
                 formatted_output += f"**Time (24h):** {result['formatted']['time_24h']}\n\n"
 
                 formatted_output += "## Additional Details\n\n"
-                formatted_output += f"**Day of Week:** {result['day_of_week']} (day #{result['day_of_week_num']})\n"
+                formatted_output += (
+                    f"**Day of Week:** {result['day_of_week']} (day #{result['day_of_week_num']})\n"
+                )
                 formatted_output += f"**Week Number:** {result['week_number']}\n"
                 formatted_output += f"**Year:** {result['year']}\n"
                 formatted_output += f"**Month:** {result['month']}\n"
@@ -420,9 +418,11 @@ async def call_tool(name: str, arguments: Any) -> list[TextContent | ImageConten
 
             formatted_output += "## Location\n\n"
             formatted_output += f"**Country:** {result.get('country', 'N/A')} ({result.get('country_code', 'N/A')})\n"
-            formatted_output += f"**Region:** {result.get('region', 'N/A')} ({result.get('region_code', 'N/A')})\n"
+            formatted_output += (
+                f"**Region:** {result.get('region', 'N/A')} ({result.get('region_code', 'N/A')})\n"
+            )
             formatted_output += f"**City:** {result.get('city', 'N/A')}\n"
-            if result.get('zip'):
+            if result.get("zip"):
                 formatted_output += f"**ZIP Code:** {result.get('zip')}\n"
 
             formatted_output += "\n## Timezone\n\n"
@@ -435,7 +435,7 @@ async def call_tool(name: str, arguments: Any) -> list[TextContent | ImageConten
             formatted_output += "\n## Network Information\n\n"
             formatted_output += f"**ISP:** {result.get('isp', 'N/A')}\n"
             formatted_output += f"**Organization:** {result.get('organization', 'N/A')}\n"
-            if result.get('as_number'):
+            if result.get("as_number"):
                 formatted_output += f"**AS Number:** {result.get('as_number')}\n"
 
             return [TextContent(type="text", text=formatted_output)]
@@ -451,11 +451,7 @@ async def call_tool(name: str, arguments: Any) -> list[TextContent | ImageConten
 async def main():
     """Run the MCP server."""
     async with mcp.server.stdio.stdio_server() as (read_stream, write_stream):
-        await app.run(
-            read_stream,
-            write_stream,
-            app.create_initialization_options()
-        )
+        await app.run(read_stream, write_stream, app.create_initialization_options())
 
 
 def run():

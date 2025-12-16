@@ -1,4 +1,5 @@
 """Geolocation tool for MCP Search Server - IP-based location detection."""
+
 import asyncio
 from typing import Dict, Any, Optional
 import aiohttp
@@ -42,33 +43,21 @@ async def get_location_by_ip(ip_address: Optional[str] = None) -> Dict[str, Any]
                             "isp": data.get("isp"),
                             "organization": data.get("org"),
                             "as_number": data.get("as"),
-                            "coordinates": {
-                                "lat": data.get("lat"),
-                                "lon": data.get("lon")
-                            }
+                            "coordinates": {"lat": data.get("lat"), "lon": data.get("lon")},
                         }
                     else:
                         # API returned error status
                         return {
                             "error": data.get("message", "IP lookup failed"),
-                            "ip": ip_address or "auto"
+                            "ip": ip_address or "auto",
                         }
                 else:
-                    return {
-                        "error": f"HTTP error: {response.status}",
-                        "ip": ip_address or "auto"
-                    }
+                    return {"error": f"HTTP error: {response.status}", "ip": ip_address or "auto"}
 
     except asyncio.TimeoutError:
-        return {
-            "error": "Request timed out",
-            "ip": ip_address or "auto"
-        }
+        return {"error": "Request timed out", "ip": ip_address or "auto"}
     except Exception as e:
-        return {
-            "error": f"Error fetching location: {str(e)}",
-            "ip": ip_address or "auto"
-        }
+        return {"error": f"Error fetching location: {str(e)}", "ip": ip_address or "auto"}
 
 
 async def get_multiple_ips_location(ip_addresses: list[str]) -> Dict[str, Any]:
@@ -114,5 +103,5 @@ async def get_timezone_from_ip(ip_address: Optional[str] = None) -> Dict[str, An
         "ip": location.get("ip"),
         "timezone": location.get("timezone"),
         "country": location.get("country"),
-        "city": location.get("city")
+        "city": location.get("city"),
     }

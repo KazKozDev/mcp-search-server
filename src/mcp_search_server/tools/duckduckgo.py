@@ -1,4 +1,5 @@
 """DuckDuckGo search implementation for MCP server."""
+
 import asyncio
 import hashlib
 import json
@@ -36,14 +37,14 @@ if not os.path.exists(CACHE_DIR):
         logger.error(f"Failed to create cache directory: {e}")
 
 USER_AGENTS = [
-    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-    'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
 ]
 
 
 def _contains_cyrillic(text: str) -> bool:
-    return any("\u0400" <= ch <= "\u04FF" for ch in text)
+    return any("\u0400" <= ch <= "\u04ff" for ch in text)
 
 
 def _default_region_for_query(query: str) -> str:
@@ -144,7 +145,9 @@ class DuckDuckGoSearcher:
         encoded_region = urllib.parse.quote(region)
         url = f"https://duckduckgo.com/html/?q={encoded_query}&kl={encoded_region}"
 
-        html_content = await self._make_request(url, accept_language=_accept_language_for_region(region, query))
+        html_content = await self._make_request(
+            url, accept_language=_accept_language_for_region(region, query)
+        )
         return self._extract_html_results(html_content) if html_content else []
 
     async def _search_lite_version(self, query: str, region: str) -> List[Dict]:
@@ -153,7 +156,9 @@ class DuckDuckGoSearcher:
         encoded_region = urllib.parse.quote(region)
         url = f"https://lite.duckduckgo.com/lite/?q={encoded_query}&kl={encoded_region}"
 
-        html_content = await self._make_request(url, accept_language=_accept_language_for_region(region, query))
+        html_content = await self._make_request(
+            url, accept_language=_accept_language_for_region(region, query)
+        )
         return self._extract_lite_results(html_content) if html_content else []
 
     async def _make_request(
@@ -252,12 +257,14 @@ class DuckDuckGoSearcher:
                         snippet = snippet_el.get_text(strip=True) if snippet_el else ""
 
                         if title and link:
-                            results.append({
-                                "title": title,
-                                "url": link,
-                                "snippet": snippet,
-                                "source": "duckduckgo"
-                            })
+                            results.append(
+                                {
+                                    "title": title,
+                                    "url": link,
+                                    "snippet": snippet,
+                                    "source": "duckduckgo",
+                                }
+                            )
 
         except Exception as e:
             logger.error(f"Error extracting HTML results: {e}")
@@ -270,29 +277,31 @@ class DuckDuckGoSearcher:
         results = []
         try:
             soup = BeautifulSoup(html_content, "html.parser")
-            rows = soup.select('tr')
+            rows = soup.select("tr")
 
             for row in rows:
-                link_tag = row.find('a', href=True)
+                link_tag = row.find("a", href=True)
                 if link_tag and link_tag.get_text(strip=True):
                     title = link_tag.get_text(strip=True)
-                    link = link_tag['href']
+                    link = link_tag["href"]
 
                     if link.startswith("/") or "duckduckgo.com" in link:
                         continue
 
                     snippet_parts = [
-                        td.get_text(strip=True) for td in row.find_all('td') if not td.find('a')
+                        td.get_text(strip=True) for td in row.find_all("td") if not td.find("a")
                     ]
                     snippet = " ".join(snippet_parts).strip()
 
                     if title and link:
-                        results.append({
-                            "title": title,
-                            "url": link,
-                            "snippet": snippet,
-                            "source": "duckduckgo"
-                        })
+                        results.append(
+                            {
+                                "title": title,
+                                "url": link,
+                                "snippet": snippet,
+                                "source": "duckduckgo",
+                            }
+                        )
 
         except Exception as e:
             logger.error(f"Error extracting Lite results: {e}")
@@ -323,7 +332,9 @@ async def search_duckduckgo(
 
     # Check cache first
     cache_kind = "news" if mode == "news" else "web"
-    cached_results = get_cached_json(cache_key, get_cache_ttl_seconds(cache_kind), no_cache=no_cache)
+    cached_results = get_cached_json(
+        cache_key, get_cache_ttl_seconds(cache_kind), no_cache=no_cache
+    )
     if cached_results is not None:
         logger.info(f"Using cached results for '{cache_key}'")
         return cached_results[:limit]
@@ -376,12 +387,14 @@ async def search_duckduckgo(
                     query, max_results=limit, timelimit=timelimit, region=effective_region
                 )
                 for result in search_results:
-                    results.append({
-                        "title": result.get("title", ""),
-                        "url": result.get("href", ""),
-                        "snippet": result.get("body", ""),
-                        "source": "duckduckgo"
-                    })
+                    results.append(
+                        {
+                            "title": result.get("title", ""),
+                            "url": result.get("href", ""),
+                            "snippet": result.get("body", ""),
+                            "source": "duckduckgo",
+                        }
+                    )
             if get_dedupe_enabled():
                 results = dedupe_and_limit_results(
                     results,
