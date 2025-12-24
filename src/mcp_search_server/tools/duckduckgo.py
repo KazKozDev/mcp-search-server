@@ -24,15 +24,7 @@ except ImportError:
     logger.warning("Cache utilities not available")
 
 
-def _contains_cyrillic(text: str) -> bool:
-    """Check if text contains Cyrillic characters."""
-    return any("\u0400" <= ch <= "\u04ff" for ch in text)
-
-
-def _default_region_for_query(query: str) -> str:
-    """Determine default region based on query."""
-    # Don't specify region - let DuckDuckGo determine it automatically
-    return "wt-wt"
+# Region detection removed - DuckDuckGo auto-detects language from query
 
 
 class DuckDuckGoSearchTool:
@@ -71,7 +63,6 @@ class DuckDuckGoSearchTool:
         self,
         query: str,
         max_results: int = 10,
-        region: str = "us-en",
         timelimit: str = None,
         safesearch: str = "moderate",
     ) -> Optional[List[Dict]]:
@@ -81,7 +72,6 @@ class DuckDuckGoSearchTool:
         Args:
             query: Search query
             max_results: Maximum number of results
-            region: Region code (e.g., 'us-en', 'uk-en', 'ru-ru')
             timelimit: Time filter ('d' day, 'w' week, 'm' month, 'y' year)
             safesearch: Safe search level ('on', 'moderate', 'off')
 
@@ -93,12 +83,12 @@ class DuckDuckGoSearchTool:
             return None
 
         try:
-            logger.info(f"Searching DuckDuckGo for: {query} (region: {region})")
+            logger.info(f"Searching DuckDuckGo for: {query}")
 
             # Run in executor to avoid blocking
             loop = asyncio.get_event_loop()
             results = await loop.run_in_executor(
-                None, self._search_sync, query, max_results, region, safesearch, timelimit
+                None, self._search_sync, query, max_results, safesearch, timelimit
             )
 
             if not results:
@@ -125,7 +115,7 @@ class DuckDuckGoSearchTool:
             return None
 
     def _search_sync(
-        self, query: str, max_results: int, region: str, safesearch: str, timelimit: str = None
+        self, query: str, max_results: int, safesearch: str, timelimit: str = None
     ) -> List[Dict]:
         """Synchronous search (called in executor)"""
         try:
@@ -150,7 +140,7 @@ class DuckDuckGoSearchTool:
                 return []
 
     async def search_news(
-        self, query: str, max_results: int = 10, region: str = "us-en", timelimit: str = "m"
+        self, query: str, max_results: int = 10, timelimit: str = "m"
     ) -> Optional[List[Dict]]:
         """
         Search DuckDuckGo News
@@ -158,7 +148,6 @@ class DuckDuckGoSearchTool:
         Args:
             query: Search query
             max_results: Maximum number of results
-            region: Region code
             timelimit: Time filter ('d', 'w', 'm')
 
         Returns:
@@ -172,7 +161,7 @@ class DuckDuckGoSearchTool:
 
             loop = asyncio.get_event_loop()
             results = await loop.run_in_executor(
-                None, self._search_news_sync, query, max_results, region, timelimit
+                None, self._search_news_sync, query, max_results, timelimit
             )
 
             if not results:
@@ -201,13 +190,13 @@ class DuckDuckGoSearchTool:
             return None
 
     def _search_news_sync(
-        self, query: str, max_results: int, region: str, timelimit: str
+        self, query: str, max_results: int, timelimit: str
     ) -> List[Dict]:
         """Synchronous news search (called in executor)"""
         try:
             with self.DDGS(proxy=self.proxy, timeout=10) as ddgs:
                 results = list(
-                    ddgs.news(query, region=region, timelimit=timelimit, max_results=max_results)
+                    ddgs.news(query, timelimit=timelimit, max_results=max_results)
                 )
             return results
         except Exception as e:
@@ -242,8 +231,8 @@ async def search_duckduckgo(
     Returns:
         List of search results
     """
-    effective_region = region or _default_region_for_query(query)
-    cache_key = f"mode={mode}|region={effective_region}|timelimit={timelimit}|q={query}"
+    # Region removed - DuckDuckGo auto-detects from query language
+    cache_key = f"mode={mode}|timelimit={timelimit}|q={query}"
 
     # Check cache first
     if HAS_CACHE:
@@ -257,9 +246,9 @@ async def search_duckduckgo(
 
     # Perform search
     if mode == "news":
-        results = await _ddg_tool.search_news(query, limit, effective_region, timelimit or "m")
+        results = await _ddg_tool.search_news(query, limit, timelimit or "m")
     else:
-        results = await _ddg_tool.search(query, limit, effective_region, timelimit)
+        results = await _ddg_tool.search(query, limit, timelimit)
 
     if not results:
         return []
