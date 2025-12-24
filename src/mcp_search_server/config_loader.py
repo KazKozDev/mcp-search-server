@@ -8,6 +8,8 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
+from mcp_search_server import __version__
+
 logger = logging.getLogger(__name__)
 
 
@@ -47,7 +49,7 @@ def load_search_config() -> dict[str, Any]:
         "enrich": {"default_enabled": False, "top_k": 3, "max_chars": 600},
         "maps": {
             "nominatim_endpoint": "https://nominatim.openstreetmap.org/search",
-            "user_agent": "mcp-search-server/0.1 (+https://localhost)",
+            "user_agent": f"mcp-search-server/{__version__} (+https://localhost)",
         },
         "rss_sources": [],
     }
@@ -142,5 +144,5 @@ def get_maps_config() -> dict[str, str]:
         "nominatim_endpoint": str(
             maps_cfg.get("nominatim_endpoint", "https://nominatim.openstreetmap.org/search")
         ),
-        "user_agent": str(maps_cfg.get("user_agent", "mcp-search-server/0.1")),
+        "user_agent": str(maps_cfg.get("user_agent", f"mcp-search-server/{__version__}")),
     }

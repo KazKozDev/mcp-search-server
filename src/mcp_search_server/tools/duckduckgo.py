@@ -1,32 +1,26 @@
-"""DuckDuckGo search implementation using Selenium for MCP server."""
+"""Enhanced DuckDuckGo search implementation using duckduckgo_search library."""
 
 import asyncio
 import logging
-import time
-import tempfile
-from typing import Dict, List, Optional
-
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import TimeoutException, NoSuchElementException
-from webdriver_manager.chrome import ChromeDriverManager
-
-from ..cache_store import get_cached_json, set_cached_json
-from ..config_loader import (
-    get_cache_ttl_seconds,
-    get_dedupe_enabled,
-    get_normalize_urls_enabled,
-    get_results_max_per_domain,
-    get_title_similarity_threshold,
-)
-from ..result_utils import dedupe_and_limit_results
+from typing import List, Dict, Optional
 
 logger = logging.getLogger(__name__)
+
+# Import cache and config utilities
+try:
+    from ..cache_store import get_cached_json, set_cached_json
+    from ..config_loader import (
+        get_cache_ttl_seconds,
+        get_dedupe_enabled,
+        get_normalize_urls_enabled,
+        get_results_max_per_domain,
+        get_title_similarity_threshold,
+    )
+    from ..result_utils import dedupe_and_limit_results
+    HAS_CACHE = True
+except ImportError:
+    HAS_CACHE = False
+    logger.warning("Cache utilities not available")
 
 
 def _contains_cyrillic(text: str) -> bool:
@@ -39,250 +33,185 @@ def _default_region_for_query(query: str) -> str:
     return "ru-ru" if _contains_cyrillic(query) else "wt-wt"
 
 
-class DuckDuckGoSeleniumSearcher:
-    """Selenium-based DuckDuckGo searcher that avoids blocking."""
+class DuckDuckGoSearchTool:
+    """Enhanced DuckDuckGo search tool with anti-blocking features"""
 
-    def __init__(self, headless: bool = True, timeout: int = 30):
-        """Initialize the Selenium searcher."""
-        self.headless = headless
-        self.timeout = timeout
-        self.driver = None
-        self._temp_dir = tempfile.mkdtemp()
+    def __init__(self, proxy: str = None):
+        """
+        Initialize DuckDuckGo search tool
 
-    def _setup_driver(self) -> webdriver.Chrome:
-        """Set up Chrome WebDriver with anti-detection options."""
-        chrome_options = Options()
-
-        if self.headless:
-            chrome_options.add_argument("--headless")
-
-        # Set window size
-        chrome_options.add_argument("--window-size=1920,1080")
-
-        # Use realistic user agent
-        chrome_options.add_argument(
-            "user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
-        )
-
-        # Additional options for stability and anti-detection
-        chrome_options.add_argument("--disable-dev-shm-usage")
-        chrome_options.add_argument("--no-sandbox")
-        chrome_options.add_argument("--disable-gpu")
-        chrome_options.add_argument("--disable-blink-features=AutomationControlled")
-        chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
-        chrome_options.add_experimental_option("useAutomationExtension", False)
-
-        # Initialize driver
-        driver = webdriver.Chrome(
-            service=Service(ChromeDriverManager().install()), options=chrome_options
-        )
-
-        # Execute CDP commands to prevent detection
-        driver.execute_cdp_cmd(
-            "Page.addScriptToEvaluateOnNewDocument",
-            {"source": "Object.defineProperty(navigator, 'webdriver', {get: () => undefined})"},
-        )
-
-        driver.set_page_load_timeout(self.timeout)
-
-        return driver
-
-    def _extract_search_result(self, element, _position: int) -> Optional[Dict]:
-        """Extract search result from a web element."""
+        Args:
+            proxy: Optional proxy (http/https/socks5)
+        """
         try:
-            # Get full text
-            full_text = element.text
-            if not full_text:
-                return None
+            from ddgs import DDGS
+            self.DDGS = DDGS
+            self.available = True
+        except ImportError:
+            # Try old package name for backwards compatibility
+            try:
+                from duckduckgo_search import DDGS
+                self.DDGS = DDGS
+                self.available = True
+                logger.warning("Using deprecated duckduckgo_search. Please upgrade to ddgs package.")
+            except ImportError:
+                logger.warning("ddgs package not installed. DDG tool disabled.")
+                self.available = False
+                return
 
-            lines = full_text.split("\n")
+        self.proxy = proxy
 
-            # Extract title (usually first line)
-            title = lines[0] if lines else "No title"
+    async def search(self, query: str, max_results: int = 10, region: str = "us-en",
+                     timelimit: str = None, safesearch: str = "moderate") -> Optional[List[Dict]]:
+        """
+        Search DuckDuckGo
 
-            # Extract URL
-            url = None
+        Args:
+            query: Search query
+            max_results: Maximum number of results
+            region: Region code (e.g., 'us-en', 'uk-en', 'ru-ru')
+            timelimit: Time filter ('d' day, 'w' week, 'm' month, 'y' year)
+            safesearch: Safe search level ('on', 'moderate', 'off')
 
-            # Try to find <a> elements with different approaches
-            a_elements = element.find_elements(By.TAG_NAME, "a")
-            for a in a_elements:
-                href = a.get_attribute("href")
-                if href and not href.startswith("javascript") and "duckduckgo.com" not in href:
-                    url = href
-                    break
-
-            # Try specific selectors for links if not found
-            if not url:
-                link_selectors = [
-                    "a.result__a",
-                    "a.result-link",
-                    "a.result__url",
-                    "a[data-testid='result-title-a']",
-                    "a.eVNpHGjtxRBq_gLOfGDr",
-                    "a[data-testid='result-title-link']",
-                ]
-
-                for selector in link_selectors:
-                    try:
-                        link_element = element.find_element(By.CSS_SELECTOR, selector)
-                        href = link_element.get_attribute("href")
-                        if (
-                            href
-                            and not href.startswith("javascript")
-                            and "duckduckgo.com" not in href
-                        ):
-                            url = href
-                            break
-                    except NoSuchElementException:
-                        continue
-
-            # Extract snippet
-            snippet_parts = []
-            import re
-
-            url_pattern = re.compile(r"^(https?://|www\.)")
-
-            for line in lines[1:]:
-                if line and not url_pattern.match(line) and line != title:
-                    # Skip short timestamps or domain names
-                    if not re.match(r"^\d+[hmd]$", line.strip()) and len(line.strip()) > 2:
-                        snippet_parts.append(line)
-
-            snippet = " ".join(snippet_parts) if snippet_parts else "No snippet available"
-
-            if not url:
-                return None
-
-            return {
-                "title": title,
-                "url": url,
-                "snippet": snippet,
-                "source": "duckduckgo_selenium",
-            }
-
-        except Exception as e:
-            logger.debug(f"Error extracting result: {str(e)}")
+        Returns:
+            List of search results or None if error
+        """
+        if not self.available:
+            logger.error("DuckDuckGo tool not available")
             return None
 
-    async def search(
-        self, query: str, limit: int = 10, _region: Optional[str] = None
-    ) -> List[Dict]:
-        """Search DuckDuckGo using Selenium."""
-        start_time = time.time()
-
         try:
-            logger.info(f"Searching DuckDuckGo with Selenium for: {query}")
+            logger.info(f"Searching DuckDuckGo for: {query} (region: {region})")
 
-            # Set up driver if not already done
-            if not self.driver:
-                self.driver = self._setup_driver()
+            # Run in executor to avoid blocking
+            loop = asyncio.get_event_loop()
+            results = await loop.run_in_executor(
+                None,
+                self._search_sync,
+                query,
+                max_results,
+                region,
+                safesearch,
+                timelimit
+            )
 
-            # Navigate to DuckDuckGo
-            self.driver.get("https://duckduckgo.com/")
+            if not results:
+                logger.warning(f"No DuckDuckGo results found for: {query}")
+                return None
 
-            # Find search box
-            search_box = None
-            for selector in ["searchbox_input", "q"]:
-                try:
-                    if selector == "searchbox_input":
-                        search_box = WebDriverWait(self.driver, 10).until(
-                            EC.presence_of_element_located((By.ID, selector))
-                        )
-                    else:
-                        search_box = WebDriverWait(self.driver, 10).until(
-                            EC.presence_of_element_located((By.NAME, selector))
-                        )
-                    break
-                except TimeoutException:
-                    continue
+            # Format results
+            formatted_results = []
+            for result in results:
+                formatted_results.append({
+                    'title': result.get('title', ''),
+                    'url': result.get('href', ''),
+                    'snippet': result.get('body', ''),
+                    'source': 'duckduckgo'
+                })
 
-            if not search_box:
-                raise TimeoutException("Could not find search box")
-
-            # Enter search query
-            search_box.clear()
-            search_box.send_keys(query)
-            search_box.send_keys(Keys.RETURN)
-
-            # Wait for results
-            try:
-                WebDriverWait(self.driver, 10).until(
-                    EC.presence_of_element_located(
-                        (
-                            By.CSS_SELECTOR,
-                            ".react-results--main, .serp__results, article, .result",
-                        )
-                    )
-                )
-            except TimeoutException:
-                logger.warning("Timed out waiting for search results")
-
-            # Scroll to load more results
-            for i in range(3):
-                self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-                await asyncio.sleep(1.5)
-
-            # Scroll back to top
-            self.driver.execute_script("window.scrollTo(0, 0);")
-            await asyncio.sleep(0.5)
-
-            # Extract results
-            results = []
-
-            # Try different selectors
-            result_selectors = [
-                "article",
-                ".result__body",
-                ".nrn-react-div article",
-                ".result",
-                "div[data-testid='result']",
-                ".react-results--main .react-results--result",
-                ".react-results--main article",
-                ".react-results--main .result",
-                ".react-results--main .web-result",
-                ".web-result",
-            ]
-
-            search_elements = []
-            for selector in result_selectors:
-                try:
-                    elements = self.driver.find_elements(By.CSS_SELECTOR, selector)
-                    if elements:
-                        search_elements = elements
-                        logger.debug(f"Found {len(elements)} results with selector: {selector}")
-                        break
-                except Exception:
-                    continue
-
-            # Process results
-            for i, element in enumerate(search_elements[:limit], 1):
-                result = self._extract_search_result(element, i)
-                if result:
-                    results.append(result)
-
-            search_time = time.time() - start_time
-            logger.info(f"Found {len(results)} results in {search_time:.2f}s")
-
-            return results
+            logger.info(f"Found {len(formatted_results)} DuckDuckGo results for: {query}")
+            return formatted_results
 
         except Exception as e:
-            logger.error(f"Search error: {str(e)}")
+            logger.error(f"DuckDuckGo search error for '{query}': {e}")
+            return None
+
+    def _search_sync(self, query: str, max_results: int, region: str,
+                     safesearch: str, timelimit: str = None) -> List[Dict]:
+        """Synchronous search (called in executor)"""
+        try:
+            with self.DDGS(proxy=self.proxy, timeout=10) as ddgs:
+                results = list(ddgs.text(
+                    query,
+                    region=region,
+                    safesearch=safesearch,
+                    timelimit=timelimit,
+                    max_results=max_results
+                ))
+            return results
+        except Exception as e:
+            logger.error(f"DDG sync search error: {e}")
+            # Fallback without region
+            try:
+                with self.DDGS(proxy=self.proxy, timeout=10) as ddgs:
+                    return list(ddgs.text(query, max_results=max_results))
+            except:
+                return []
+
+    async def search_news(self, query: str, max_results: int = 10,
+                          region: str = "us-en", timelimit: str = "m") -> Optional[List[Dict]]:
+        """
+        Search DuckDuckGo News
+
+        Args:
+            query: Search query
+            max_results: Maximum number of results
+            region: Region code
+            timelimit: Time filter ('d', 'w', 'm')
+
+        Returns:
+            List of news results or None if error
+        """
+        if not self.available:
+            return None
+
+        try:
+            logger.info(f"Searching DuckDuckGo News for: {query}")
+
+            loop = asyncio.get_event_loop()
+            results = await loop.run_in_executor(
+                None,
+                self._search_news_sync,
+                query,
+                max_results,
+                region,
+                timelimit
+            )
+
+            if not results:
+                logger.warning(f"No DuckDuckGo news found for: {query}")
+                return None
+
+            # Format results
+            formatted_results = []
+            for result in results:
+                formatted_results.append({
+                    'title': result.get('title', ''),
+                    'url': result.get('url', ''),
+                    'snippet': result.get('body', ''),
+                    'date': result.get('date', ''),
+                    'source_name': result.get('source', ''),
+                    'source': 'duckduckgo_news'
+                })
+
+            logger.info(f"Found {len(formatted_results)} DuckDuckGo news for: {query}")
+            return formatted_results
+
+        except Exception as e:
+            logger.error(f"DuckDuckGo news search error for '{query}': {e}")
+            return None
+
+    def _search_news_sync(self, query: str, max_results: int, region: str, timelimit: str) -> List[Dict]:
+        """Synchronous news search (called in executor)"""
+        try:
+            with self.DDGS(proxy=self.proxy, timeout=10) as ddgs:
+                results = list(ddgs.news(
+                    query,
+                    region=region,
+                    timelimit=timelimit,
+                    max_results=max_results
+                ))
+            return results
+        except Exception as e:
+            logger.error(f"DDG news sync search error: {e}")
             return []
 
-    def close(self):
-        """Close the browser and clean up resources."""
-        try:
-            if self.driver:
-                self.driver.quit()
-        except Exception as e:
-            logger.warning(f"Error closing WebDriver: {e}")
-        self.driver = None
 
-    def __del__(self):
-        """Cleanup on deletion."""
-        self.close()
+# Global instance
+_ddg_tool = DuckDuckGoSearchTool()
 
 
+# Main search function with caching
 async def search_duckduckgo(
     query: str,
     limit: int = 10,
@@ -292,12 +221,12 @@ async def search_duckduckgo(
     no_cache: bool = False,
 ) -> List[Dict]:
     """
-    Search DuckDuckGo using Selenium.
+    Search DuckDuckGo with caching support.
 
     Args:
         query: Search query
         limit: Maximum number of results
-        timelimit: Time limit filter (currently not supported with Selenium)
+        timelimit: Time limit filter ('d', 'w', 'm', 'y')
         mode: Search mode (web or news)
         region: Region for search
         no_cache: Disable caching
@@ -309,32 +238,35 @@ async def search_duckduckgo(
     cache_key = f"mode={mode}|region={effective_region}|timelimit={timelimit}|q={query}"
 
     # Check cache first
-    cache_kind = "news" if mode == "news" else "web"
-    cached_results = get_cached_json(
-        cache_key, get_cache_ttl_seconds(cache_kind), no_cache=no_cache
-    )
-    if cached_results is not None:
-        logger.info(f"Using cached results for '{cache_key}'")
-        return cached_results[:limit]
+    if HAS_CACHE:
+        cache_kind = "news" if mode == "news" else "web"
+        cached_results = get_cached_json(
+            cache_key, get_cache_ttl_seconds(cache_kind), no_cache=no_cache
+        )
+        if cached_results is not None:
+            logger.info(f"Using cached results for '{cache_key}'")
+            return cached_results[:limit]
 
-    # Create searcher and perform search
-    searcher = DuckDuckGoSeleniumSearcher(headless=True, timeout=30)
-    try:
-        results = await searcher.search(query, limit, effective_region)
+    # Perform search
+    if mode == "news":
+        results = await _ddg_tool.search_news(query, limit, effective_region, timelimit or "m")
+    else:
+        results = await _ddg_tool.search(query, limit, effective_region, timelimit)
 
-        # Apply deduplication if enabled
-        if get_dedupe_enabled():
-            results = dedupe_and_limit_results(
-                results,
-                max_per_domain=get_results_max_per_domain(),
-                similarity_threshold=get_title_similarity_threshold(),
-                normalize_urls=get_normalize_urls_enabled(),
-            )
+    if not results:
+        return []
 
-        # Cache results
+    # Apply deduplication if enabled
+    if HAS_CACHE and get_dedupe_enabled():
+        results = dedupe_and_limit_results(
+            results,
+            max_per_domain=get_results_max_per_domain(),
+            similarity_threshold=get_title_similarity_threshold(),
+            normalize_urls=get_normalize_urls_enabled(),
+        )
+
+    # Cache results
+    if HAS_CACHE:
         set_cached_json(cache_key, results, no_cache=no_cache)
 
-        return results[:limit]
-
-    finally:
-        searcher.close()
+    return results[:limit]

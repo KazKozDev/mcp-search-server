@@ -23,13 +23,19 @@ All tools work out of the box using free public APIs. **No API keys required. No
 
 ## Features
 
-- **DateTime Tool**: Get current date and time with timezone awareness 
-- **Geolocation**: IP-based location detection with timezone, coordinates, and ISP info 
+- **DateTime Tool**: Get current date and time with timezone awareness
+- **Geolocation**: IP-based location detection with timezone, coordinates, and ISP info
 - **Web Search**: Search the web using DuckDuckGo
 - **Wikipedia Search**: Search and retrieve Wikipedia articles
 - **Web Content Extraction**: Extract clean text from web pages using multiple parsing methods
 - **PDF Parsing**: Extract text from PDF files
 - **Multi-Source Search**: Parallel search across multiple sources
+- **Academic Search**: Search arXiv, PubMed for scientific papers
+- **GitHub Search**: Find repositories and README files
+- **Reddit Search**: Search posts and comments
+- **News Search**: GDELT global news database
+- **🆕 Credibility Assessment**: Bayesian source credibility scoring with 30+ signals, domain age (WHOIS), citation network (PageRank), and uncertainty quantification - **no API keys required**
+- **🆕 Text Summarization**: Multi-strategy summarization (TF-IDF extractive, keyword-based, heuristic) - fast, accurate, **no API keys required**
 
 ## Installation
 
@@ -307,6 +313,101 @@ Get geolocation information based on IP address. Returns country, city, timezone
 - Location-based content customization
 - Network diagnostics and IP analysis
 - Geographic data for analytics
+
+### 10. assess_source_credibility 🆕
+
+Assess the credibility of web sources using advanced Bayesian analysis with 30+ signals.
+
+**Parameters:**
+- `url` (string, required): URL to assess
+- `title` (string, optional): Document title
+- `content` (string, optional): Full text content (improves accuracy)
+- `metadata` (object, optional): Structured metadata (year, authors, citations, doi, is_peer_reviewed)
+
+**Example:**
+```json
+{
+  "url": "https://arxiv.org/abs/2301.00234",
+  "title": "Deep Learning for Medical Imaging",
+  "metadata": {
+    "year": 2023,
+    "is_peer_reviewed": true,
+    "citations": 42
+  }
+}
+```
+
+**Returns:**
+- Credibility score (0-1)
+- Confidence interval (e.g., 0.75 ± 0.08)
+- Category (academic, news, code, forum, blog, government)
+- PageRank score from citation network
+- 30+ individual signal scores
+- Recommendation (✓✓ Excellent / ✓ Good / ⚠ Caution / ✗ Limited)
+
+**Features:**
+- **Real Domain Age**: WHOIS-based domain registration date checking
+- **Citation Network**: PageRank algorithm for link analysis
+- **Bayesian Inference**: Prior probabilities + likelihood + posterior
+- **30+ Signals**: Domain reputation, content quality, metadata analysis
+- **Uncertainty Quantification**: Confidence intervals based on evidence
+- **No API Keys Required**: All analysis runs locally
+
+**Optional Enhancement:**
+Install WHOIS support for real domain age checking:
+```bash
+pip install mcp-search-server[credibility]
+```
+
+**Documentation:**
+See [docs/CREDIBILITY_ASSESSMENT.md](docs/CREDIBILITY_ASSESSMENT.md) for detailed usage, examples, and technical details.
+
+### 11. summarize_text 🆕
+
+Summarize long text using multiple strategies (TF-IDF, keyword-based, or heuristic).
+
+**Parameters:**
+- `text` (string, required): Text to summarize
+- `strategy` (string, optional): "auto" (default), "extractive_tfidf", "extractive_keyword", "heuristic"
+- `compression_ratio` (number, optional): Target compression 0.1-0.9 (default: 0.3 = 30%)
+
+**Example:**
+```json
+{
+  "text": "Long article text here...",
+  "strategy": "extractive_tfidf",
+  "compression_ratio": 0.3
+}
+```
+
+**Returns:**
+- Summary text
+- Method used (extractive-tfidf, extractive-keyword, heuristic-3sent)
+- Statistics (original/summary length, compression ratio, sentences)
+
+**Strategies:**
+- **extractive_tfidf** (best): Uses TF-IDF scoring to select important sentences. Requires NLTK.
+- **extractive_keyword**: Prioritizes sentences with entities and key terms. Requires NLTK.
+- **heuristic**: Ultra-fast fallback (first + middle + last sentences). No dependencies.
+- **auto**: Automatically picks best available strategy.
+
+**Features:**
+- **Fast**: ~50ms for typical article (with NLTK), ~5ms (heuristic)
+- **No API Keys**: All processing local
+- **Smart Selection**: Maintains original sentence order
+- **Graceful Degradation**: Falls back if NLTK unavailable
+
+**Optional Enhancement:**
+Install NLTK for better quality:
+```bash
+pip install mcp-search-server[summarizer]
+```
+
+**Use Cases:**
+- Summarize web articles before credibility assessment
+- Condense research papers for quick review
+- Extract key points from long documents
+- Generate previews for search results
 
 ## Development
 
