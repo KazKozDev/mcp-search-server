@@ -17,6 +17,7 @@ try:
         get_title_similarity_threshold,
     )
     from ..result_utils import dedupe_and_limit_results
+
     HAS_CACHE = True
 except ImportError:
     HAS_CACHE = False
@@ -45,15 +46,19 @@ class DuckDuckGoSearchTool:
         """
         try:
             from ddgs import DDGS
+
             self.DDGS = DDGS
             self.available = True
         except ImportError:
             # Try old package name for backwards compatibility
             try:
                 from duckduckgo_search import DDGS
+
                 self.DDGS = DDGS
                 self.available = True
-                logger.warning("Using deprecated duckduckgo_search. Please upgrade to ddgs package.")
+                logger.warning(
+                    "Using deprecated duckduckgo_search. Please upgrade to ddgs package."
+                )
             except ImportError:
                 logger.warning("ddgs package not installed. DDG tool disabled.")
                 self.available = False
@@ -61,8 +66,14 @@ class DuckDuckGoSearchTool:
 
         self.proxy = proxy
 
-    async def search(self, query: str, max_results: int = 10, region: str = "us-en",
-                     timelimit: str = None, safesearch: str = "moderate") -> Optional[List[Dict]]:
+    async def search(
+        self,
+        query: str,
+        max_results: int = 10,
+        region: str = "us-en",
+        timelimit: str = None,
+        safesearch: str = "moderate",
+    ) -> Optional[List[Dict]]:
         """
         Search DuckDuckGo
 
@@ -86,13 +97,7 @@ class DuckDuckGoSearchTool:
             # Run in executor to avoid blocking
             loop = asyncio.get_event_loop()
             results = await loop.run_in_executor(
-                None,
-                self._search_sync,
-                query,
-                max_results,
-                region,
-                safesearch,
-                timelimit
+                None, self._search_sync, query, max_results, region, safesearch, timelimit
             )
 
             if not results:
@@ -102,12 +107,14 @@ class DuckDuckGoSearchTool:
             # Format results
             formatted_results = []
             for result in results:
-                formatted_results.append({
-                    'title': result.get('title', ''),
-                    'url': result.get('href', ''),
-                    'snippet': result.get('body', ''),
-                    'source': 'duckduckgo'
-                })
+                formatted_results.append(
+                    {
+                        "title": result.get("title", ""),
+                        "url": result.get("href", ""),
+                        "snippet": result.get("body", ""),
+                        "source": "duckduckgo",
+                    }
+                )
 
             logger.info(f"Found {len(formatted_results)} DuckDuckGo results for: {query}")
             return formatted_results
@@ -116,18 +123,21 @@ class DuckDuckGoSearchTool:
             logger.error(f"DuckDuckGo search error for '{query}': {e}")
             return None
 
-    def _search_sync(self, query: str, max_results: int, region: str,
-                     safesearch: str, timelimit: str = None) -> List[Dict]:
+    def _search_sync(
+        self, query: str, max_results: int, region: str, safesearch: str, timelimit: str = None
+    ) -> List[Dict]:
         """Synchronous search (called in executor)"""
         try:
             with self.DDGS(proxy=self.proxy, timeout=10) as ddgs:
-                results = list(ddgs.text(
-                    query,
-                    region=region,
-                    safesearch=safesearch,
-                    timelimit=timelimit,
-                    max_results=max_results
-                ))
+                results = list(
+                    ddgs.text(
+                        query,
+                        region=region,
+                        safesearch=safesearch,
+                        timelimit=timelimit,
+                        max_results=max_results,
+                    )
+                )
             return results
         except Exception as e:
             logger.error(f"DDG sync search error: {e}")
@@ -138,8 +148,9 @@ class DuckDuckGoSearchTool:
             except Exception:
                 return []
 
-    async def search_news(self, query: str, max_results: int = 10,
-                          region: str = "us-en", timelimit: str = "m") -> Optional[List[Dict]]:
+    async def search_news(
+        self, query: str, max_results: int = 10, region: str = "us-en", timelimit: str = "m"
+    ) -> Optional[List[Dict]]:
         """
         Search DuckDuckGo News
 
@@ -160,12 +171,7 @@ class DuckDuckGoSearchTool:
 
             loop = asyncio.get_event_loop()
             results = await loop.run_in_executor(
-                None,
-                self._search_news_sync,
-                query,
-                max_results,
-                region,
-                timelimit
+                None, self._search_news_sync, query, max_results, region, timelimit
             )
 
             if not results:
@@ -175,14 +181,16 @@ class DuckDuckGoSearchTool:
             # Format results
             formatted_results = []
             for result in results:
-                formatted_results.append({
-                    'title': result.get('title', ''),
-                    'url': result.get('url', ''),
-                    'snippet': result.get('body', ''),
-                    'date': result.get('date', ''),
-                    'source_name': result.get('source', ''),
-                    'source': 'duckduckgo_news'
-                })
+                formatted_results.append(
+                    {
+                        "title": result.get("title", ""),
+                        "url": result.get("url", ""),
+                        "snippet": result.get("body", ""),
+                        "date": result.get("date", ""),
+                        "source_name": result.get("source", ""),
+                        "source": "duckduckgo_news",
+                    }
+                )
 
             logger.info(f"Found {len(formatted_results)} DuckDuckGo news for: {query}")
             return formatted_results
@@ -191,16 +199,15 @@ class DuckDuckGoSearchTool:
             logger.error(f"DuckDuckGo news search error for '{query}': {e}")
             return None
 
-    def _search_news_sync(self, query: str, max_results: int, region: str, timelimit: str) -> List[Dict]:
+    def _search_news_sync(
+        self, query: str, max_results: int, region: str, timelimit: str
+    ) -> List[Dict]:
         """Synchronous news search (called in executor)"""
         try:
             with self.DDGS(proxy=self.proxy, timeout=10) as ddgs:
-                results = list(ddgs.news(
-                    query,
-                    region=region,
-                    timelimit=timelimit,
-                    max_results=max_results
-                ))
+                results = list(
+                    ddgs.news(query, region=region, timelimit=timelimit, max_results=max_results)
+                )
             return results
         except Exception as e:
             logger.error(f"DDG news sync search error: {e}")

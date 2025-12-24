@@ -203,9 +203,19 @@ async def list_tools() -> list[Tool]:
             inputSchema={
                 "type": "object",
                 "properties": {
-                    "query": {"type": "string", "description": "Search query (supports arXiv query syntax)"},
-                    "max_results": {"type": "integer", "description": "Maximum number of results (default: 10)", "default": 10},
-                    "category": {"type": "string", "description": "Optional arXiv category filter (e.g., 'cs.AI', 'cs.LG')"},
+                    "query": {
+                        "type": "string",
+                        "description": "Search query (supports arXiv query syntax)",
+                    },
+                    "max_results": {
+                        "type": "integer",
+                        "description": "Maximum number of results (default: 10)",
+                        "default": 10,
+                    },
+                    "category": {
+                        "type": "string",
+                        "description": "Optional arXiv category filter (e.g., 'cs.AI', 'cs.LG')",
+                    },
                 },
                 "required": ["query"],
             },
@@ -216,9 +226,20 @@ async def list_tools() -> list[Tool]:
             inputSchema={
                 "type": "object",
                 "properties": {
-                    "query": {"type": "string", "description": "Search query (e.g., 'LLM agents language:python')"},
-                    "sort": {"type": "string", "description": "Sort by: 'stars', 'forks', or 'updated' (default: 'stars')", "default": "stars"},
-                    "max_results": {"type": "integer", "description": "Maximum number of results (default: 5)", "default": 5},
+                    "query": {
+                        "type": "string",
+                        "description": "Search query (e.g., 'LLM agents language:python')",
+                    },
+                    "sort": {
+                        "type": "string",
+                        "description": "Sort by: 'stars', 'forks', or 'updated' (default: 'stars')",
+                        "default": "stars",
+                    },
+                    "max_results": {
+                        "type": "integer",
+                        "description": "Maximum number of results (default: 5)",
+                        "default": 5,
+                    },
                 },
                 "required": ["query"],
             },
@@ -229,7 +250,10 @@ async def list_tools() -> list[Tool]:
             inputSchema={
                 "type": "object",
                 "properties": {
-                    "repo": {"type": "string", "description": "Repository in format 'owner/repo' (e.g., 'openai/gpt-4')"},
+                    "repo": {
+                        "type": "string",
+                        "description": "Repository in format 'owner/repo' (e.g., 'openai/gpt-4')",
+                    },
                 },
                 "required": ["repo"],
             },
@@ -241,9 +265,20 @@ async def list_tools() -> list[Tool]:
                 "type": "object",
                 "properties": {
                     "query": {"type": "string", "description": "Search query"},
-                    "subreddit": {"type": "string", "description": "Optional subreddit to search in (e.g., 'LocalLLaMA')"},
-                    "limit": {"type": "integer", "description": "Maximum number of results (default: 10)", "default": 10},
-                    "time_filter": {"type": "string", "description": "Time filter: 'hour', 'day', 'week', 'month', 'year', 'all' (default: 'all')", "default": "all"},
+                    "subreddit": {
+                        "type": "string",
+                        "description": "Optional subreddit to search in (e.g., 'LocalLLaMA')",
+                    },
+                    "limit": {
+                        "type": "integer",
+                        "description": "Maximum number of results (default: 10)",
+                        "default": 10,
+                    },
+                    "time_filter": {
+                        "type": "string",
+                        "description": "Time filter: 'hour', 'day', 'week', 'month', 'year', 'all' (default: 'all')",
+                        "default": "all",
+                    },
                 },
                 "required": ["query"],
             },
@@ -255,7 +290,11 @@ async def list_tools() -> list[Tool]:
                 "type": "object",
                 "properties": {
                     "url": {"type": "string", "description": "Reddit post URL"},
-                    "limit": {"type": "integer", "description": "Maximum number of comments (default: 10)", "default": 10},
+                    "limit": {
+                        "type": "integer",
+                        "description": "Maximum number of comments (default: 10)",
+                        "default": 10,
+                    },
                 },
                 "required": ["url"],
             },
@@ -266,8 +305,15 @@ async def list_tools() -> list[Tool]:
             inputSchema={
                 "type": "object",
                 "properties": {
-                    "query": {"type": "string", "description": "Search query (e.g., 'machine learning in medicine')"},
-                    "max_results": {"type": "integer", "description": "Maximum number of results (default: 10)", "default": 10},
+                    "query": {
+                        "type": "string",
+                        "description": "Search query (e.g., 'machine learning in medicine')",
+                    },
+                    "max_results": {
+                        "type": "integer",
+                        "description": "Maximum number of results (default: 10)",
+                        "default": 10,
+                    },
                 },
                 "required": ["query"],
             },
@@ -279,8 +325,16 @@ async def list_tools() -> list[Tool]:
                 "type": "object",
                 "properties": {
                     "query": {"type": "string", "description": "Search query (news keyword)"},
-                    "timespan": {"type": "string", "description": "Time span: '1d', '7d', '1m' (default: '1d')", "default": "1d"},
-                    "max_results": {"type": "integer", "description": "Maximum number of results (default: 10)", "default": 10},
+                    "timespan": {
+                        "type": "string",
+                        "description": "Time span: '1d', '7d', '1m' (default: '1d')",
+                        "default": "1d",
+                    },
+                    "max_results": {
+                        "type": "integer",
+                        "description": "Maximum number of results (default: 10)",
+                        "default": 10,
+                    },
                 },
                 "required": ["query"],
             },
@@ -292,7 +346,11 @@ async def list_tools() -> list[Tool]:
                 "type": "object",
                 "properties": {
                     "title": {"type": "string", "description": "Wikipedia article title"},
-                    "lang": {"type": "string", "description": "Language code (default: 'en')", "default": "en"},
+                    "lang": {
+                        "type": "string",
+                        "description": "Language code (default: 'en')",
+                        "default": "en",
+                    },
                 },
                 "required": ["title"],
             },
@@ -305,7 +363,10 @@ async def list_tools() -> list[Tool]:
                 "properties": {
                     "url": {"type": "string", "description": "URL to assess"},
                     "title": {"type": "string", "description": "Document title (optional)"},
-                    "content": {"type": "string", "description": "Full text content (optional, improves accuracy)"},
+                    "content": {
+                        "type": "string",
+                        "description": "Full text content (optional, improves accuracy)",
+                    },
                     "metadata": {
                         "type": "object",
                         "description": "Structured metadata (optional): year, authors, citations, doi, is_peer_reviewed",
@@ -332,14 +393,14 @@ async def list_tools() -> list[Tool]:
                         "type": "string",
                         "description": "Summarization strategy: 'auto' (default), 'extractive_tfidf', 'extractive_keyword', 'heuristic'",
                         "enum": ["auto", "extractive_tfidf", "extractive_keyword", "heuristic"],
-                        "default": "auto"
+                        "default": "auto",
                     },
                     "compression_ratio": {
                         "type": "number",
                         "description": "Target compression ratio 0-1 (default: 0.3 = 30% of original)",
                         "minimum": 0.1,
                         "maximum": 0.9,
-                        "default": 0.3
+                        "default": 0.3,
                     },
                 },
                 "required": ["text"],
@@ -608,9 +669,9 @@ async def call_tool(
                 formatted_results += f"**Published:** {paper.get('published', 'N/A')}\n"
                 formatted_results += f"**Category:** {paper.get('primary_category', 'N/A')}\n"
                 formatted_results += f"**arXiv ID:** {paper.get('id', 'N/A')}\n"
-                if paper.get('pdf_url'):
+                if paper.get("pdf_url"):
                     formatted_results += f"**PDF:** {paper['pdf_url']}\n"
-                if paper.get('abs_url'):
+                if paper.get("abs_url"):
                     formatted_results += f"**URL:** {paper['abs_url']}\n"
                 formatted_results += f"\n**Abstract:** {paper.get('abstract', 'No abstract')}\n\n"
 
@@ -633,7 +694,9 @@ async def call_tool(
             formatted_results = "# GitHub Search Results\n\n"
             for i, repo in enumerate(results, 1):
                 formatted_results += f"## {i}. {repo.get('full_name', 'No name')}\n"
-                formatted_results += f"**Description:** {repo.get('description', 'No description')}\n"
+                formatted_results += (
+                    f"**Description:** {repo.get('description', 'No description')}\n"
+                )
                 formatted_results += f"**URL:** {repo.get('url', 'N/A')}\n"
                 formatted_results += f"**Stars:** ⭐ {repo.get('stars', 0)}\n"
                 formatted_results += f"**Language:** {repo.get('language', 'N/A')}\n"
@@ -679,7 +742,7 @@ async def call_tool(
                 formatted_results += f"**Score:** {post.get('score', 0)} | **Comments:** {post.get('num_comments', 0)}\n"
                 formatted_results += f"**URL:** {post.get('url', 'N/A')}\n"
                 formatted_results += f"**Date:** {post.get('created_utc', 'N/A')}\n"
-                if post.get('text'):
+                if post.get("text"):
                     formatted_results += f"\n**Text:** {post['text']}\n"
                 formatted_results += "\n"
 
@@ -696,7 +759,9 @@ async def call_tool(
             results = await get_reddit_comments(url, limit)
 
             if not results:
-                return [TextContent(type="text", text="No comments found or error fetching comments")]
+                return [
+                    TextContent(type="text", text="No comments found or error fetching comments")
+                ]
 
             formatted_results = f"# Reddit Comments\n\n**Post:** {url}\n\n"
             for i, comment in enumerate(results, 1):
@@ -729,7 +794,7 @@ async def call_tool(
                 formatted_results += f"**Published:** {article.get('pub_date', 'N/A')}\n"
                 formatted_results += f"**PMID:** {article.get('pmid', 'N/A')}\n"
                 formatted_results += f"**URL:** {article.get('url', 'N/A')}\n"
-                if article.get('doi'):
+                if article.get("doi"):
                     formatted_results += f"**DOI:** {article['doi']}\n"
                 formatted_results += f"\n**Abstract:** {article.get('abstract', 'No abstract')}\n\n"
 
@@ -786,10 +851,14 @@ async def call_tool(
 
             formatted_output += "## Signal Analysis\n\n"
             formatted_output += f"**Prior:** {result['prior']} (category baseline)\n"
-            formatted_output += f"**Likelihood Ratio:** {result['likelihood_ratio']} (evidence strength)\n\n"
+            formatted_output += (
+                f"**Likelihood Ratio:** {result['likelihood_ratio']} (evidence strength)\n\n"
+            )
 
             formatted_output += "### Key Signals (top 10)\n\n"
-            sorted_signals = sorted(result['signals'].items(), key=lambda x: x[1], reverse=True)[:10]
+            sorted_signals = sorted(result["signals"].items(), key=lambda x: x[1], reverse=True)[
+                :10
+            ]
             for signal, value in sorted_signals:
                 bar = "█" * int(value * 20)
                 formatted_output += f"- **{signal}:** {value:.3f} {bar}\n"
@@ -814,9 +883,9 @@ async def call_tool(
             formatted_output = "# Text Summary\n\n"
             formatted_output += f"**Method:** {result['method']}\n"
 
-            if 'stats' in result:
+            if "stats" in result:
                 formatted_output += "**Statistics:**\n"
-                for key, value in result['stats'].items():
+                for key, value in result["stats"].items():
                     formatted_output += f"- {key}: {value}\n"
 
             formatted_output += f"\n## Summary\n\n{result['summary']}\n"
@@ -840,13 +909,13 @@ async def call_tool(
             formatted_result += f"**URL:** {result.get('url', 'N/A')}\n\n"
 
             # Add sections
-            for section in result.get('sections', []):
+            for section in result.get("sections", []):
                 formatted_result += f"## {section.get('title', 'Section')}\n\n"
-                for content in section.get('content', []):
+                for content in section.get("content", []):
                     formatted_result += f"{content}\n\n"
 
             # Add related articles
-            related = result.get('related', [])
+            related = result.get("related", [])
             if related:
                 formatted_result += "\n## Related Articles\n\n"
                 for article in related[:10]:

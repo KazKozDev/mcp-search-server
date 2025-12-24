@@ -13,19 +13,22 @@ logger = logging.getLogger(__name__)
 class WikipediaSearchTool:
     """Enhanced Wikipedia search and content retrieval tool"""
 
-    def __init__(self, default_lang: str = 'en'):
+    def __init__(self, default_lang: str = "en"):
         try:
             from mcp_search_server import __version__
-            user_agent = f"mcp-search-server/{__version__} (+https://github.com/KazKozDev/mcp-search-server)"
+
+            user_agent = (
+                f"mcp-search-server/{__version__} (+https://github.com/KazKozDev/mcp-search-server)"
+            )
         except Exception:
-            user_agent = 'MCP-Search-Server/1.0'
+            user_agent = "MCP-Search-Server/1.0"
 
         self.default_lang = default_lang
-        self.headers = {
-            'User-Agent': user_agent
-        }
+        self.headers = {"User-Agent": user_agent}
 
-    async def search(self, query: str, lang: str = None, max_results: int = 5) -> Optional[List[Dict]]:
+    async def search(
+        self, query: str, lang: str = None, max_results: int = 5
+    ) -> Optional[List[Dict]]:
         """
         Search Wikipedia articles with extracts (filters out disambiguation pages)
 
@@ -41,28 +44,30 @@ class WikipediaSearchTool:
         search_url = f"https://{lang}.wikipedia.org/w/api.php"
 
         params = {
-            'action': 'query',
-            'generator': 'search',
-            'gsrsearch': query,
-            'gsrlimit': max_results * 2,  # Request more to filter out disambiguation
-            'prop': 'extracts|info|categories',
-            'exintro': '1',
-            'explaintext': '1',
-            'exsentences': 4,
-            'inprop': 'url',
-            'cllimit': 10,
-            'format': 'json'
+            "action": "query",
+            "generator": "search",
+            "gsrsearch": query,
+            "gsrlimit": max_results * 2,  # Request more to filter out disambiguation
+            "prop": "extracts|info|categories",
+            "exintro": "1",
+            "explaintext": "1",
+            "exsentences": 4,
+            "inprop": "url",
+            "cllimit": 10,
+            "format": "json",
         }
 
         try:
             logger.info(f"Searching Wikipedia for: {query} (lang: {lang})")
 
             async with aiohttp.ClientSession() as session:
-                async with session.get(search_url, params=params, headers=self.headers, timeout=10) as response:
+                async with session.get(
+                    search_url, params=params, headers=self.headers, timeout=10
+                ) as response:
                     response.raise_for_status()
                     data = await response.json()
 
-            pages = data.get('query', {}).get('pages', {})
+            pages = data.get("query", {}).get("pages", {})
             if not pages:
                 logger.warning(f"No Wikipedia results found for: {query}")
                 return None
@@ -73,20 +78,22 @@ class WikipediaSearchTool:
                 if self._is_disambiguation(page):
                     continue
 
-                extract = page.get('extract', '').strip()
-                extract = ' '.join(extract.split())  # Normalize whitespace
+                extract = page.get("extract", "").strip()
+                extract = " ".join(extract.split())  # Normalize whitespace
 
-                results.append({
-                    'title': page.get('title', ''),
-                    'extract': extract if extract else 'No description available',
-                    'snippet': extract[:200] + '...' if len(extract) > 200 else extract,
-                    'url': page.get('fullurl', ''),
-                    'pageid': page.get('pageid', 0),
-                    'source': 'wikipedia'
-                })
+                results.append(
+                    {
+                        "title": page.get("title", ""),
+                        "extract": extract if extract else "No description available",
+                        "snippet": extract[:200] + "..." if len(extract) > 200 else extract,
+                        "url": page.get("fullurl", ""),
+                        "pageid": page.get("pageid", 0),
+                        "source": "wikipedia",
+                    }
+                )
 
             # Sort by title and limit results
-            results = sorted(results, key=lambda x: x['title'])[:max_results]
+            results = sorted(results, key=lambda x: x["title"])[:max_results]
             logger.info(f"Found {len(results)} Wikipedia articles for: {query}")
             return results if results else None
 
@@ -116,10 +123,10 @@ class WikipediaSearchTool:
                     response.raise_for_status()
                     html = await response.text()
 
-            soup = BeautifulSoup(html, 'html.parser')
+            soup = BeautifulSoup(html, "html.parser")
 
             # Get title
-            header = soup.find('h1', {'id': 'firstHeading'})
+            header = soup.find("h1", {"id": "firstHeading"})
             title_text = header.get_text() if header else title
 
             # Parse content
@@ -129,11 +136,11 @@ class WikipediaSearchTool:
             related = await self._get_related_articles(title, lang)
 
             result = {
-                'title': title_text,
-                'url': url,
-                'sections': sections,
-                'related': related,
-                'source': 'wikipedia'
+                "title": title_text,
+                "url": url,
+                "sections": sections,
+                "related": related,
+                "source": "wikipedia",
             }
 
             logger.info(f"Successfully fetched article: {title} ({len(sections)} sections)")
@@ -175,7 +182,9 @@ class WikipediaSearchTool:
             else:
                 raise ValueError(f"No Wikipedia article found for '{title}'")
 
-    async def _get_page_extract(self, title: str, lang: str, intro_only: bool = False) -> Dict[str, Any]:
+    async def _get_page_extract(
+        self, title: str, lang: str, intro_only: bool = False
+    ) -> Dict[str, Any]:
         """Get the extract (text content) of a Wikipedia page"""
         api_url = f"https://{lang}.wikipedia.org/w/api.php"
 
@@ -196,7 +205,9 @@ class WikipediaSearchTool:
         }
 
         async with aiohttp.ClientSession() as session:
-            async with session.get(api_url, params=params, headers=self.headers, timeout=10) as response:
+            async with session.get(
+                api_url, params=params, headers=self.headers, timeout=10
+            ) as response:
                 response.raise_for_status()
                 data = await response.json()
 
@@ -269,7 +280,9 @@ class WikipediaSearchTool:
         }
 
         async with aiohttp.ClientSession() as session:
-            async with session.get(api_url, params=params, headers=self.headers, timeout=10) as response:
+            async with session.get(
+                api_url, params=params, headers=self.headers, timeout=10
+            ) as response:
                 response.raise_for_status()
                 data = await response.json()
 
@@ -299,61 +312,61 @@ class WikipediaSearchTool:
     def _is_disambiguation(self, page: Dict) -> bool:
         """Check if page is a disambiguation page"""
         # Check categories
-        categories = page.get('categories', [])
+        categories = page.get("categories", [])
         for cat in categories:
-            cat_title = cat.get('title', '').lower()
-            if 'disambig' in cat_title or 'disambiguation' in cat_title:
+            cat_title = cat.get("title", "").lower()
+            if "disambig" in cat_title or "disambiguation" in cat_title:
                 return True
 
         # Check extract text
-        extract = page.get('extract', '').lower()
+        extract = page.get("extract", "").lower()
         disambiguation_markers = [
-            'may refer to:',
-            'may stand for:',
-            'can refer to:',
-            'disambiguation page'
+            "may refer to:",
+            "may stand for:",
+            "can refer to:",
+            "disambiguation page",
         ]
         return any(marker in extract for marker in disambiguation_markers)
 
     def _parse_content(self, soup) -> List[Dict]:
         """Parse article content into sections"""
-        content_div = soup.find('div', {'id': 'mw-content-text'})
+        content_div = soup.find("div", {"id": "mw-content-text"})
         if not content_div:
             return []
 
         # Remove unwanted elements
-        for tag in content_div.find_all(['table', 'script', 'style', 'sup']):
+        for tag in content_div.find_all(["table", "script", "style", "sup"]):
             tag.decompose()
 
         sections = []
-        current_section = {'title': 'Introduction', 'content': []}
+        current_section = {"title": "Introduction", "content": []}
 
-        for element in content_div.find_all(['p', 'h2', 'h3', 'ul', 'ol']):
-            if element.name == 'h2':
-                if current_section['content']:
+        for element in content_div.find_all(["p", "h2", "h3", "ul", "ol"]):
+            if element.name == "h2":
+                if current_section["content"]:
                     sections.append(current_section)
 
-                span = element.find('span', {'class': 'mw-headline'})
+                span = element.find("span", {"class": "mw-headline"})
                 section_title = span.get_text() if span else element.get_text()
-                current_section = {'title': section_title.strip(), 'content': []}
+                current_section = {"title": section_title.strip(), "content": []}
 
-            elif element.name == 'h3':
-                span = element.find('span', {'class': 'mw-headline'})
+            elif element.name == "h3":
+                span = element.find("span", {"class": "mw-headline"})
                 if span:
-                    current_section['content'].append(f"\n{span.get_text()}\n")
+                    current_section["content"].append(f"\n{span.get_text()}\n")
 
-            elif element.name == 'p':
+            elif element.name == "p":
                 text = element.get_text().strip()
                 if text and len(text) > 30:
-                    current_section['content'].append(text)
+                    current_section["content"].append(text)
 
-            elif element.name in ['ul', 'ol']:
-                for li in element.find_all('li', recursive=False):
+            elif element.name in ["ul", "ol"]:
+                for li in element.find_all("li", recursive=False):
                     text = li.get_text().strip()
                     if text:
-                        current_section['content'].append(f"• {text[:300]}")
+                        current_section["content"].append(f"• {text[:300]}")
 
-        if current_section['content']:
+        if current_section["content"]:
             sections.append(current_section)
 
         return sections
@@ -363,28 +376,30 @@ class WikipediaSearchTool:
         api_url = f"https://{lang}.wikipedia.org/w/api.php"
 
         params = {
-            'action': 'query',
-            'titles': title,
-            'prop': 'links',
-            'pllimit': 30,
-            'plnamespace': 0,
-            'format': 'json'
+            "action": "query",
+            "titles": title,
+            "prop": "links",
+            "pllimit": 30,
+            "plnamespace": 0,
+            "format": "json",
         }
 
         try:
             async with aiohttp.ClientSession() as session:
-                async with session.get(api_url, params=params, headers=self.headers, timeout=10) as response:
+                async with session.get(
+                    api_url, params=params, headers=self.headers, timeout=10
+                ) as response:
                     response.raise_for_status()
                     data = await response.json()
 
-            pages = data.get('query', {}).get('pages', {})
+            pages = data.get("query", {}).get("pages", {})
             links = []
 
             for page_id, page in pages.items():
-                for link in page.get('links', []):
-                    link_title = link.get('title', '')
+                for link in page.get("links", []):
+                    link_title = link.get("title", "")
                     # Filter out service pages
-                    if ':' not in link_title and len(link_title) > 2:
+                    if ":" not in link_title and len(link_title) > 2:
                         links.append(link_title)
 
             return links[:15]
@@ -426,14 +441,16 @@ async def search_wikipedia(query: str, limit: int = 5) -> List[Dict[str, Any]]:
     # Convert to old format
     formatted_results = []
     for result in results:
-        formatted_results.append({
-            'title': result['title'],
-            'snippet': result.get('snippet', result.get('extract', '')[:200]),
-            'url': result['url'],
-            'pageid': result['pageid'],
-            'size': 0,  # Not available in new API
-            'wordcount': 0  # Not available in new API
-        })
+        formatted_results.append(
+            {
+                "title": result["title"],
+                "snippet": result.get("snippet", result.get("extract", "")[:200]),
+                "url": result["url"],
+                "pageid": result["pageid"],
+                "size": 0,  # Not available in new API
+                "wordcount": 0,  # Not available in new API
+            }
+        )
     return formatted_results
 
 
@@ -450,7 +467,7 @@ async def get_wikipedia_summary(title: str) -> Dict[str, Any]:
     return await _wikipedia_tool.get_summary(title)
 
 
-async def get_wikipedia_content(title: str, lang: str = 'en') -> Optional[Dict]:
+async def get_wikipedia_content(title: str, lang: str = "en") -> Optional[Dict]:
     """
     Get full article content with sections
 

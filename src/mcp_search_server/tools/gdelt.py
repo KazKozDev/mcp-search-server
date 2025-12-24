@@ -15,6 +15,7 @@ class GdeltNewsSearchTool:
     def __init__(self):
         try:
             from gdeltdoc import GdeltDoc, Filters
+
             self.GdeltDoc = GdeltDoc
             self.Filters = Filters
             self.gd = GdeltDoc()
@@ -23,8 +24,14 @@ class GdeltNewsSearchTool:
             logger.warning("gdeltdoc not installed. GDELT tool disabled.")
             self.available = False
 
-    async def search(self, query: str, timespan: str = "1d", max_results: int = 10,
-                     country: str = None, domain: str = None) -> Optional[List[Dict]]:
+    async def search(
+        self,
+        query: str,
+        timespan: str = "1d",
+        max_results: int = 10,
+        country: str = None,
+        domain: str = None,
+    ) -> Optional[List[Dict]]:
         """
         Search news articles using GDELT
 
@@ -48,13 +55,7 @@ class GdeltNewsSearchTool:
             # Run in executor to avoid blocking
             loop = asyncio.get_event_loop()
             articles = await loop.run_in_executor(
-                None,
-                self._search_sync,
-                query,
-                timespan,
-                max_results,
-                country,
-                domain
+                None, self._search_sync, query, timespan, max_results, country, domain
             )
 
             return articles
@@ -63,15 +64,12 @@ class GdeltNewsSearchTool:
             logger.error(f"GDELT search error for '{query}': {e}")
             return None
 
-    def _search_sync(self, query: str, timespan: str, max_results: int,
-                     country: str = None, domain: str = None) -> Optional[List[Dict]]:
+    def _search_sync(
+        self, query: str, timespan: str, max_results: int, country: str = None, domain: str = None
+    ) -> Optional[List[Dict]]:
         """Synchronous search (called in executor)"""
         # Build filters
-        f = self.Filters(
-            keyword=query,
-            timespan=timespan,
-            num_records=max_results
-        )
+        f = self.Filters(keyword=query, timespan=timespan, num_records=max_results)
 
         if country:
             f.country = country
@@ -88,20 +86,23 @@ class GdeltNewsSearchTool:
         # Convert DataFrame to list of dicts
         articles = []
         for _, row in articles_df.iterrows():
-            articles.append({
-                'title': row['title'],
-                'url': row['url'],
-                'domain': row['domain'],
-                'country': row.get('sourcecountry', 'unknown'),
-                'date': str(row['seendate']),
-                'source': 'gdelt'
-            })
+            articles.append(
+                {
+                    "title": row["title"],
+                    "url": row["url"],
+                    "domain": row["domain"],
+                    "country": row.get("sourcecountry", "unknown"),
+                    "date": str(row["seendate"]),
+                    "source": "gdelt",
+                }
+            )
 
         logger.info(f"Found {len(articles)} GDELT articles for: {query}")
         return articles
 
-    async def search_with_content(self, query: str, timespan: str = "1d",
-                                   max_results: int = 10) -> Optional[List[Dict]]:
+    async def search_with_content(
+        self, query: str, timespan: str = "1d", max_results: int = 10
+    ) -> Optional[List[Dict]]:
         """
         Search articles and retrieve full text content
 
@@ -121,9 +122,9 @@ class GdeltNewsSearchTool:
         logger.info(f"Retrieving full text for {len(articles)} articles")
 
         for article in articles:
-            content = await self.get_article_content(article['url'])
-            article['content'] = content
-            article['has_content'] = content is not None
+            content = await self.get_article_content(article["url"])
+            article["content"] = content
+            article["has_content"] = content is not None
 
         return articles
 
@@ -147,10 +148,10 @@ class GdeltNewsSearchTool:
                     html = await response.text()
 
             # Parse with BeautifulSoup
-            soup = BeautifulSoup(html, 'html.parser')
+            soup = BeautifulSoup(html, "html.parser")
 
             # Remove unwanted elements
-            for tag in soup(['script', 'style', 'nav', 'header', 'footer']):
+            for tag in soup(["script", "style", "nav", "header", "footer"]):
                 tag.decompose()
 
             # Get text
@@ -159,7 +160,7 @@ class GdeltNewsSearchTool:
             # Clean up whitespace
             lines = (line.strip() for line in text.splitlines())
             chunks = (phrase.strip() for line in lines for phrase in line.split("  "))
-            text = ' '.join(chunk for chunk in chunks if chunk)
+            text = " ".join(chunk for chunk in chunks if chunk)
 
             if not text:
                 logger.warning(f"No text extracted from: {url}")
@@ -176,8 +177,9 @@ class GdeltNewsSearchTool:
             logger.warning(f"Failed to extract content from '{url}': {e}")
             return None
 
-    async def search_by_country(self, query: str, country: str, timespan: str = "7d",
-                                max_results: int = 10) -> Optional[List[Dict]]:
+    async def search_by_country(
+        self, query: str, country: str, timespan: str = "7d", max_results: int = 10
+    ) -> Optional[List[Dict]]:
         """
         Search news from specific country
 
@@ -192,7 +194,9 @@ class GdeltNewsSearchTool:
         """
         return await self.search(query, timespan, max_results, country=country)
 
-    async def search_recent(self, query: str, hours: int = 24, max_results: int = 10) -> Optional[List[Dict]]:
+    async def search_recent(
+        self, query: str, hours: int = 24, max_results: int = 10
+    ) -> Optional[List[Dict]]:
         """
         Search recent news (last N hours)
 
@@ -219,25 +223,30 @@ _gdelt_tool = GdeltNewsSearchTool()
 
 
 # Exported async functions
-async def search_gdelt(query: str, timespan: str = "1d", max_results: int = 10,
-                       country: str = None, domain: str = None) -> Optional[List[Dict]]:
+async def search_gdelt(
+    query: str, timespan: str = "1d", max_results: int = 10, country: str = None, domain: str = None
+) -> Optional[List[Dict]]:
     """Search news articles using GDELT"""
     return await _gdelt_tool.search(query, timespan, max_results, country, domain)
 
 
-async def search_gdelt_with_content(query: str, timespan: str = "1d",
-                                     max_results: int = 10) -> Optional[List[Dict]]:
+async def search_gdelt_with_content(
+    query: str, timespan: str = "1d", max_results: int = 10
+) -> Optional[List[Dict]]:
     """Search articles and retrieve full text content"""
     return await _gdelt_tool.search_with_content(query, timespan, max_results)
 
 
-async def search_gdelt_by_country(query: str, country: str, timespan: str = "7d",
-                                   max_results: int = 10) -> Optional[List[Dict]]:
+async def search_gdelt_by_country(
+    query: str, country: str, timespan: str = "7d", max_results: int = 10
+) -> Optional[List[Dict]]:
     """Search news from specific country"""
     return await _gdelt_tool.search_by_country(query, country, timespan, max_results)
 
 
-async def search_gdelt_recent(query: str, hours: int = 24, max_results: int = 10) -> Optional[List[Dict]]:
+async def search_gdelt_recent(
+    query: str, hours: int = 24, max_results: int = 10
+) -> Optional[List[Dict]]:
     """Search recent news"""
     return await _gdelt_tool.search_recent(query, hours, max_results)
 

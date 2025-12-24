@@ -15,13 +15,14 @@ class GitHubSearchTool:
     def __init__(self):
         self.base_url = "https://api.github.com"
         self.headers = {
-            'Accept': 'application/vnd.github.v3+json',
-            'User-Agent': 'MCP-Search-Server/1.0'
+            "Accept": "application/vnd.github.v3+json",
+            "User-Agent": "MCP-Search-Server/1.0",
         }
         self.request_delay = 2.0
 
-    async def search_repositories(self, query: str, sort: str = "stars",
-                                   max_results: int = 5) -> Optional[List[Dict]]:
+    async def search_repositories(
+        self, query: str, sort: str = "stars", max_results: int = 5
+    ) -> Optional[List[Dict]]:
         """
         Search public repositories
 
@@ -36,12 +37,7 @@ class GitHubSearchTool:
         # Rate limiting
         await asyncio.sleep(self.request_delay)
 
-        params = {
-            'q': query,
-            'sort': sort,
-            'order': 'desc',
-            'per_page': max_results
-        }
+        params = {"q": query, "sort": sort, "order": "desc", "per_page": max_results}
 
         try:
             logger.info(f"Searching GitHub repos: {query}")
@@ -50,7 +46,7 @@ class GitHubSearchTool:
                     f"{self.base_url}/search/repositories",
                     params=params,
                     headers=self.headers,
-                    timeout=10
+                    timeout=10,
                 ) as response:
                     if response.status == 403:
                         logger.warning("GitHub API rate limit exceeded")
@@ -60,17 +56,19 @@ class GitHubSearchTool:
                     data = await response.json()
 
             repos = []
-            for item in data.get('items', []):
-                repos.append({
-                    'name': item['name'],
-                    'full_name': item['full_name'],
-                    'description': item['description'],
-                    'url': item['html_url'],
-                    'stars': item['stargazers_count'],
-                    'language': item['language'],
-                    'updated_at': item['updated_at'][:10],
-                    'source': 'github_repo'
-                })
+            for item in data.get("items", []):
+                repos.append(
+                    {
+                        "name": item["name"],
+                        "full_name": item["full_name"],
+                        "description": item["description"],
+                        "url": item["html_url"],
+                        "stars": item["stargazers_count"],
+                        "language": item["language"],
+                        "updated_at": item["updated_at"][:10],
+                        "source": "github_repo",
+                    }
+                )
 
             logger.info(f"Found {len(repos)} repositories")
             return repos
@@ -95,9 +93,7 @@ class GitHubSearchTool:
             logger.info(f"Fetching README for: {full_name}")
             async with aiohttp.ClientSession() as session:
                 async with session.get(
-                    f"{self.base_url}/repos/{full_name}/readme",
-                    headers=self.headers,
-                    timeout=10
+                    f"{self.base_url}/repos/{full_name}/readme", headers=self.headers, timeout=10
                 ) as response:
                     if response.status == 404:
                         return None
@@ -106,8 +102,8 @@ class GitHubSearchTool:
                     data = await response.json()
 
             # Decode content
-            if data.get('encoding') == 'base64':
-                content = base64.b64decode(data['content']).decode('utf-8', errors='ignore')
+            if data.get("encoding") == "base64":
+                content = base64.b64decode(data["content"]).decode("utf-8", errors="ignore")
                 return content
 
             return None
@@ -139,7 +135,7 @@ class GitHubSearchTool:
                     items = await response.json()
 
             if isinstance(items, list):
-                return [item['name'] for item in items]
+                return [item["name"] for item in items]
             return []
 
         except Exception as e:
@@ -191,8 +187,10 @@ class GitHubSearchTool:
                 async with session.get(url, headers=self.headers, timeout=10) as response:
                     if response.status == 200:
                         data = await response.json()
-                        if data.get('encoding') == 'base64':
-                            return base64.b64decode(data['content']).decode('utf-8', errors='ignore')
+                        if data.get("encoding") == "base64":
+                            return base64.b64decode(data["content"]).decode(
+                                "utf-8", errors="ignore"
+                            )
             return None
         except Exception:
             return None
@@ -203,7 +201,9 @@ _github_tool = GitHubSearchTool()
 
 
 # Exported async functions
-async def search_github_repos(query: str, sort: str = "stars", max_results: int = 5) -> Optional[List[Dict]]:
+async def search_github_repos(
+    query: str, sort: str = "stars", max_results: int = 5
+) -> Optional[List[Dict]]:
     """Search public repositories"""
     return await _github_tool.search_repositories(query, sort, max_results)
 

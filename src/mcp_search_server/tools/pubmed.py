@@ -19,6 +19,7 @@ class PubMedSearchTool:
         """
         try:
             from Bio import Entrez, Medline
+
             self.Entrez = Entrez
             self.Medline = Medline
             self.email = email
@@ -29,7 +30,9 @@ class PubMedSearchTool:
             logger.warning("Biopython not installed. PubMed tool disabled.")
             self.available = False
 
-    async def search(self, query: str, max_results: int = 10, sort: str = "relevance") -> Optional[List[Dict]]:
+    async def search(
+        self, query: str, max_results: int = 10, sort: str = "relevance"
+    ) -> Optional[List[Dict]]:
         """
         Search PubMed articles
 
@@ -52,13 +55,7 @@ class PubMedSearchTool:
 
             # Step 1: Search for IDs (run in executor to avoid blocking)
             loop = asyncio.get_event_loop()
-            id_list = await loop.run_in_executor(
-                None,
-                self._search_ids,
-                query,
-                max_results,
-                sort
-            )
+            id_list = await loop.run_in_executor(None, self._search_ids, query, max_results, sort)
 
             if not id_list:
                 logger.warning("No PubMed results found")
@@ -73,12 +70,7 @@ class PubMedSearchTool:
 
     def _search_ids(self, query: str, max_results: int, sort: str) -> List[str]:
         """Synchronous ID search (called in executor)"""
-        handle = self.Entrez.esearch(
-            db="pubmed",
-            term=query,
-            retmax=max_results,
-            sort=sort
-        )
+        handle = self.Entrez.esearch(db="pubmed", term=query, retmax=max_results, sort=sort)
         record = self.Entrez.read(handle)
         handle.close()
         return record.get("IdList", [])
@@ -103,11 +95,7 @@ class PubMedSearchTool:
 
             # Run in executor to avoid blocking
             loop = asyncio.get_event_loop()
-            articles = await loop.run_in_executor(
-                None,
-                self._fetch_details,
-                id_list
-            )
+            articles = await loop.run_in_executor(None, self._fetch_details, id_list)
 
             return articles
 
@@ -117,28 +105,25 @@ class PubMedSearchTool:
 
     def _fetch_details(self, id_list: List[str]) -> List[Dict]:
         """Synchronous detail fetching (called in executor)"""
-        handle = self.Entrez.efetch(
-            db="pubmed",
-            id=id_list,
-            rettype="medline",
-            retmode="text"
-        )
+        handle = self.Entrez.efetch(db="pubmed", id=id_list, rettype="medline", retmode="text")
         records = self.Medline.parse(handle)
 
         articles = []
         for record in records:
-            articles.append({
-                'title': record.get('TI', 'No title'),
-                'abstract': record.get('AB', 'No abstract'),
-                'authors': record.get('AU', []),
-                'journal': record.get('JT', 'Unknown journal'),
-                'pub_date': record.get('DP', 'Unknown date'),
-                'pmid': record.get('PMID'),
-                'doi': record.get('LID', '').replace(' [doi]', ''),
-                'keywords': record.get('OT', []),
-                'url': f"https://pubmed.ncbi.nlm.nih.gov/{record.get('PMID')}/",
-                'source': 'pubmed'
-            })
+            articles.append(
+                {
+                    "title": record.get("TI", "No title"),
+                    "abstract": record.get("AB", "No abstract"),
+                    "authors": record.get("AU", []),
+                    "journal": record.get("JT", "Unknown journal"),
+                    "pub_date": record.get("DP", "Unknown date"),
+                    "pmid": record.get("PMID"),
+                    "doi": record.get("LID", "").replace(" [doi]", ""),
+                    "keywords": record.get("OT", []),
+                    "url": f"https://pubmed.ncbi.nlm.nih.gov/{record.get('PMID')}/",
+                    "source": "pubmed",
+                }
+            )
 
         handle.close()
         return articles
@@ -147,7 +132,7 @@ class PubMedSearchTool:
         """Get abstract for a specific article"""
         details = await self.get_details([pmid])
         if details:
-            return details[0].get('abstract')
+            return details[0].get("abstract")
         return None
 
 
@@ -156,7 +141,9 @@ _pubmed_tool = PubMedSearchTool()
 
 
 # Exported async functions
-async def search_pubmed(query: str, max_results: int = 10, sort: str = "relevance") -> Optional[List[Dict]]:
+async def search_pubmed(
+    query: str, max_results: int = 10, sort: str = "relevance"
+) -> Optional[List[Dict]]:
     """Search PubMed articles"""
     return await _pubmed_tool.search(query, max_results, sort)
 

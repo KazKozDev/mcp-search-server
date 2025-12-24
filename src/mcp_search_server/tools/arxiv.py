@@ -14,11 +14,11 @@ class ArxivSearchTool:
 
     def __init__(self):
         self.base_url = "https://export.arxiv.org/api/query"
-        self.headers = {
-            'User-Agent': 'MCP-Search-Server/1.0 (Educational purpose)'
-        }
+        self.headers = {"User-Agent": "MCP-Search-Server/1.0 (Educational purpose)"}
 
-    async def search(self, query: str, max_results: int = 10, sort_by: str = 'relevance') -> Optional[List[Dict]]:
+    async def search(
+        self, query: str, max_results: int = 10, sort_by: str = "relevance"
+    ) -> Optional[List[Dict]]:
         """
         Search arxiv papers
 
@@ -31,17 +31,19 @@ class ArxivSearchTool:
             List of dicts with paper metadata or None if error
         """
         params = {
-            'search_query': query,
-            'start': 0,
-            'max_results': max_results,
-            'sortBy': sort_by,
-            'sortOrder': 'descending'
+            "search_query": query,
+            "start": 0,
+            "max_results": max_results,
+            "sortBy": sort_by,
+            "sortOrder": "descending",
         }
 
         try:
             logger.info(f"Searching arXiv for: {query}")
             async with aiohttp.ClientSession() as session:
-                async with session.get(self.base_url, params=params, headers=self.headers, timeout=15) as response:
+                async with session.get(
+                    self.base_url, params=params, headers=self.headers, timeout=15
+                ) as response:
                     response.raise_for_status()
                     text = await response.text()
 
@@ -58,7 +60,9 @@ class ArxivSearchTool:
             logger.error(f"ArXiv search error for '{query}': {e}")
             return None
 
-    async def search_by_category(self, category: str, query: str = None, max_results: int = 10) -> Optional[List[Dict]]:
+    async def search_by_category(
+        self, category: str, query: str = None, max_results: int = 10
+    ) -> Optional[List[Dict]]:
         """
         Search papers in specific category
 
@@ -76,7 +80,9 @@ class ArxivSearchTool:
 
         return await self.search(search_query, max_results)
 
-    async def search_recent(self, category: str = None, days: int = 7, max_results: int = 10) -> Optional[List[Dict]]:
+    async def search_recent(
+        self, category: str = None, days: int = 7, max_results: int = 10
+    ) -> Optional[List[Dict]]:
         """
         Search recent papers
 
@@ -92,7 +98,7 @@ class ArxivSearchTool:
         if category:
             query = f"cat:{category}"
 
-        return await self.search(query, max_results, sort_by='submittedDate')
+        return await self.search(query, max_results, sort_by="submittedDate")
 
     async def get_paper(self, arxiv_id: str) -> Optional[Dict]:
         """
@@ -104,15 +110,14 @@ class ArxivSearchTool:
         Returns:
             Dict with full paper metadata or None if error
         """
-        params = {
-            'id_list': arxiv_id,
-            'max_results': 1
-        }
+        params = {"id_list": arxiv_id, "max_results": 1}
 
         try:
             logger.info(f"Fetching arXiv paper: {arxiv_id}")
             async with aiohttp.ClientSession() as session:
-                async with session.get(self.base_url, params=params, headers=self.headers, timeout=10) as response:
+                async with session.get(
+                    self.base_url, params=params, headers=self.headers, timeout=10
+                ) as response:
                     response.raise_for_status()
                     text = await response.text()
 
@@ -141,7 +146,7 @@ class ArxivSearchTool:
         """
         paper = await self.get_paper(arxiv_id)
         if paper:
-            return paper.get('abstract', '')
+            return paper.get("abstract", "")
         return None
 
     def _parse_response(self, xml_text: str) -> List[Dict]:
@@ -152,12 +157,9 @@ class ArxivSearchTool:
             root = ET.fromstring(xml_text)
 
             # Define namespace
-            ns = {
-                'atom': 'http://www.w3.org/2005/Atom',
-                'arxiv': 'http://arxiv.org/schemas/atom'
-            }
+            ns = {"atom": "http://www.w3.org/2005/Atom", "arxiv": "http://arxiv.org/schemas/atom"}
 
-            for entry in root.findall('atom:entry', ns):
+            for entry in root.findall("atom:entry", ns):
                 paper = self._parse_entry(entry, ns)
                 if paper:
                     papers.append(paper)
@@ -171,67 +173,73 @@ class ArxivSearchTool:
         """Parse single paper entry from XML"""
         try:
             # Extract ID (last part of the URL)
-            id_elem = entry.find('atom:id', ns)
-            paper_id = id_elem.text.split('/')[-1] if id_elem is not None else 'unknown'
+            id_elem = entry.find("atom:id", ns)
+            paper_id = id_elem.text.split("/")[-1] if id_elem is not None else "unknown"
 
             # Extract basic info
-            title_elem = entry.find('atom:title', ns)
-            title = self._clean_text(title_elem.text) if title_elem is not None else 'No title'
+            title_elem = entry.find("atom:title", ns)
+            title = self._clean_text(title_elem.text) if title_elem is not None else "No title"
 
-            summary_elem = entry.find('atom:summary', ns)
-            abstract = self._clean_text(summary_elem.text) if summary_elem is not None else 'No abstract'
+            summary_elem = entry.find("atom:summary", ns)
+            abstract = (
+                self._clean_text(summary_elem.text) if summary_elem is not None else "No abstract"
+            )
 
             # Extract authors
             authors = []
-            for author in entry.findall('atom:author', ns):
-                name_elem = author.find('atom:name', ns)
+            for author in entry.findall("atom:author", ns):
+                name_elem = author.find("atom:name", ns)
                 if name_elem is not None:
                     authors.append(name_elem.text)
 
             # Extract dates
-            published_elem = entry.find('atom:published', ns)
-            published = self._parse_date(published_elem.text) if published_elem is not None else None
+            published_elem = entry.find("atom:published", ns)
+            published = (
+                self._parse_date(published_elem.text) if published_elem is not None else None
+            )
 
-            updated_elem = entry.find('atom:updated', ns)
+            updated_elem = entry.find("atom:updated", ns)
             updated = self._parse_date(updated_elem.text) if updated_elem is not None else None
 
             # Extract categories
             categories = []
-            for category in entry.findall('atom:category', ns):
-                term = category.get('term')
+            for category in entry.findall("atom:category", ns):
+                term = category.get("term")
                 if term:
                     categories.append(term)
 
             # Extract links
             pdf_link = None
             abs_link = None
-            for link in entry.findall('atom:link', ns):
-                if link.get('title') == 'pdf':
-                    pdf_link = link.get('href')
-                elif link.get('type') == 'text/html':
-                    abs_link = link.get('href')
+            for link in entry.findall("atom:link", ns):
+                if link.get("title") == "pdf":
+                    pdf_link = link.get("href")
+                elif link.get("type") == "text/html":
+                    abs_link = link.get("href")
 
             # Extract primary category
-            primary_category_elem = entry.find('arxiv:primary_category', ns)
-            primary_category = primary_category_elem.get('term') if primary_category_elem is not None else None
+            primary_category_elem = entry.find("arxiv:primary_category", ns)
+            primary_category = (
+                primary_category_elem.get("term") if primary_category_elem is not None else None
+            )
 
             # Extract comment
-            comment_elem = entry.find('arxiv:comment', ns)
+            comment_elem = entry.find("arxiv:comment", ns)
             comment = comment_elem.text if comment_elem is not None else None
 
             return {
-                'id': paper_id,
-                'title': title,
-                'abstract': abstract,
-                'authors': authors,
-                'published': published,
-                'updated': updated,
-                'categories': categories,
-                'primary_category': primary_category,
-                'pdf_url': pdf_link,
-                'abs_url': abs_link,
-                'comment': comment,
-                'source': 'arxiv'
+                "id": paper_id,
+                "title": title,
+                "abstract": abstract,
+                "authors": authors,
+                "published": published,
+                "updated": updated,
+                "categories": categories,
+                "primary_category": primary_category,
+                "pdf_url": pdf_link,
+                "abs_url": abs_link,
+                "comment": comment,
+                "source": "arxiv",
             }
 
         except Exception as e:
@@ -241,15 +249,15 @@ class ArxivSearchTool:
     def _clean_text(self, text: str) -> str:
         """Clean and normalize text"""
         if not text:
-            return ''
+            return ""
         # Remove extra whitespace and newlines
-        return ' '.join(text.split())
+        return " ".join(text.split())
 
     def _parse_date(self, date_str: str) -> str:
         """Parse and format date"""
         try:
-            dt = datetime.fromisoformat(date_str.replace('Z', '+00:00'))
-            return dt.strftime('%Y-%m-%d')
+            dt = datetime.fromisoformat(date_str.replace("Z", "+00:00"))
+            return dt.strftime("%Y-%m-%d")
         except Exception:
             return date_str
 
@@ -259,17 +267,23 @@ _arxiv_tool = ArxivSearchTool()
 
 
 # Exported async functions
-async def search_arxiv(query: str, max_results: int = 10, sort_by: str = 'relevance') -> Optional[List[Dict]]:
+async def search_arxiv(
+    query: str, max_results: int = 10, sort_by: str = "relevance"
+) -> Optional[List[Dict]]:
     """Search arxiv papers"""
     return await _arxiv_tool.search(query, max_results, sort_by)
 
 
-async def search_arxiv_by_category(category: str, query: str = None, max_results: int = 10) -> Optional[List[Dict]]:
+async def search_arxiv_by_category(
+    category: str, query: str = None, max_results: int = 10
+) -> Optional[List[Dict]]:
     """Search papers in specific category"""
     return await _arxiv_tool.search_by_category(category, query, max_results)
 
 
-async def search_arxiv_recent(category: str = None, days: int = 7, max_results: int = 10) -> Optional[List[Dict]]:
+async def search_arxiv_recent(
+    category: str = None, days: int = 7, max_results: int = 10
+) -> Optional[List[Dict]]:
     """Search recent papers"""
     return await _arxiv_tool.search_recent(category, days, max_results)
 

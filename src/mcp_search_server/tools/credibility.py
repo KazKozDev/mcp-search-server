@@ -16,6 +16,7 @@ logger = logging.getLogger(__name__)
 # Optional WHOIS for real domain age checking
 try:
     import whois
+
     HAS_WHOIS = True
 except ImportError:
     HAS_WHOIS = False
@@ -47,10 +48,12 @@ class BayesianCredibilityEngine:
         }
 
         # Signal likelihood functions (learned)
-        self.signal_likelihoods = defaultdict(lambda: {
-            "given_high": 0.7,  # P(signal | credible)
-            "given_low": 0.3    # P(signal | not credible)
-        })
+        self.signal_likelihoods = defaultdict(
+            lambda: {
+                "given_high": 0.7,  # P(signal | credible)
+                "given_low": 0.3,  # P(signal | not credible)
+            }
+        )
 
         # Domain-specific belief updates
         self.domain_beliefs = defaultdict(lambda: {"credible": 1, "not_credible": 1})
@@ -105,7 +108,9 @@ class BayesianCredibilityEngine:
         posterior = self._bayesian_update(prior, likelihood_high, likelihood_low)
 
         # 5) Incorporate citation network influence with PageRank
-        network_adjustment = self._network_influence_with_pagerank(url, citations_to, citations_from)
+        network_adjustment = self._network_influence_with_pagerank(
+            url, citations_to, citations_from
+        )
         posterior = 0.80 * posterior + 0.20 * network_adjustment
 
         # 6) Calculate credible interval (epistemic uncertainty)
@@ -234,9 +239,17 @@ class BayesianCredibilityEngine:
     def _estimate_domain_age_heuristic(self, domain: str) -> float:
         """Heuristic domain age estimation (fallback)."""
         established_domains = [
-            "nature.com", "arxiv.org", "pubmed.ncbi.nlm.nih.gov",
-            "bbc.com", "reuters.com", "github.com", "wikipedia.org",
-            "nytimes.com", "theguardian.com", "ieee.org", "acm.org"
+            "nature.com",
+            "arxiv.org",
+            "pubmed.ncbi.nlm.nih.gov",
+            "bbc.com",
+            "reuters.com",
+            "github.com",
+            "wikipedia.org",
+            "nytimes.com",
+            "theguardian.com",
+            "ieee.org",
+            "acm.org",
         ]
         return 1.0 if any(d in domain for d in established_domains) else 0.5
 
@@ -271,11 +284,12 @@ class BayesianCredibilityEngine:
 
         # Calculate character frequency
         from collections import Counter
+
         freq = Counter(domain)
         length = len(domain)
 
         # Shannon entropy
-        entropy = -sum((count/length) * math.log2(count/length) for count in freq.values())
+        entropy = -sum((count / length) * math.log2(count / length) for count in freq.values())
 
         # Normalize: typical domains have entropy 2.5-4.0
         normalized = entropy / 4.0
@@ -303,25 +317,43 @@ class BayesianCredibilityEngine:
     def _measure_formality(self, text: str) -> float:
         """Measure formal language level."""
         formal_words = [
-            "however", "furthermore", "moreover", "consequently",
-            "analysis", "investigation", "methodology", "hypothesis",
-            "demonstrates", "indicates", "suggests", "reveals"
+            "however",
+            "furthermore",
+            "moreover",
+            "consequently",
+            "analysis",
+            "investigation",
+            "methodology",
+            "hypothesis",
+            "demonstrates",
+            "indicates",
+            "suggests",
+            "reveals",
         ]
         matches = sum(1 for w in formal_words if w in text.lower())
         return min(1.0, matches / 5)
 
     def _measure_specificity(self, text: str) -> float:
         """High specificity = more credible."""
-        numbers = len(re.findall(r'\d+', text))
+        numbers = len(re.findall(r"\d+", text))
         quotes = text.count('"')
         return min(1.0, (numbers + quotes) / 10)
 
     def _measure_neutrality(self, text: str) -> float:
         """Detect sensational language."""
         sensational = [
-            "shocking", "amazing", "unbelievable", "viral", "insane",
-            "you won't believe", "doctors hate", "one weird trick",
-            "mind-blowing", "incredible", "secret", "they don't want you to know"
+            "shocking",
+            "amazing",
+            "unbelievable",
+            "viral",
+            "insane",
+            "you won't believe",
+            "doctors hate",
+            "one weird trick",
+            "mind-blowing",
+            "incredible",
+            "secret",
+            "they don't want you to know",
         ]
         negativity = sum(1 for s in sensational if s in text.lower())
         return 1.0 - min(1.0, negativity / 3)
@@ -338,29 +370,27 @@ class BayesianCredibilityEngine:
 
     def _detect_methodology(self, text: str) -> float:
         """Detect methodology description."""
-        match = len(re.findall(
-            r'\b(method|approach|design|study|experiment|procedure|protocol)\b',
-            text,
-            re.I
-        ))
+        match = len(
+            re.findall(
+                r"\b(method|approach|design|study|experiment|procedure|protocol)\b", text, re.I
+            )
+        )
         return min(1.0, match / 3)
 
     def _detect_results(self, text: str) -> float:
         """Detect results/findings."""
-        match = len(re.findall(
-            r'\b(result|finding|show|demonstrate|conclude|find|observe)\b',
-            text,
-            re.I
-        ))
+        match = len(
+            re.findall(r"\b(result|finding|show|demonstrate|conclude|find|observe)\b", text, re.I)
+        )
         return min(1.0, match / 3)
 
     def _detect_limitations(self, text: str) -> float:
         """Credible papers acknowledge limitations."""
-        match = len(re.findall(
-            r'\b(limit|caveat|future work|further research|constraint|weakness)\b',
-            text,
-            re.I
-        ))
+        match = len(
+            re.findall(
+                r"\b(limit|caveat|future work|further research|constraint|weakness)\b", text, re.I
+            )
+        )
         return min(1.0, match / 2)
 
     def _measure_text_depth(self, text: str) -> float:
@@ -377,21 +407,21 @@ class BayesianCredibilityEngine:
 
     def _measure_evidence_density(self, text: str) -> float:
         """Presence of numbers, data, statistics."""
-        data = len(re.findall(r'\d+\.?\d*%|\d+:\d+|\(.*\d.*\)', text))
+        data = len(re.findall(r"\d+\.?\d*%|\d+:\d+|\(.*\d.*\)", text))
         return min(1.0, data / 20)
 
     def _measure_reference_quality(self, text: str) -> float:
         """Count and normalize references."""
-        refs = len(re.findall(r'\[\d+\]|et al\.|doi:|arxiv:', text, re.I))
+        refs = len(re.findall(r"\[\d+\]|et al\.|doi:|arxiv:", text, re.I))
         return min(1.0, refs / 30)
 
     def _measure_coherence(self, text: str) -> float:
         """Measure logical flow with transition words."""
-        transitions = len(re.findall(
-            r'\b(however|therefore|consequently|moreover|furthermore|thus|hence)\b',
-            text,
-            re.I
-        ))
+        transitions = len(
+            re.findall(
+                r"\b(however|therefore|consequently|moreover|furthermore|thus|hence)\b", text, re.I
+            )
+        )
         return min(1.0, transitions / 10)
 
     def _extract_metadata_features(self, meta: Dict) -> Dict[str, float]:
@@ -606,7 +636,16 @@ class BayesianCredibilityEngine:
 
     def _categorize_domain(self, domain: str) -> str:
         patterns = {
-            "academic": ["arxiv", "pubmed", "nature", "scholar", "springer", "ieee", ".edu", ".ac."],
+            "academic": [
+                "arxiv",
+                "pubmed",
+                "nature",
+                "scholar",
+                "springer",
+                "ieee",
+                ".edu",
+                ".ac.",
+            ],
             "news": ["bbc", "reuters", "nytimes", "guardian", "ft.com", "apnews", "cnn"],
             "code": ["github", "gitlab", "stackoverflow", "bitbucket"],
             "forum": ["reddit", "ycombinator", "discourse"],
@@ -660,8 +699,5 @@ async def assess_source_credibility(
         Credibility assessment with score and recommendation
     """
     return await _credibility_engine.score_document(
-        url=url,
-        title=title,
-        full_text=content,
-        metadata=metadata
+        url=url, title=title, full_text=content, metadata=metadata
     )
