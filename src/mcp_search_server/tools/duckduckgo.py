@@ -31,7 +31,8 @@ def _contains_cyrillic(text: str) -> bool:
 
 def _default_region_for_query(query: str) -> str:
     """Determine default region based on query."""
-    return "ru-ru" if _contains_cyrillic(query) else "wt-wt"
+    # Don't specify region - let DuckDuckGo determine it automatically
+    return "wt-wt"
 
 
 class DuckDuckGoSearchTool:
@@ -128,11 +129,11 @@ class DuckDuckGoSearchTool:
     ) -> List[Dict]:
         """Synchronous search (called in executor)"""
         try:
+            # Don't use region parameter - let DuckDuckGo auto-detect based on query
             with self.DDGS(proxy=self.proxy, timeout=10) as ddgs:
                 results = list(
                     ddgs.text(
                         query,
-                        region=region,
                         safesearch=safesearch,
                         timelimit=timelimit,
                         max_results=max_results,
@@ -141,7 +142,7 @@ class DuckDuckGoSearchTool:
             return results
         except Exception as e:
             logger.error(f"DDG sync search error: {e}")
-            # Fallback without region
+            # Fallback
             try:
                 with self.DDGS(proxy=self.proxy, timeout=10) as ddgs:
                     return list(ddgs.text(query, max_results=max_results))
