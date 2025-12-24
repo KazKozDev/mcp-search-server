@@ -189,15 +189,11 @@ class DuckDuckGoSearchTool:
             logger.error(f"DuckDuckGo news search error for '{query}': {e}")
             return None
 
-    def _search_news_sync(
-        self, query: str, max_results: int, timelimit: str
-    ) -> List[Dict]:
+    def _search_news_sync(self, query: str, max_results: int, timelimit: str) -> List[Dict]:
         """Synchronous news search (called in executor)"""
         try:
             with self.DDGS(proxy=self.proxy, timeout=10) as ddgs:
-                results = list(
-                    ddgs.news(query, timelimit=timelimit, max_results=max_results)
-                )
+                results = list(ddgs.news(query, timelimit=timelimit, max_results=max_results))
             return results
         except Exception as e:
             logger.error(f"DDG news sync search error: {e}")
