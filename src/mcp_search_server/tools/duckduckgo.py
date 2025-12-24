@@ -135,7 +135,7 @@ class DuckDuckGoSearchTool:
             try:
                 with self.DDGS(proxy=self.proxy, timeout=10) as ddgs:
                     return list(ddgs.text(query, max_results=max_results))
-            except:
+            except Exception:
                 return []
 
     async def search_news(self, query: str, max_results: int = 10,

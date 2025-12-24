@@ -194,7 +194,7 @@ class GitHubSearchTool:
                         if data.get('encoding') == 'base64':
                             return base64.b64decode(data['content']).decode('utf-8', errors='ignore')
             return None
-        except:
+        except Exception:
             return None
 
 

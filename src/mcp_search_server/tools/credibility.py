@@ -6,7 +6,7 @@ No API keys required - uses WHOIS, domain analysis, and citation networks.
 import logging
 import re
 import math
-from typing import Optional, Dict, List
+from typing import Dict, List
 from urllib.parse import urlparse
 from collections import defaultdict
 from datetime import datetime

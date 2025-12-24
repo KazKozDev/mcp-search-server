@@ -1,6 +1,5 @@
 """ArXiv search and paper retrieval tool."""
 
-import asyncio
 import logging
 from typing import List, Dict, Optional
 from datetime import datetime
@@ -251,7 +250,7 @@ class ArxivSearchTool:
         try:
             dt = datetime.fromisoformat(date_str.replace('Z', '+00:00'))
             return dt.strftime('%Y-%m-%d')
-        except:
+        except Exception:
             return date_str
 
 

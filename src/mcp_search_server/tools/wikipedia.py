@@ -1,6 +1,5 @@
 """Enhanced Wikipedia search implementation combining both approaches."""
 
-import asyncio
 import logging
 import re
 from typing import Dict, List, Any, Optional
@@ -18,7 +17,7 @@ class WikipediaSearchTool:
         try:
             from mcp_search_server import __version__
             user_agent = f"mcp-search-server/{__version__} (+https://github.com/KazKozDev/mcp-search-server)"
-        except:
+        except Exception:
             user_agent = 'MCP-Search-Server/1.0'
 
         self.default_lang = default_lang

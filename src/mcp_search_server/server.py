@@ -23,11 +23,11 @@ from .tools.geolocation import get_location_by_ip
 from .enrich import enrich_results
 
 # New search tools
-from .tools.arxiv import search_arxiv, search_arxiv_by_category, get_arxiv_paper
+from .tools.arxiv import search_arxiv, search_arxiv_by_category
 from .tools.github import search_github_repos, get_github_readme
 from .tools.reddit import search_reddit, get_reddit_comments
 from .tools.pubmed import search_pubmed
-from .tools.gdelt import search_gdelt, search_gdelt_recent
+from .tools.gdelt import search_gdelt
 from .tools.credibility import assess_source_credibility
 from .tools.summarizer import summarize_text
 
@@ -811,11 +811,11 @@ async def call_tool(
                 return [TextContent(type="text", text="Error: Failed to summarize text")]
 
             # Format output
-            formatted_output = f"# Text Summary\n\n"
+            formatted_output = "# Text Summary\n\n"
             formatted_output += f"**Method:** {result['method']}\n"
 
             if 'stats' in result:
-                formatted_output += f"**Statistics:**\n"
+                formatted_output += "**Statistics:**\n"
                 for key, value in result['stats'].items():
                     formatted_output += f"- {key}: {value}\n"
 
