@@ -45,12 +45,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Early exit optimization** - Methods exit immediately on success, saving 60-70% processing time
 - **Error handling** - More granular error messages with retry information
 - **Session management** - Cookie jar support and enhanced browser-like headers
+- **DuckDuckGo search improvements** - Removed region parameter for better language auto-detection
 
 ### Fixed
 - **Async compatibility** - Migrated from deprecated `get_event_loop()` to `get_running_loop()`
 - **Newspaper3k blocking** - Pre-fetch HTML to avoid blocking event loop
 - **BeautifulSoup improvements** - Better content detection with article/main tag priority
 - **Encoding issues** - Proper UTF-8 handling with fallback for non-standard encodings
+- **DuckDuckGo regional results** - Fixed issue with Bulgarian results for Russian queries by removing forced region assignment
 
 ### Performance
 - **Success rate improvement** - From ~70% to ~83% on diverse websites
