@@ -23,10 +23,13 @@ from bs4 import BeautifulSoup
 from newspaper import Article
 from readability import Document
 
+logger = logging.getLogger(__name__)
+
 # Trafilatura - one of the best content extraction libraries
 try:
     import trafilatura
     from trafilatura.settings import use_config
+
     TRAFILATURA_AVAILABLE = True
 except ImportError:
     TRAFILATURA_AVAILABLE = False
@@ -39,19 +42,18 @@ try:
     from selenium.webdriver.support.ui import WebDriverWait
     from selenium.webdriver.support import expected_conditions as EC
     from webdriver_manager.chrome import ChromeDriverManager
+
     SELENIUM_AVAILABLE = True
 except ImportError:
     SELENIUM_AVAILABLE = False
-    logger.warning("Selenium not available. Install selenium and webdriver-manager for bot-protected sites.")
 
 # Undetected ChromeDriver - bypasses most bot detection
 try:
     import undetected_chromedriver as uc
+
     UNDETECTED_AVAILABLE = True
 except ImportError:
     UNDETECTED_AVAILABLE = False
-
-logger = logging.getLogger(__name__)
 
 # Rotate User-Agents to reduce blocking
 USER_AGENTS = [
@@ -82,6 +84,7 @@ _content_cache: Dict[str, Tuple[Any, datetime]] = {}
 @dataclass
 class ArticleMetadata:
     """Structured article metadata."""
+
     title: Optional[str] = None
     author: Optional[str] = None
     date: Optional[str] = None
@@ -90,10 +93,10 @@ class ArticleMetadata:
     url: Optional[str] = None
     content: str = ""
     method: str = "unknown"
-    
+
     def to_dict(self) -> Dict[str, Any]:
         return asdict(self)
-    
+
     def to_text(self, include_metadata: bool = True) -> str:
         """Format as readable text with optional metadata header."""
         parts = []
@@ -122,7 +125,7 @@ def _get_from_cache(url: str) -> Optional[ArticleMetadata]:
     """Get cached result if exists and not expired."""
     if not ENABLE_CACHE:
         return None
-    
+
     cache_key = _get_cache_key(url)
     if cache_key in _content_cache:
         result, timestamp = _content_cache[cache_key]
@@ -139,10 +142,10 @@ def _set_cache(url: str, result: ArticleMetadata) -> None:
     """Store result in cache."""
     if not ENABLE_CACHE:
         return
-    
+
     cache_key = _get_cache_key(url)
     _content_cache[cache_key] = (result, datetime.now())
-    
+
     # Limit cache size (keep last 1000 entries)
     if len(_content_cache) > 1000:
         oldest_key = min(_content_cache, key=lambda k: _content_cache[k][1])
@@ -164,48 +167,51 @@ def create_chrome_driver(headless: bool = True):
     """Create a Chrome WebDriver with stealth settings to avoid detection."""
     if not SELENIUM_AVAILABLE:
         raise ImportError("Selenium is not available")
-    
+
     chrome_options = ChromeOptions()
-    
+
     if headless:
-        chrome_options.add_argument('--headless=new')
-    
+        chrome_options.add_argument("--headless=new")
+
     # Stealth settings to avoid bot detection
-    chrome_options.add_argument('--no-sandbox')
-    chrome_options.add_argument('--disable-dev-shm-usage')
-    chrome_options.add_argument('--disable-blink-features=AutomationControlled')
+    chrome_options.add_argument("--no-sandbox")
+    chrome_options.add_argument("--disable-dev-shm-usage")
+    chrome_options.add_argument("--disable-blink-features=AutomationControlled")
     chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
-    chrome_options.add_experimental_option('useAutomationExtension', False)
-    
+    chrome_options.add_experimental_option("useAutomationExtension", False)
+
     # Random user agent
     user_agent = get_random_user_agent()
-    chrome_options.add_argument(f'user-agent={user_agent}')
-    
+    chrome_options.add_argument(f"user-agent={user_agent}")
+
     # Additional settings to appear more like a real browser
-    chrome_options.add_argument('--disable-gpu')
-    chrome_options.add_argument('--window-size=1920,1080')
-    chrome_options.add_argument('--start-maximized')
-    chrome_options.add_argument('--disable-extensions')
-    chrome_options.add_argument('--dns-prefetch-disable')
-    chrome_options.add_argument('--ignore-certificate-errors')
-    
+    chrome_options.add_argument("--disable-gpu")
+    chrome_options.add_argument("--window-size=1920,1080")
+    chrome_options.add_argument("--start-maximized")
+    chrome_options.add_argument("--disable-extensions")
+    chrome_options.add_argument("--dns-prefetch-disable")
+    chrome_options.add_argument("--ignore-certificate-errors")
+
     # Set preferences to avoid detection
     prefs = {
         "profile.default_content_setting_values.notifications": 2,
         "profile.default_content_settings.popups": 0,
     }
     chrome_options.add_experimental_option("prefs", prefs)
-    
+
     try:
         service = Service(ChromeDriverManager().install())
         driver = webdriver.Chrome(service=service, options=chrome_options)
-        
+
         # Execute CDP commands to hide webdriver
-        driver.execute_cdp_cmd('Network.setUserAgentOverride', {
-            "userAgent": user_agent.replace('HeadlessChrome', 'Chrome')
-        })
-        driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
-        
+        driver.execute_cdp_cmd(
+            "Network.setUserAgentOverride",
+            {"userAgent": user_agent.replace("HeadlessChrome", "Chrome")},
+        )
+        driver.execute_script(
+            "Object.defineProperty(navigator, 'webdriver', {get: () => undefined})"
+        )
+
         return driver
     except Exception as e:
         logger.error(f"Failed to create Chrome driver: {e}")
@@ -246,56 +252,62 @@ class AsyncLinkParser:
 
 
 async def fetch_html_with_retry(
-    url: str,
-    session: aiohttp.ClientSession,
-    timeout: int = 10,
-    max_retries: int = MAX_RETRIES
+    url: str, session: aiohttp.ClientSession, timeout: int = 10, max_retries: int = MAX_RETRIES
 ) -> Tuple[Optional[str], Optional[str]]:
     """
     Fetch HTML content with retry logic and proper error handling.
-    
+
     Returns: (html_content, error_message)
     """
     last_error = None
-    
+
     for attempt in range(max_retries):
         try:
             async with session.get(
                 url,
                 timeout=aiohttp.ClientTimeout(total=timeout),
                 allow_redirects=True,
-                max_redirects=5
+                max_redirects=5,
             ) as response:
                 # Handle rate limiting
                 if response.status == 429:
-                    retry_after = response.headers.get("Retry-After", str(RETRY_DELAY_BASE * (2 ** attempt)))
+                    retry_after = response.headers.get(
+                        "Retry-After", str(RETRY_DELAY_BASE * (2**attempt))
+                    )
                     wait_time = min(float(retry_after), 30)  # Cap at 30 seconds
-                    logger.warning(f"Rate limited on {url}, waiting {wait_time}s (attempt {attempt + 1})")
+                    logger.warning(
+                        f"Rate limited on {url}, waiting {wait_time}s (attempt {attempt + 1})"
+                    )
                     await asyncio.sleep(wait_time)
                     continue
-                
+
                 # Handle server errors with retry
                 if response.status >= 500:
-                    wait_time = RETRY_DELAY_BASE * (2 ** attempt)
-                    logger.warning(f"Server error {response.status} on {url}, retrying in {wait_time}s")
+                    wait_time = RETRY_DELAY_BASE * (2**attempt)
+                    logger.warning(
+                        f"Server error {response.status} on {url}, retrying in {wait_time}s"
+                    )
                     await asyncio.sleep(wait_time)
                     continue
-                
+
                 response.raise_for_status()
-                
+
                 # Check content length before downloading
                 content_length = response.headers.get("Content-Length")
                 if content_length and int(content_length) > MAX_CONTENT_SIZE:
                     return None, f"Content too large: {content_length} bytes"
-                
+
                 # Check content type
                 content_type = response.headers.get("Content-Type", "")
-                if not any(ct in content_type.lower() for ct in ["text/html", "application/xhtml", "text/plain"]):
+                if not any(
+                    ct in content_type.lower()
+                    for ct in ["text/html", "application/xhtml", "text/plain"]
+                ):
                     if "application/pdf" in content_type.lower():
                         return None, "PDF content detected - use PDF parser"
                     if not content_type or "text" not in content_type.lower():
                         logger.warning(f"Unexpected content type: {content_type}")
-                
+
                 # Read content with size limit
                 chunks = []
                 total_size = 0
@@ -305,11 +317,11 @@ async def fetch_html_with_retry(
                         logger.warning(f"Content exceeded size limit for {url}")
                         break
                     chunks.append(chunk)
-                
+
                 # Detect encoding
                 html_bytes = b"".join(chunks)
                 encoding = response.charset or "utf-8"
-                
+
                 # Try to decode with detected encoding, fallback to utf-8 with errors='replace'
                 try:
                     html = html_bytes.decode(encoding)
@@ -318,26 +330,28 @@ async def fetch_html_with_retry(
                         html = html_bytes.decode("utf-8", errors="replace")
                     except Exception:
                         html = html_bytes.decode("latin-1", errors="replace")
-                
+
                 return html, None
-                
+
         except asyncio.TimeoutError:
             last_error = "Timeout"
-            wait_time = RETRY_DELAY_BASE * (2 ** attempt)
+            wait_time = RETRY_DELAY_BASE * (2**attempt)
             if attempt < max_retries - 1:
-                logger.warning(f"Timeout on {url}, retrying in {wait_time}s (attempt {attempt + 1})")
+                logger.warning(
+                    f"Timeout on {url}, retrying in {wait_time}s (attempt {attempt + 1})"
+                )
                 await asyncio.sleep(wait_time)
         except aiohttp.ClientResponseError as e:
             last_error = f"HTTP {e.status}: {e.message}"
             if e.status in (401, 403, 404):
                 # Don't retry on auth/not found errors
                 break
-            wait_time = RETRY_DELAY_BASE * (2 ** attempt)
+            wait_time = RETRY_DELAY_BASE * (2**attempt)
             if attempt < max_retries - 1:
                 await asyncio.sleep(wait_time)
         except aiohttp.ClientError as e:
             last_error = str(e)
-            wait_time = RETRY_DELAY_BASE * (2 ** attempt)
+            wait_time = RETRY_DELAY_BASE * (2**attempt)
             if attempt < max_retries - 1:
                 logger.warning(f"Client error on {url}: {e}, retrying in {wait_time}s")
                 await asyncio.sleep(wait_time)
@@ -345,18 +359,18 @@ async def fetch_html_with_retry(
             last_error = str(e)
             logger.error(f"Unexpected error fetching {url}: {e}")
             break
-    
+
     return None, f"Error after {max_retries} attempts: {last_error}"
 
 
 async def method1_bs4_async(url: str, session: aiohttp.ClientSession) -> str:
     """Parse main content from URL using BeautifulSoup (async)."""
     logger.debug(f"Method 1 (BeautifulSoup) attempting: {url}")
-    
+
     html, error = await fetch_html_with_retry(url, session, timeout=10)
     if error:
         return f"Error: {error}"
-    
+
     try:
         loop = asyncio.get_running_loop()
         content = await loop.run_in_executor(None, _parse_bs4, html, url)
@@ -372,15 +386,40 @@ def _parse_bs4(html: str, url: str) -> str:
 
     # Remove unwanted elements
     unwanted_tags = [
-        "script", "style", "nav", "header", "footer", "aside", 
-        "form", "button", "input", "noscript", "iframe", "svg",
-        "video", "audio", "canvas", "map", "object", "embed"
+        "script",
+        "style",
+        "nav",
+        "header",
+        "footer",
+        "aside",
+        "form",
+        "button",
+        "input",
+        "noscript",
+        "iframe",
+        "svg",
+        "video",
+        "audio",
+        "canvas",
+        "map",
+        "object",
+        "embed",
     ]
     for tag in soup.find_all(unwanted_tags):
         tag.decompose()
 
     # Remove elements with common ad/navigation classes
-    ad_classes = ["ad", "ads", "advertisement", "sidebar", "menu", "navigation", "comment", "social", "share"]
+    ad_classes = [
+        "ad",
+        "ads",
+        "advertisement",
+        "sidebar",
+        "menu",
+        "navigation",
+        "comment",
+        "social",
+        "share",
+    ]
     for element in soup.find_all(class_=lambda c: c and any(ad in c.lower() for ad in ad_classes)):
         element.decompose()
 
@@ -408,7 +447,8 @@ def _parse_bs4(html: str, url: str) -> str:
         "div",
         class_=lambda c: c
         and any(
-            key in c.lower() for key in ["content", "article", "main", "body", "post", "entry", "text"]
+            key in c.lower()
+            for key in ["content", "article", "main", "body", "post", "entry", "text"]
         ),
     )
     for div in content_divs:
@@ -437,7 +477,7 @@ async def method2_newspaper_async(url: str, session: aiohttp.ClientSession) -> s
         html, error = await fetch_html_with_retry(url, session, timeout=10)
         if error:
             return f"Error: {error}"
-        
+
         loop = asyncio.get_running_loop()
         content = await loop.run_in_executor(None, _newspaper_parse_html, html, url)
         return content
@@ -463,7 +503,7 @@ def _newspaper_parse_with_metadata(html: str, url: str) -> ArticleMetadata:
         article = Article(url)
         article.set_html(html)
         article.parse()
-        
+
         return ArticleMetadata(
             title=article.title if article.title else None,
             author=", ".join(article.authors) if article.authors else None,
@@ -471,7 +511,7 @@ def _newspaper_parse_with_metadata(html: str, url: str) -> ArticleMetadata:
             description=article.meta_description if article.meta_description else None,
             content=article.text.strip() if article.text else "",
             url=url,
-            method="newspaper"
+            method="newspaper",
         )
     except Exception as e:
         raise e
@@ -488,20 +528,22 @@ def _newspaper_parse(url: str) -> str:
         raise e
 
 
-async def method0_trafilatura_async(url: str, session: aiohttp.ClientSession) -> Tuple[str, Optional[ArticleMetadata]]:
+async def method0_trafilatura_async(
+    url: str, session: aiohttp.ClientSession
+) -> Tuple[str, Optional[ArticleMetadata]]:
     """
     Parse content using Trafilatura - the best method for article extraction.
     Returns: (content, metadata)
     """
     if not TRAFILATURA_AVAILABLE:
         return "Error: Trafilatura not available", None
-    
+
     logger.debug(f"Method 0 (Trafilatura) attempting: {url}")
-    
+
     html, error = await fetch_html_with_retry(url, session, timeout=10)
     if error:
         return f"Error: {error}", None
-    
+
     try:
         loop = asyncio.get_running_loop()
         result = await loop.run_in_executor(None, _trafilatura_parse, html, url)
@@ -517,7 +559,7 @@ def _trafilatura_parse(html: str, url: str) -> Tuple[str, Optional[ArticleMetada
         # Configure trafilatura for best quality extraction
         config = use_config()
         config.set("DEFAULT", "EXTRACTION_TIMEOUT", "30")
-        
+
         # First try to get metadata in JSON format
         metadata_result = trafilatura.extract(
             html,
@@ -529,12 +571,12 @@ def _trafilatura_parse(html: str, url: str) -> Tuple[str, Optional[ArticleMetada
             output_format="json",
             with_metadata=True,
             favor_precision=True,
-            config=config
+            config=config,
         )
-        
+
         metadata = None
         content = ""
-        
+
         if metadata_result:
             try:
                 meta_dict = json.loads(metadata_result)
@@ -547,35 +589,34 @@ def _trafilatura_parse(html: str, url: str) -> Tuple[str, Optional[ArticleMetada
                     language=meta_dict.get("language"),
                     content=content.strip(),
                     url=url,
-                    method="trafilatura"
+                    method="trafilatura",
                 )
             except json.JSONDecodeError:
                 pass
-        
+
         # Fallback to plain text extraction if JSON failed
         if not content:
-            content = trafilatura.extract(
-                html,
-                url=url,
-                include_comments=False,
-                include_tables=True,
-                include_images=False,
-                include_links=False,
-                output_format="txt",
-                with_metadata=False,
-                favor_precision=True,
-                config=config
-            ) or ""
-        
-        if not metadata:
-            metadata = ArticleMetadata(
-                content=content.strip(),
-                url=url,
-                method="trafilatura"
+            content = (
+                trafilatura.extract(
+                    html,
+                    url=url,
+                    include_comments=False,
+                    include_tables=True,
+                    include_images=False,
+                    include_links=False,
+                    output_format="txt",
+                    with_metadata=False,
+                    favor_precision=True,
+                    config=config,
+                )
+                or ""
             )
-        
+
+        if not metadata:
+            metadata = ArticleMetadata(content=content.strip(), url=url, method="trafilatura")
+
         return content.strip(), metadata
-        
+
     except Exception as e:
         logger.error(f"Trafilatura parse error: {e}")
         raise
@@ -584,11 +625,11 @@ def _trafilatura_parse(html: str, url: str) -> Tuple[str, Optional[ArticleMetada
 async def method3_readability_async(url: str, session: aiohttp.ClientSession) -> str:
     """Parse content using Readability (async)."""
     logger.debug(f"Method 3 (Readability) attempting: {url}")
-    
+
     html, error = await fetch_html_with_retry(url, session, timeout=10)
     if error:
         return f"Error: {error}"
-    
+
     try:
         loop = asyncio.get_running_loop()
         content = await loop.run_in_executor(None, _readability_parse, html)
@@ -602,9 +643,9 @@ async def method4_selenium_async(url: str) -> str:
     """Parse content using Selenium for JS-heavy or bot-protected sites."""
     if not SELENIUM_AVAILABLE:
         return "Error: Selenium not available"
-    
+
     logger.debug(f"Method 4 (Selenium) attempting: {url}")
-    
+
     try:
         loop = asyncio.get_running_loop()
         content = await loop.run_in_executor(None, _selenium_parse, url)
@@ -623,36 +664,34 @@ def _selenium_parse(url: str) -> str:
         driver.set_page_load_timeout(SELENIUM_TIMEOUT)
         # Set script timeout
         driver.set_script_timeout(SELENIUM_TIMEOUT)
-        
+
         logger.info(f"[SELENIUM] Loading page: {url}")
-        
+
         # Use 'eager' page load strategy for faster results
         try:
             driver.get(url)
-            logger.info(f"[SELENIUM] Page loaded successfully")
+            logger.info("[SELENIUM] Page loaded successfully")
         except Exception as e:
             # Sometimes timeout happens but page is loaded
             if "timeout" not in str(e).lower():
                 logger.error(f"[SELENIUM] Failed to load page: {e}")
                 raise
             logger.warning(f"[SELENIUM] Timeout during page load, continuing anyway: {e}")
-        
+
         # Wait for body to be present with longer timeout
-        logger.info(f"[SELENIUM] Waiting for body element")
+        logger.info("[SELENIUM] Waiting for body element")
         try:
-            WebDriverWait(driver, 10).until(
-                EC.presence_of_element_located((By.TAG_NAME, "body"))
-            )
-            logger.info(f"[SELENIUM] Body element found")
+            WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.TAG_NAME, "body")))
+            logger.info("[SELENIUM] Body element found")
         except Exception as e:
             logger.warning(f"[SELENIUM] Body not found, continuing: {e}")
-        
+
         # Give JavaScript time to render (adaptive wait)
-        logger.info(f"[SELENIUM] Waiting for JavaScript rendering")
+        logger.info("[SELENIUM] Waiting for JavaScript rendering")
         time.sleep(2)
-        
+
         # Scroll to load lazy content
-        logger.info(f"[SELENIUM] Scrolling to load lazy content")
+        logger.info("[SELENIUM] Scrolling to load lazy content")
         try:
             driver.execute_script("window.scrollTo(0, document.body.scrollHeight/2);")
             time.sleep(0.5)
@@ -660,70 +699,83 @@ def _selenium_parse(url: str) -> str:
             time.sleep(0.5)
         except Exception as e:
             logger.warning(f"[SELENIUM] Scrolling failed: {e}")
-        
+
         # Get page source
-        logger.info(f"[SELENIUM] Extracting page source")
+        logger.info("[SELENIUM] Extracting page source")
         html = driver.page_source
-        
+
         if not html or len(html) < 100:
             logger.error(f"[SELENIUM] Empty or too short HTML: {len(html) if html else 0} bytes")
             raise ValueError("Empty or too short HTML content")
-        
+
         logger.info(f"[SELENIUM] HTML extracted: {len(html)} bytes")
-        
+
         # Parse with BeautifulSoup
         soup = BeautifulSoup(html, "html.parser")
-        
+
         # Remove unwanted elements
         unwanted_tags = [
-            "script", "style", "nav", "header", "footer", "aside",
-            "form", "button", "input", "noscript", "iframe", "svg"
+            "script",
+            "style",
+            "nav",
+            "header",
+            "footer",
+            "aside",
+            "form",
+            "button",
+            "input",
+            "noscript",
+            "iframe",
+            "svg",
         ]
         for tag in soup.find_all(unwanted_tags):
             tag.decompose()
-        
+
         # Try to find main content
         content = ""
-        
+
         # Priority 1: article tag
         article = soup.find("article")
         if article:
             content = article.get_text(separator="\n", strip=True)
-        
+
         # Priority 2: main tag
         if not content:
             main = soup.find("main")
             if main:
                 content = main.get_text(separator="\n", strip=True)
-        
+
         # Priority 3: content divs
         if not content:
             content_divs = soup.find_all(
                 "div",
-                class_=lambda c: c and any(
+                class_=lambda c: c
+                and any(
                     key in c.lower() for key in ["content", "article", "main", "post", "entry"]
-                )
+                ),
             )
             for div in content_divs:
                 text = div.get_text(separator="\n", strip=True)
                 if len(text) > len(content):
                     content = text
-        
+
         # Priority 4: all paragraphs
         if not content or len(content) < 100:
             paragraphs = soup.find_all("p")
-            content = "\n\n".join([p.get_text(strip=True) for p in paragraphs if len(p.get_text(strip=True)) > 30])
-        
+            content = "\n\n".join(
+                [p.get_text(strip=True) for p in paragraphs if len(p.get_text(strip=True)) > 30]
+            )
+
         # Clean up
         content = re.sub(r"\n{3,}", "\n\n", content)
         content = re.sub(r" {2,}", " ", content)
-        
+
         result = content.strip()
         if len(result) < 50:
             raise ValueError(f"Content too short: {len(result)} chars")
-        
+
         return result
-        
+
     except Exception as e:
         logger.error(f"Selenium parse error for {url}: {e}")
         raise
@@ -739,9 +791,9 @@ async def method5_undetected_async(url: str) -> str:
     """Parse content using Undetected ChromeDriver - bypasses most bot detection."""
     if not UNDETECTED_AVAILABLE:
         return "Error: undetected-chromedriver not available"
-    
+
     logger.debug(f"Method 5 (Undetected ChromeDriver) attempting: {url}")
-    
+
     try:
         loop = asyncio.get_running_loop()
         content = await loop.run_in_executor(None, _undetected_parse, url)
@@ -756,29 +808,29 @@ def _undetected_parse(url: str) -> str:
     driver = None
     try:
         logger.info(f"[UNDETECTED] Starting driver for {url}")
-        
+
         # Create undetected Chrome options
         options = uc.ChromeOptions()
         # Don't use headless - it's often detected
         # options.add_argument('--headless=new')
-        options.add_argument('--no-sandbox')
-        options.add_argument('--disable-dev-shm-usage')
-        options.add_argument('--disable-blink-features=AutomationControlled')
-        options.add_argument('--window-size=1920,1080')
-        options.add_argument('--start-maximized')
-        
+        options.add_argument("--no-sandbox")
+        options.add_argument("--disable-dev-shm-usage")
+        options.add_argument("--disable-blink-features=AutomationControlled")
+        options.add_argument("--window-size=1920,1080")
+        options.add_argument("--start-maximized")
+
         # Create driver with specific version to avoid detection
         driver = uc.Chrome(options=options, version_main=None, use_subprocess=True)
         driver.set_page_load_timeout(30)
-        
+
         logger.info(f"[UNDETECTED] Loading page: {url}")
         driver.get(url)
-        
+
         # Random human-like delay
         wait_time = random.uniform(4, 7)
         logger.info(f"[UNDETECTED] Waiting {wait_time:.1f}s for content (human-like)")
         time.sleep(wait_time)
-        
+
         # Scroll like a human
         try:
             driver.execute_script("window.scrollTo(0, 500);")
@@ -787,69 +839,88 @@ def _undetected_parse(url: str) -> str:
             time.sleep(random.uniform(0.5, 1.5))
             driver.execute_script("window.scrollTo(0, 0);")
             time.sleep(random.uniform(0.5, 1.0))
-        except:
+        except Exception:
             pass
-        
+
         # Get page source
-        logger.info(f"[UNDETECTED] Extracting content")
+        logger.info("[UNDETECTED] Extracting content")
         html = driver.page_source
-        
+
         if not html or len(html) < 100:
             logger.error(f"[UNDETECTED] Empty or too short HTML: {len(html) if html else 0} bytes")
             raise ValueError("Empty or too short HTML content")
-        
+
         logger.info(f"[UNDETECTED] HTML extracted: {len(html)} bytes")
-        
+
         # Parse with BeautifulSoup
         soup = BeautifulSoup(html, "html.parser")
-        
+
         # Remove unwanted elements
-        for tag in soup.find_all(['script', 'style', 'nav', 'header', 'footer', 'aside', 'form', 'button', 'input', 'noscript', 'iframe', 'svg']):
+        for tag in soup.find_all(
+            [
+                "script",
+                "style",
+                "nav",
+                "header",
+                "footer",
+                "aside",
+                "form",
+                "button",
+                "input",
+                "noscript",
+                "iframe",
+                "svg",
+            ]
+        ):
             tag.decompose()
-        
+
         # Try to find main content
         content = ""
-        
+
         # Priority 1: article tag
         article = soup.find("article")
         if article:
             content = article.get_text(separator="\n", strip=True)
-        
+
         # Priority 2: main tag
         if not content or len(content) < 100:
             main = soup.find("main")
             if main:
                 content = main.get_text(separator="\n", strip=True)
-        
+
         # Priority 3: divs with content-related classes
         if not content or len(content) < 100:
             content_divs = soup.find_all(
                 "div",
-                class_=lambda c: c and any(
-                    key in c.lower() for key in ["content", "article", "main", "post", "entry", "story"]
-                )
+                class_=lambda c: c
+                and any(
+                    key in c.lower()
+                    for key in ["content", "article", "main", "post", "entry", "story"]
+                ),
             )
             for div in content_divs:
                 text = div.get_text(separator="\n", strip=True)
                 if len(text) > len(content):
                     content = text
-        
+
         # Priority 4: all paragraphs
         if not content or len(content) < 100:
             paragraphs = soup.find_all("p")
-            content = "\n\n".join([p.get_text(strip=True) for p in paragraphs if len(p.get_text(strip=True)) > 30])
-        
+            content = "\n\n".join(
+                [p.get_text(strip=True) for p in paragraphs if len(p.get_text(strip=True)) > 30]
+            )
+
         # Clean up
         content = re.sub(r"\n{3,}", "\n\n", content)
         content = re.sub(r" {2,}", " ", content)
-        
+
         result = content.strip()
         if len(result) < 50:
             raise ValueError(f"Content too short: {len(result)} chars")
-        
+
         logger.info(f"[UNDETECTED] Success: extracted {len(result)} chars")
         return result
-        
+
     except Exception as e:
         logger.error(f"[UNDETECTED] Parse error for {url}: {e}")
         raise
@@ -857,7 +928,7 @@ def _undetected_parse(url: str) -> str:
         if driver:
             try:
                 driver.quit()
-                logger.info(f"[UNDETECTED] Driver closed")
+                logger.info("[UNDETECTED] Driver closed")
             except Exception as e:
                 logger.warning(f"[UNDETECTED] Error closing driver: {e}")
 
@@ -867,23 +938,23 @@ def _readability_parse(html: str) -> str:
     doc = Document(html)
     content_html = doc.summary()
     soup = BeautifulSoup(content_html, "html.parser")
-    
+
     # Try to extract text more intelligently
     paragraphs = []
     for element in soup.find_all(["p", "h1", "h2", "h3", "h4", "h5", "h6", "li"]):
         text = element.get_text(separator=" ", strip=True)
         if text and len(text) > 10:
             paragraphs.append(text)
-    
+
     if paragraphs:
         clean_text = "\n\n".join(paragraphs)
     else:
         clean_text = soup.get_text(separator="\n", strip=True)
-    
+
     # Clean up excessive whitespace
     clean_text = re.sub(r"\n{3,}", "\n\n", clean_text)
     clean_text = re.sub(r" {2,}", " ", clean_text)
-    
+
     return clean_text.strip()
 
 
@@ -897,13 +968,9 @@ async def compare_methods_async(url: str) -> Tuple[str, str]:
     # Create SSL context and connector
     ssl_context = create_ssl_context()
     connector = aiohttp.TCPConnector(
-        ssl=ssl_context,
-        limit=10,
-        limit_per_host=5,
-        ttl_dns_cache=300,
-        enable_cleanup_closed=True
+        ssl=ssl_context, limit=10, limit_per_host=5, ttl_dns_cache=300, enable_cleanup_closed=True
     )
-    
+
     # Enhanced headers to appear more like a real browser
     headers = {
         "User-Agent": get_random_user_agent(),
@@ -919,15 +986,15 @@ async def compare_methods_async(url: str) -> Tuple[str, str]:
         "Sec-Fetch-User": "?1",
         "Cache-Control": "max-age=0",
     }
-    
+
     # Cookie jar for session management
     cookie_jar = aiohttp.CookieJar()
 
     async with aiohttp.ClientSession(
-        headers=headers, 
+        headers=headers,
         connector=connector,
         cookie_jar=cookie_jar,
-        timeout=aiohttp.ClientTimeout(total=30)
+        timeout=aiohttp.ClientTimeout(total=30),
     ) as session:
         # Try Trafilatura first - usually gives best results for articles
         trafilatura_result = ""
@@ -940,18 +1007,20 @@ async def compare_methods_async(url: str) -> Tuple[str, str]:
                     trafilatura_result, trafilatura_metadata = result
                 else:
                     trafilatura_result = result
-                
+
                 if (
                     trafilatura_result
                     and not trafilatura_result.startswith("Error")
                     and len(trafilatura_result) > 300
                 ):
-                    logger.info(f"Early exit: trafilatura gave {len(trafilatura_result)} chars for {url}")
+                    logger.info(
+                        f"Early exit: trafilatura gave {len(trafilatura_result)} chars for {url}"
+                    )
                     return trafilatura_result, "trafilatura"
             except Exception as e:
                 logger.warning(f"Trafilatura failed: {e}")
                 trafilatura_result = f"Error: {e}"
-        
+
         # Try readability second
         readability_result = await method3_readability_async(url, session)
         if (
@@ -981,28 +1050,44 @@ async def compare_methods_async(url: str) -> Tuple[str, str]:
         # Check if we got 403 errors and should try undetected/Selenium
         selenium_result = ""
         undetected_result = ""
-        
+
         if USE_SELENIUM_FOR_403:
             # Check if all methods failed with 403 or similar bot-detection errors
             has_403_or_blocked = any(
-                "403" in str(result) or "Forbidden" in str(result) or "blocked" in str(result).lower()
+                "403" in str(result)
+                or "Forbidden" in str(result)
+                or "blocked" in str(result).lower()
                 for result in [trafilatura_result, readability_result, newspaper_result, bs4_result]
             )
-            
+
             if has_403_or_blocked:
                 # Try undetected-chromedriver first (best for bot detection bypass)
                 if UNDETECTED_AVAILABLE:
-                    logger.info(f"Detected bot protection, trying Undetected ChromeDriver for {url}")
+                    logger.info(
+                        f"Detected bot protection, trying Undetected ChromeDriver for {url}"
+                    )
                     undetected_result = await method5_undetected_async(url)
-                    if undetected_result and not undetected_result.startswith("Error") and len(undetected_result) > 200:
-                        logger.info(f"Undetected ChromeDriver success: {len(undetected_result)} chars for {url}")
+                    if (
+                        undetected_result
+                        and not undetected_result.startswith("Error")
+                        and len(undetected_result) > 200
+                    ):
+                        logger.info(
+                            f"Undetected ChromeDriver success: {len(undetected_result)} chars for {url}"
+                        )
                         return undetected_result, "undetected"
-                
+
                 # Fallback to regular Selenium if undetected failed
-                if SELENIUM_AVAILABLE and (not undetected_result or undetected_result.startswith("Error")):
+                if SELENIUM_AVAILABLE and (
+                    not undetected_result or undetected_result.startswith("Error")
+                ):
                     logger.info(f"Trying regular Selenium for {url}")
                     selenium_result = await method4_selenium_async(url)
-                    if selenium_result and not selenium_result.startswith("Error") and len(selenium_result) > 200:
+                    if (
+                        selenium_result
+                        and not selenium_result.startswith("Error")
+                        and len(selenium_result) > 200
+                    ):
                         logger.info(f"Selenium success: {len(selenium_result)} chars for {url}")
                         return selenium_result, "selenium"
 
@@ -1080,11 +1165,11 @@ def clean_text(text: str) -> str:
             meaningful_lines.append(line)
 
     text = "\n\n".join(meaningful_lines).strip()
-    
+
     # Final cleanup
     text = re.sub(r"\n{3,}", "\n\n", text)
     text = re.sub(r" {2,}", " ", text)
-    
+
     return text
 
 
@@ -1129,12 +1214,14 @@ async def extract_content_from_url(url: str) -> str:
             logger.warning("Cleaning too aggressive, using original")
             final_content = re.sub(r"\n{3,}", "\n\n", content.strip())
         else:
-            final_content = cleaned_content if cleaned_content else "Error: Content empty after cleaning"
-        
+            final_content = (
+                cleaned_content if cleaned_content else "Error: Content empty after cleaning"
+            )
+
         # Cache the result
         if not final_content.startswith("Error"):
             _set_cache(url, ArticleMetadata(content=final_content, url=url, method=method_used))
-        
+
         return final_content
 
     except Exception as e:
@@ -1146,38 +1233,30 @@ async def extract_content_from_url(url: str) -> str:
 async def extract_article_with_metadata(url: str) -> ArticleMetadata:
     """
     Extract article content with full metadata (title, author, date, etc.).
-    
+
     Args:
         url: URL to extract content from
-        
+
     Returns:
         ArticleMetadata object with content and metadata
     """
     logger.info(f"Extracting article with metadata from: {url}")
-    
+
     if not url or not AsyncLinkParser.is_valid_url(url):
-        return ArticleMetadata(
-            content=f"Error: Invalid URL: {url}",
-            url=url,
-            method="failed"
-        )
-    
+        return ArticleMetadata(content=f"Error: Invalid URL: {url}", url=url, method="failed")
+
     # Check cache first
     cached = _get_from_cache(url)
     if cached:
         logger.info(f"Returning cached article for {url}")
         return cached
-    
+
     # Create session
     ssl_context = create_ssl_context()
     connector = aiohttp.TCPConnector(
-        ssl=ssl_context,
-        limit=10,
-        limit_per_host=5,
-        ttl_dns_cache=300,
-        enable_cleanup_closed=True
+        ssl=ssl_context, limit=10, limit_per_host=5, ttl_dns_cache=300, enable_cleanup_closed=True
     )
-    
+
     headers = {
         "User-Agent": get_random_user_agent(),
         "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
@@ -1187,14 +1266,14 @@ async def extract_article_with_metadata(url: str) -> ArticleMetadata:
         "Connection": "keep-alive",
         "Upgrade-Insecure-Requests": "1",
     }
-    
+
     cookie_jar = aiohttp.CookieJar()
-    
+
     async with aiohttp.ClientSession(
-        headers=headers, 
+        headers=headers,
         connector=connector,
         cookie_jar=cookie_jar,
-        timeout=aiohttp.ClientTimeout(total=30)
+        timeout=aiohttp.ClientTimeout(total=30),
     ) as session:
         # Try Trafilatura first - it provides the best metadata extraction
         if TRAFILATURA_AVAILABLE:
@@ -1203,39 +1282,40 @@ async def extract_article_with_metadata(url: str) -> ArticleMetadata:
                 # Clean the content
                 metadata.content = clean_text(metadata.content)
                 _set_cache(url, metadata)
-                logger.info(f"Extracted article with metadata using trafilatura: {len(metadata.content)} chars")
+                logger.info(
+                    f"Extracted article with metadata using trafilatura: {len(metadata.content)} chars"
+                )
                 return metadata
-        
+
         # Fallback to newspaper which also provides good metadata
         html, error = await fetch_html_with_retry(url, session, timeout=10)
         if not error and html:
             try:
                 loop = asyncio.get_running_loop()
                 metadata = await loop.run_in_executor(
-                    None, 
-                    _newspaper_parse_with_metadata, 
-                    html, 
-                    url
+                    None, _newspaper_parse_with_metadata, html, url
                 )
                 if metadata and metadata.content and len(metadata.content) > 200:
                     metadata.content = clean_text(metadata.content)
                     _set_cache(url, metadata)
-                    logger.info(f"Extracted article with metadata using newspaper: {len(metadata.content)} chars")
+                    logger.info(
+                        f"Extracted article with metadata using newspaper: {len(metadata.content)} chars"
+                    )
                     return metadata
             except Exception as e:
                 logger.error(f"Newspaper metadata extraction failed: {e}")
-        
+
         # Final fallback to regular extraction
         content, method = await compare_methods_async(url)
-        cleaned_content = clean_text(content) if content and not content.startswith("Error") else content
-        
-        result = ArticleMetadata(
-            content=cleaned_content or "Error: No content extracted",
-            url=url,
-            method=method
+        cleaned_content = (
+            clean_text(content) if content and not content.startswith("Error") else content
         )
-        
+
+        result = ArticleMetadata(
+            content=cleaned_content or "Error: No content extracted", url=url, method=method
+        )
+
         if not cleaned_content.startswith("Error"):
             _set_cache(url, result)
-        
+
         return result
