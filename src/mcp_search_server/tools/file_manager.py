@@ -6,12 +6,11 @@ Supports reading/writing text files, PDFs, Word documents, Excel files, and imag
 import os
 import asyncio
 from pathlib import Path
-from typing import Optional, Dict, Any
+from typing import Dict, Any
 import base64
 
 # Document processing imports
 try:
-    import pypdf
     from pypdf import PdfReader
     PDF_AVAILABLE = True
 except ImportError:

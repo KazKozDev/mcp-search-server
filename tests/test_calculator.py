@@ -1,6 +1,5 @@
 """Tests for calculator functionality."""
 
-import asyncio
 import pytest
 import math
 

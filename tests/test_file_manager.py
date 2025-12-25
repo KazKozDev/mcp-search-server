@@ -1,6 +1,5 @@
 """Tests for file manager functionality."""
 
-import asyncio
 import pytest
 from pathlib import Path
 import tempfile

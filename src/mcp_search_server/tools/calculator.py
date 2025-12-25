@@ -120,8 +120,8 @@ class Calculator:
 
         # Handle implicit multiplication for constants only (e.g., 2pi -> 2*pi)
         for const_name in self.CONSTANTS.keys():
-            expression = re.sub(rf'(\d)({const_name})(?!\w)', rf'\1*\2', expression)
-            expression = re.sub(rf'({const_name})(\d)', rf'\1*\2', expression)
+            expression = re.sub(rf'(\d)({const_name})(?!\w)', r'\1*\2', expression)
+            expression = re.sub(rf'({const_name})(\d)', r'\1*\2', expression)
 
         return expression
     
