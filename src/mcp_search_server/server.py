@@ -1850,11 +1850,13 @@ async def call_tool(
             # Build structured content
             structured_articles = []
             for result in results:
-                structured_articles.append({
-                    "title": result.get("title", "No title"),
-                    "url": result.get("url", ""),
-                    "snippet": result.get("snippet", ""),
-                })
+                structured_articles.append(
+                    {
+                        "title": result.get("title", "No title"),
+                        "url": result.get("url", ""),
+                        "snippet": result.get("snippet", ""),
+                    }
+                )
             structured_content = {
                 "articles": structured_articles,
                 "total_results": len(structured_articles),
@@ -2191,16 +2193,18 @@ async def call_tool(
             # Build structured content
             structured_posts = []
             for post in results:
-                structured_posts.append({
-                    "title": post.get("title", ""),
-                    "subreddit": post.get("subreddit", ""),
-                    "author": post.get("author", ""),
-                    "score": post.get("score", 0),
-                    "num_comments": post.get("num_comments", 0),
-                    "url": post.get("url", ""),
-                    "text": post.get("text", ""),
-                    "created_utc": post.get("created_utc", ""),
-                })
+                structured_posts.append(
+                    {
+                        "title": post.get("title", ""),
+                        "subreddit": post.get("subreddit", ""),
+                        "author": post.get("author", ""),
+                        "score": post.get("score", 0),
+                        "num_comments": post.get("num_comments", 0),
+                        "url": post.get("url", ""),
+                        "text": post.get("text", ""),
+                        "created_utc": post.get("created_utc", ""),
+                    }
+                )
             structured_content = {
                 "posts": structured_posts,
                 "total_results": len(structured_posts),
@@ -2241,12 +2245,14 @@ async def call_tool(
             # Build structured content
             structured_comments = []
             for comment in results:
-                structured_comments.append({
-                    "author": comment.get("author", ""),
-                    "body": comment.get("body", ""),
-                    "score": comment.get("score", 0),
-                    "created_utc": comment.get("created_utc", ""),
-                })
+                structured_comments.append(
+                    {
+                        "author": comment.get("author", ""),
+                        "body": comment.get("body", ""),
+                        "score": comment.get("score", 0),
+                        "created_utc": comment.get("created_utc", ""),
+                    }
+                )
             structured_content = {
                 "comments": structured_comments,
                 "post_url": url,
@@ -2282,16 +2288,18 @@ async def call_tool(
             # Build structured content
             structured_articles = []
             for article in results:
-                structured_articles.append({
-                    "title": article.get("title", ""),
-                    "authors": article.get("authors", []),
-                    "abstract": article.get("abstract", ""),
-                    "journal": article.get("journal", ""),
-                    "pub_date": article.get("pub_date", ""),
-                    "pmid": article.get("pmid", ""),
-                    "doi": article.get("doi", ""),
-                    "url": article.get("url", ""),
-                })
+                structured_articles.append(
+                    {
+                        "title": article.get("title", ""),
+                        "authors": article.get("authors", []),
+                        "abstract": article.get("abstract", ""),
+                        "journal": article.get("journal", ""),
+                        "pub_date": article.get("pub_date", ""),
+                        "pmid": article.get("pmid", ""),
+                        "doi": article.get("doi", ""),
+                        "url": article.get("url", ""),
+                    }
+                )
             structured_content = {
                 "articles": structured_articles,
                 "total_results": len(structured_articles),
@@ -2331,13 +2339,15 @@ async def call_tool(
             # Build structured content
             structured_articles = []
             for article in results:
-                structured_articles.append({
-                    "title": article.get("title", ""),
-                    "url": article.get("url", ""),
-                    "domain": article.get("domain", ""),
-                    "country": article.get("country", ""),
-                    "date": article.get("date", ""),
-                })
+                structured_articles.append(
+                    {
+                        "title": article.get("title", ""),
+                        "url": article.get("url", ""),
+                        "domain": article.get("domain", ""),
+                        "country": article.get("country", ""),
+                        "date": article.get("date", ""),
+                    }
+                )
             structured_content = {
                 "articles": structured_articles,
                 "total_results": len(structured_articles),
