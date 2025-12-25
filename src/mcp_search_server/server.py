@@ -1690,8 +1690,16 @@ async def list_tools() -> list[Tool]:
 @app.call_tool()
 async def call_tool(
     name: str, arguments: Any
-) -> list[TextContent | ImageContent | EmbeddedResource]:
-    """Handle tool calls."""
+) -> (
+    list[TextContent | ImageContent | EmbeddedResource]
+    | tuple[list[TextContent | ImageContent | EmbeddedResource], dict]
+):
+    """Handle tool calls.
+
+    Returns either:
+    - list of content blocks (unstructured only)
+    - tuple of (content blocks, structured dict) for tools with outputSchema
+    """
     try:
         if name == "search_web":
             query = arguments.get("query")
@@ -1772,12 +1780,10 @@ async def call_tool(
                     formatted_results += f"**Preview:** {result.get('preview')}\n\n"
 
             # Return both text content and structured JSON
-            # Note: structuredContent is included as metadata in the text response
-            formatted_results += (
-                f"\n---\n<!-- structuredContent: {json.dumps(structured_content)} -->"
+            return (
+                [TextContent(type="text", text=formatted_results)],
+                structured_content,
             )
-
-            return [TextContent(type="text", text=formatted_results)]
 
         elif name == "search_maps":
             query = arguments.get("query")
@@ -1823,12 +1829,11 @@ async def call_tool(
                     formatted_output += f"**OSM URL:** {result.get('url')}\n"
                 formatted_output += "\n"
 
-            # Append structured content
-            formatted_output += (
-                f"\n---\n<!-- structuredContent: {json.dumps(structured_content)} -->"
+            # Return both text content and structured JSON
+            return (
+                [TextContent(type="text", text=formatted_output)],
+                structured_content,
             )
-
-            return [TextContent(type="text", text=formatted_output)]
 
         elif name == "search_wikipedia":
             query = arguments.get("query")
@@ -1843,13 +1848,29 @@ async def call_tool(
             if not results:
                 return [TextContent(type="text", text="No results found")]
 
+            # Build structured content
+            structured_articles = []
+            for result in results:
+                structured_articles.append({
+                    "title": result.get("title", "No title"),
+                    "url": result.get("url", ""),
+                    "snippet": result.get("snippet", ""),
+                })
+            structured_content = {
+                "articles": structured_articles,
+                "total_results": len(structured_articles),
+            }
+
             formatted_results = "# Wikipedia Search Results\n\n"
             for i, result in enumerate(results, 1):
                 formatted_results += f"## {i}. {result.get('title', 'No title')}\n"
                 formatted_results += f"**URL:** {result.get('url', 'No URL')}\n"
                 formatted_results += f"**Snippet:** {result.get('snippet', 'No snippet')}\n\n"
 
-            return [TextContent(type="text", text=formatted_results)]
+            return (
+                [TextContent(type="text", text=formatted_results)],
+                structured_content,
+            )
 
         elif name == "get_wikipedia_summary":
             title = arguments.get("title")
@@ -1860,11 +1881,23 @@ async def call_tool(
             logger.info(f"Getting Wikipedia summary for: {title}")
             result = await get_wikipedia_summary(title)
 
+            # Build structured content
+            structured_content = {
+                "title": result.get("title", ""),
+                "url": result.get("url", ""),
+                "extract": result.get("extract", ""),
+                "description": result.get("description", ""),
+                "thumbnail": result.get("thumbnail", ""),
+            }
+
             formatted_result = f"# {result.get('title', 'Wikipedia Article')}\n\n"
             formatted_result += f"**URL:** {result.get('url', 'No URL')}\n\n"
             formatted_result += f"{result.get('extract', 'No content available')}\n"
 
-            return [TextContent(type="text", text=formatted_result)]
+            return (
+                [TextContent(type="text", text=formatted_result)],
+                structured_content,
+            )
 
         elif name == "extract_webpage_content":
             url = arguments.get("url")
@@ -1878,8 +1911,18 @@ async def call_tool(
             if content.startswith("Error"):
                 return [TextContent(type="text", text=content)]
 
+            # Build structured content
+            structured_content = {
+                "url": url,
+                "content": content,
+                "word_count": len(content.split()),
+            }
+
             formatted_content = f"# Extracted Content from {url}\n\n{content}"
-            return [TextContent(type="text", text=formatted_content)]
+            return (
+                [TextContent(type="text", text=formatted_content)],
+                structured_content,
+            )
 
         elif name == "parse_pdf":
             url = arguments.get("url")
@@ -1894,8 +1937,19 @@ async def call_tool(
             if content.startswith("Error"):
                 return [TextContent(type="text", text=content)]
 
+            # Build structured content
+            structured_content = {
+                "url": url,
+                "content": content,
+                "char_count": len(content),
+                "truncated": len(content) >= max_chars,
+            }
+
             formatted_content = f"# PDF Content from {url}\n\n{content}"
-            return [TextContent(type="text", text=formatted_content)]
+            return (
+                [TextContent(type="text", text=formatted_content)],
+                structured_content,
+            )
 
         elif name == "get_current_datetime":
             timezone = arguments.get("timezone", "UTC")
@@ -1937,7 +1991,11 @@ async def call_tool(
                 formatted_output += f"**Month:** {result['month']}\n"
                 formatted_output += f"**Day:** {result['day']}\n"
 
-            return [TextContent(type="text", text=formatted_output)]
+            # Return structured content (result dict already matches outputSchema)
+            return (
+                [TextContent(type="text", text=formatted_output)],
+                result,
+            )
 
         elif name == "get_location_by_ip":
             ip_address = arguments.get("ip_address")
@@ -1976,7 +2034,11 @@ async def call_tool(
             if result.get("as_number"):
                 formatted_output += f"**AS Number:** {result.get('as_number')}\n"
 
-            return [TextContent(type="text", text=formatted_output)]
+            # Return structured content (result dict already matches outputSchema)
+            return (
+                [TextContent(type="text", text=formatted_output)],
+                result,
+            )
 
         elif name == "search_arxiv":
             query = arguments.get("query")
@@ -2029,12 +2091,11 @@ async def call_tool(
                     formatted_results += f"**URL:** {paper['abs_url']}\n"
                 formatted_results += f"\n**Abstract:** {paper.get('abstract', 'No abstract')}\n\n"
 
-            # Append structured content
-            formatted_results += (
-                f"\n---\n<!-- structuredContent: {json.dumps(structured_content)} -->"
+            # Return both text and structured content
+            return (
+                [TextContent(type="text", text=formatted_results)],
+                structured_content,
             )
-
-            return [TextContent(type="text", text=formatted_results)]
 
         elif name == "search_github":
             query = arguments.get("query")
@@ -2083,12 +2144,11 @@ async def call_tool(
                 formatted_results += f"**Language:** {repo.get('language', 'N/A')}\n"
                 formatted_results += f"**Updated:** {repo.get('updated_at', 'N/A')}\n\n"
 
-            # Append structured content
-            formatted_results += (
-                f"\n---\n<!-- structuredContent: {json.dumps(structured_content)} -->"
+            # Return both text and structured content
+            return (
+                [TextContent(type="text", text=formatted_results)],
+                structured_content,
             )
-
-            return [TextContent(type="text", text=formatted_results)]
 
         elif name == "get_github_readme":
             repo = arguments.get("repo")
@@ -2102,8 +2162,17 @@ async def call_tool(
             if not content:
                 return [TextContent(type="text", text=f"README not found for {repo}")]
 
+            # Build structured content
+            structured_content = {
+                "repo": repo,
+                "content": content,
+            }
+
             formatted_content = f"# README: {repo}\n\n{content}"
-            return [TextContent(type="text", text=formatted_content)]
+            return (
+                [TextContent(type="text", text=formatted_content)],
+                structured_content,
+            )
 
         elif name == "search_reddit":
             query = arguments.get("query")
@@ -2120,6 +2189,24 @@ async def call_tool(
             if not results:
                 return [TextContent(type="text", text="No Reddit posts found")]
 
+            # Build structured content
+            structured_posts = []
+            for post in results:
+                structured_posts.append({
+                    "title": post.get("title", ""),
+                    "subreddit": post.get("subreddit", ""),
+                    "author": post.get("author", ""),
+                    "score": post.get("score", 0),
+                    "num_comments": post.get("num_comments", 0),
+                    "url": post.get("url", ""),
+                    "text": post.get("text", ""),
+                    "created_utc": post.get("created_utc", ""),
+                })
+            structured_content = {
+                "posts": structured_posts,
+                "total_results": len(structured_posts),
+            }
+
             formatted_results = "# Reddit Search Results\n\n"
             for i, post in enumerate(results, 1):
                 formatted_results += f"## {i}. {post.get('title', 'No title')}\n"
@@ -2132,7 +2219,10 @@ async def call_tool(
                     formatted_results += f"\n**Text:** {post['text']}\n"
                 formatted_results += "\n"
 
-            return [TextContent(type="text", text=formatted_results)]
+            return (
+                [TextContent(type="text", text=formatted_results)],
+                structured_content,
+            )
 
         elif name == "get_reddit_comments":
             url = arguments.get("url")
@@ -2149,6 +2239,21 @@ async def call_tool(
                     TextContent(type="text", text="No comments found or error fetching comments")
                 ]
 
+            # Build structured content
+            structured_comments = []
+            for comment in results:
+                structured_comments.append({
+                    "author": comment.get("author", ""),
+                    "body": comment.get("body", ""),
+                    "score": comment.get("score", 0),
+                    "created_utc": comment.get("created_utc", ""),
+                })
+            structured_content = {
+                "comments": structured_comments,
+                "post_url": url,
+                "total_comments": len(structured_comments),
+            }
+
             formatted_results = f"# Reddit Comments\n\n**Post:** {url}\n\n"
             for i, comment in enumerate(results, 1):
                 formatted_results += f"## Comment {i}\n"
@@ -2157,7 +2262,10 @@ async def call_tool(
                 formatted_results += f"**Date:** {comment.get('created_utc', 'N/A')}\n"
                 formatted_results += f"\n{comment.get('body', 'No content')}\n\n"
 
-            return [TextContent(type="text", text=formatted_results)]
+            return (
+                [TextContent(type="text", text=formatted_results)],
+                structured_content,
+            )
 
         elif name == "search_pubmed":
             query = arguments.get("query")
@@ -2172,6 +2280,24 @@ async def call_tool(
             if not results:
                 return [TextContent(type="text", text="No PubMed articles found")]
 
+            # Build structured content
+            structured_articles = []
+            for article in results:
+                structured_articles.append({
+                    "title": article.get("title", ""),
+                    "authors": article.get("authors", []),
+                    "abstract": article.get("abstract", ""),
+                    "journal": article.get("journal", ""),
+                    "pub_date": article.get("pub_date", ""),
+                    "pmid": article.get("pmid", ""),
+                    "doi": article.get("doi", ""),
+                    "url": article.get("url", ""),
+                })
+            structured_content = {
+                "articles": structured_articles,
+                "total_results": len(structured_articles),
+            }
+
             formatted_results = "# PubMed Search Results\n\n"
             for i, article in enumerate(results, 1):
                 formatted_results += f"## {i}. {article.get('title', 'No title')}\n"
@@ -2184,7 +2310,10 @@ async def call_tool(
                     formatted_results += f"**DOI:** {article['doi']}\n"
                 formatted_results += f"\n**Abstract:** {article.get('abstract', 'No abstract')}\n\n"
 
-            return [TextContent(type="text", text=formatted_results)]
+            return (
+                [TextContent(type="text", text=formatted_results)],
+                structured_content,
+            )
 
         elif name == "search_gdelt":
             query = arguments.get("query")
@@ -2200,6 +2329,21 @@ async def call_tool(
             if not results:
                 return [TextContent(type="text", text="No GDELT news articles found")]
 
+            # Build structured content
+            structured_articles = []
+            for article in results:
+                structured_articles.append({
+                    "title": article.get("title", ""),
+                    "url": article.get("url", ""),
+                    "domain": article.get("domain", ""),
+                    "country": article.get("country", ""),
+                    "date": article.get("date", ""),
+                })
+            structured_content = {
+                "articles": structured_articles,
+                "total_results": len(structured_articles),
+            }
+
             formatted_results = "# GDELT News Results\n\n"
             for i, article in enumerate(results, 1):
                 formatted_results += f"## {i}. {article.get('title', 'No title')}\n"
@@ -2208,7 +2352,10 @@ async def call_tool(
                 formatted_results += f"**Country:** {article.get('country', 'N/A')}\n"
                 formatted_results += f"**Date:** {article.get('date', 'N/A')}\n\n"
 
-            return [TextContent(type="text", text=formatted_results)]
+            return (
+                [TextContent(type="text", text=formatted_results)],
+                structured_content,
+            )
 
         elif name == "assess_source_credibility":
             url = arguments.get("url")
@@ -2249,7 +2396,11 @@ async def call_tool(
                 bar = "█" * int(value * 20)
                 formatted_output += f"- **{signal}:** {value:.3f} {bar}\n"
 
-            return [TextContent(type="text", text=formatted_output)]
+            # Return both text and structured content (result dict matches outputSchema)
+            return (
+                [TextContent(type="text", text=formatted_output)],
+                result,
+            )
 
         elif name == "summarize_text":
             text = arguments.get("text")
@@ -2276,7 +2427,11 @@ async def call_tool(
 
             formatted_output += f"\n## Summary\n\n{result['summary']}\n"
 
-            return [TextContent(type="text", text=formatted_output)]
+            # Return both text and structured content
+            return (
+                [TextContent(type="text", text=formatted_output)],
+                result,
+            )
 
         elif name == "get_wikipedia_content":
             title = arguments.get("title")
@@ -2307,7 +2462,11 @@ async def call_tool(
                 for article in related[:10]:
                     formatted_result += f"- {article}\n"
 
-            return [TextContent(type="text", text=formatted_result)]
+            # Return both text and structured content
+            return (
+                [TextContent(type="text", text=formatted_result)],
+                result,
+            )
 
         elif name == "read_file":
             path = arguments.get("path")
@@ -2329,7 +2488,11 @@ async def call_tool(
             else:
                 formatted_output += result["content"]
 
-            return [TextContent(type="text", text=formatted_output)]
+            # Return both text and structured content
+            return (
+                [TextContent(type="text", text=formatted_output)],
+                result,
+            )
 
         elif name == "write_file":
             path = arguments.get("path")
@@ -2349,7 +2512,11 @@ async def call_tool(
             formatted_output += f"**Size:** {result['size']} bytes\n"
             formatted_output += f"**Status:** {result['message']}\n"
 
-            return [TextContent(type="text", text=formatted_output)]
+            # Return both text and structured content
+            return (
+                [TextContent(type="text", text=formatted_output)],
+                result,
+            )
 
         elif name == "append_file":
             path = arguments.get("path")
@@ -2369,7 +2536,11 @@ async def call_tool(
             formatted_output += f"**Size:** {result['size']} bytes\n"
             formatted_output += f"**Status:** {result['message']}\n"
 
-            return [TextContent(type="text", text=formatted_output)]
+            # Return both text and structured content
+            return (
+                [TextContent(type="text", text=formatted_output)],
+                result,
+            )
 
         elif name == "list_files":
             path = arguments.get("path", "")
@@ -2399,7 +2570,11 @@ async def call_tool(
             else:
                 formatted_output += "*Directory is empty*\n"
 
-            return [TextContent(type="text", text=formatted_output)]
+            # Return both text and structured content
+            return (
+                [TextContent(type="text", text=formatted_output)],
+                result,
+            )
 
         elif name == "delete_file":
             path = arguments.get("path")
@@ -2416,7 +2591,11 @@ async def call_tool(
             formatted_output += f"**Success:** {result['success']}\n"
             formatted_output += f"**Message:** {result['message']}\n"
 
-            return [TextContent(type="text", text=formatted_output)]
+            # Return both text and structured content
+            return (
+                [TextContent(type="text", text=formatted_output)],
+                result,
+            )
 
         elif name == "calculate":
             expression = arguments.get("expression")
@@ -2452,12 +2631,11 @@ async def call_tool(
                 formatted_output += f"**Expression:** `{result['expression']}`\n\n"
                 formatted_output += f"**Error:** {result['error']}\n"
 
-            # Append structured content
-            formatted_output += (
-                f"\n---\n<!-- structuredContent: {json.dumps(structured_content)} -->"
+            # Return both text and structured content
+            return (
+                [TextContent(type="text", text=formatted_output)],
+                structured_content,
             )
-
-            return [TextContent(type="text", text=formatted_output)]
 
         else:
             return [TextContent(type="text", text=f"Error: Unknown tool '{name}'")]
