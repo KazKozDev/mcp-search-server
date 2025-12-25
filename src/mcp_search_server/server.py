@@ -130,14 +130,26 @@ async def list_tools() -> list[Tool]:
                             "properties": {
                                 "title": {"type": "string", "description": "Result title"},
                                 "url": {"type": "string", "description": "Result URL"},
-                                "snippet": {"type": "string", "description": "Result snippet/description"},
-                                "preview": {"type": "string", "description": "Enriched preview content (if enrich_results=true)"},
+                                "snippet": {
+                                    "type": "string",
+                                    "description": "Result snippet/description",
+                                },
+                                "preview": {
+                                    "type": "string",
+                                    "description": "Enriched preview content (if enrich_results=true)",
+                                },
                             },
                             "required": ["title", "url", "snippet"],
                         },
                     },
-                    "engine_used": {"type": "string", "description": "Search engine that returned results"},
-                    "total_results": {"type": "integer", "description": "Number of results returned"},
+                    "engine_used": {
+                        "type": "string",
+                        "description": "Search engine that returned results",
+                    },
+                    "total_results": {
+                        "type": "integer",
+                        "description": "Number of results returned",
+                    },
                 },
                 "required": ["results", "total_results"],
             },
@@ -199,9 +211,18 @@ async def list_tools() -> list[Tool]:
                             "properties": {
                                 "name": {"type": "string", "description": "Place name"},
                                 "address": {"type": "string", "description": "Full address"},
-                                "latitude": {"type": "number", "description": "Latitude coordinate"},
-                                "longitude": {"type": "number", "description": "Longitude coordinate"},
-                                "type": {"type": "string", "description": "Place type (city, restaurant, etc.)"},
+                                "latitude": {
+                                    "type": "number",
+                                    "description": "Latitude coordinate",
+                                },
+                                "longitude": {
+                                    "type": "number",
+                                    "description": "Longitude coordinate",
+                                },
+                                "type": {
+                                    "type": "string",
+                                    "description": "Place type (city, restaurant, etc.)",
+                                },
                                 "osm_url": {"type": "string", "description": "OpenStreetMap URL"},
                             },
                             "required": ["name", "address", "latitude", "longitude"],
@@ -262,7 +283,10 @@ async def list_tools() -> list[Tool]:
                             "properties": {
                                 "title": {"type": "string", "description": "Article title"},
                                 "url": {"type": "string", "description": "Wikipedia URL"},
-                                "snippet": {"type": "string", "description": "Article snippet/preview"},
+                                "snippet": {
+                                    "type": "string",
+                                    "description": "Article snippet/preview",
+                                },
                             },
                             "required": ["title", "url"],
                         },
@@ -359,8 +383,14 @@ async def list_tools() -> list[Tool]:
                     "title": {"type": "string", "description": "Page title"},
                     "content": {"type": "string", "description": "Extracted text content"},
                     "author": {"type": "string", "description": "Article author (if found)"},
-                    "published_date": {"type": "string", "description": "Publication date (if found)"},
-                    "word_count": {"type": "integer", "description": "Word count of extracted content"},
+                    "published_date": {
+                        "type": "string",
+                        "description": "Publication date (if found)",
+                    },
+                    "word_count": {
+                        "type": "integer",
+                        "description": "Word count of extracted content",
+                    },
                 },
                 "required": ["url", "content"],
             },
@@ -411,7 +441,10 @@ async def list_tools() -> list[Tool]:
                     "content": {"type": "string", "description": "Extracted text content"},
                     "num_pages": {"type": "integer", "description": "Number of pages in PDF"},
                     "char_count": {"type": "integer", "description": "Total characters extracted"},
-                    "truncated": {"type": "boolean", "description": "Whether content was truncated due to max_chars"},
+                    "truncated": {
+                        "type": "boolean",
+                        "description": "Whether content was truncated due to max_chars",
+                    },
                 },
                 "required": ["url", "content"],
             },
@@ -476,7 +509,10 @@ async def list_tools() -> list[Tool]:
                     "month": {"type": "integer", "description": "Month (1-12)"},
                     "day": {"type": "integer", "description": "Day of month"},
                     "day_of_week": {"type": "string", "description": "Day name (e.g., Monday)"},
-                    "day_of_week_num": {"type": "integer", "description": "Day number (1=Monday, 7=Sunday)"},
+                    "day_of_week_num": {
+                        "type": "integer",
+                        "description": "Day number (1=Monday, 7=Sunday)",
+                    },
                     "week_number": {"type": "integer", "description": "ISO week number"},
                     "formatted": {
                         "type": "object",
@@ -489,7 +525,10 @@ async def list_tools() -> list[Tool]:
                             "time_24h": {"type": "string"},
                         },
                     },
-                    "error": {"type": "string", "description": "Error message if timezone is invalid"},
+                    "error": {
+                        "type": "string",
+                        "description": "Error message if timezone is invalid",
+                    },
                 },
                 "required": ["datetime", "timezone"],
             },
@@ -613,7 +652,11 @@ async def list_tools() -> list[Tool]:
                             "type": "object",
                             "properties": {
                                 "title": {"type": "string", "description": "Paper title"},
-                                "authors": {"type": "array", "items": {"type": "string"}, "description": "List of authors"},
+                                "authors": {
+                                    "type": "array",
+                                    "items": {"type": "string"},
+                                    "description": "List of authors",
+                                },
                                 "abstract": {"type": "string", "description": "Paper abstract"},
                                 "arxiv_id": {"type": "string", "description": "ArXiv paper ID"},
                                 "pdf_url": {"type": "string", "description": "Direct PDF link"},
@@ -686,8 +729,14 @@ async def list_tools() -> list[Tool]:
                         "items": {
                             "type": "object",
                             "properties": {
-                                "full_name": {"type": "string", "description": "Full repo name (owner/repo)"},
-                                "description": {"type": "string", "description": "Repository description"},
+                                "full_name": {
+                                    "type": "string",
+                                    "description": "Full repo name (owner/repo)",
+                                },
+                                "description": {
+                                    "type": "string",
+                                    "description": "Repository description",
+                                },
                                 "url": {"type": "string", "description": "GitHub URL"},
                                 "stars": {"type": "integer", "description": "Star count"},
                                 "forks": {"type": "integer", "description": "Fork count"},
@@ -743,7 +792,10 @@ async def list_tools() -> list[Tool]:
                 "type": "object",
                 "properties": {
                     "repo": {"type": "string", "description": "Repository name (owner/repo)"},
-                    "content": {"type": "string", "description": "README content in markdown format"},
+                    "content": {
+                        "type": "string",
+                        "description": "README content in markdown format",
+                    },
                     "error": {"type": "string", "description": "Error message if README not found"},
                 },
                 "required": ["repo"],
@@ -813,10 +865,16 @@ async def list_tools() -> list[Tool]:
                                 "subreddit": {"type": "string", "description": "Subreddit name"},
                                 "author": {"type": "string", "description": "Post author"},
                                 "score": {"type": "integer", "description": "Post score (upvotes)"},
-                                "num_comments": {"type": "integer", "description": "Number of comments"},
+                                "num_comments": {
+                                    "type": "integer",
+                                    "description": "Number of comments",
+                                },
                                 "url": {"type": "string", "description": "Post URL"},
                                 "text": {"type": "string", "description": "Post text content"},
-                                "created_utc": {"type": "string", "description": "Creation timestamp"},
+                                "created_utc": {
+                                    "type": "string",
+                                    "description": "Creation timestamp",
+                                },
                             },
                             "required": ["title", "subreddit", "url", "score"],
                         },
@@ -871,14 +929,23 @@ async def list_tools() -> list[Tool]:
                             "properties": {
                                 "author": {"type": "string", "description": "Comment author"},
                                 "body": {"type": "string", "description": "Comment text"},
-                                "score": {"type": "integer", "description": "Comment score (upvotes)"},
-                                "created_utc": {"type": "string", "description": "Creation timestamp"},
+                                "score": {
+                                    "type": "integer",
+                                    "description": "Comment score (upvotes)",
+                                },
+                                "created_utc": {
+                                    "type": "string",
+                                    "description": "Creation timestamp",
+                                },
                             },
                             "required": ["author", "body", "score"],
                         },
                     },
                     "post_url": {"type": "string", "description": "Original post URL"},
-                    "total_comments": {"type": "integer", "description": "Number of comments returned"},
+                    "total_comments": {
+                        "type": "integer",
+                        "description": "Number of comments returned",
+                    },
                 },
                 "required": ["comments", "total_comments"],
             },
@@ -941,12 +1008,19 @@ async def list_tools() -> list[Tool]:
                             "type": "object",
                             "properties": {
                                 "title": {"type": "string", "description": "Article title"},
-                                "authors": {"type": "array", "items": {"type": "string"}, "description": "List of authors"},
+                                "authors": {
+                                    "type": "array",
+                                    "items": {"type": "string"},
+                                    "description": "List of authors",
+                                },
                                 "abstract": {"type": "string", "description": "Article abstract"},
                                 "journal": {"type": "string", "description": "Journal name"},
                                 "pub_date": {"type": "string", "description": "Publication date"},
                                 "pmid": {"type": "string", "description": "PubMed ID"},
-                                "doi": {"type": "string", "description": "Digital Object Identifier"},
+                                "doi": {
+                                    "type": "string",
+                                    "description": "Digital Object Identifier",
+                                },
                                 "url": {"type": "string", "description": "PubMed URL"},
                             },
                             "required": ["title", "pmid", "url"],
@@ -1077,7 +1151,11 @@ async def list_tools() -> list[Tool]:
                             "type": "object",
                             "properties": {
                                 "title": {"type": "string", "description": "Section title"},
-                                "content": {"type": "array", "items": {"type": "string"}, "description": "Section paragraphs"},
+                                "content": {
+                                    "type": "array",
+                                    "items": {"type": "string"},
+                                    "description": "Section paragraphs",
+                                },
                             },
                             "required": ["title", "content"],
                         },
@@ -1155,7 +1233,10 @@ async def list_tools() -> list[Tool]:
                 "properties": {
                     "url": {"type": "string", "description": "Assessed URL"},
                     "domain": {"type": "string", "description": "Domain name"},
-                    "category": {"type": "string", "description": "Domain category (academic, news, blog, etc.)"},
+                    "category": {
+                        "type": "string",
+                        "description": "Domain category (academic, news, blog, etc.)",
+                    },
                     "credibility_score": {"type": "number", "description": "Score from 0 to 1"},
                     "confidence_interval": {
                         "type": "array",
@@ -1170,7 +1251,10 @@ async def list_tools() -> list[Tool]:
                         "type": "object",
                         "description": "Individual signal scores",
                     },
-                    "recommendation": {"type": "string", "description": "Human-readable recommendation"},
+                    "recommendation": {
+                        "type": "string",
+                        "description": "Human-readable recommendation",
+                    },
                 },
                 "required": ["url", "domain", "credibility_score", "recommendation"],
             },
@@ -1349,7 +1433,10 @@ async def list_tools() -> list[Tool]:
                     "path": {"type": "string", "description": "Resolved file path"},
                     "message": {"type": "string", "description": "Success or error message"},
                     "size": {"type": "integer", "description": "File size in bytes after writing"},
-                    "exists": {"type": "boolean", "description": "Whether file exists after operation"},
+                    "exists": {
+                        "type": "boolean",
+                        "description": "Whether file exists after operation",
+                    },
                 },
                 "required": ["path", "message"],
             },
@@ -1401,8 +1488,14 @@ async def list_tools() -> list[Tool]:
                 "properties": {
                     "path": {"type": "string", "description": "Resolved file path"},
                     "message": {"type": "string", "description": "Success or error message"},
-                    "size": {"type": "integer", "description": "File size in bytes after appending"},
-                    "exists": {"type": "boolean", "description": "Whether file exists after operation"},
+                    "size": {
+                        "type": "integer",
+                        "description": "File size in bytes after appending",
+                    },
+                    "exists": {
+                        "type": "boolean",
+                        "description": "Whether file exists after operation",
+                    },
                 },
                 "required": ["path", "message"],
             },
@@ -1457,8 +1550,15 @@ async def list_tools() -> list[Tool]:
                             "type": "object",
                             "properties": {
                                 "name": {"type": "string", "description": "File or directory name"},
-                                "type": {"type": "string", "enum": ["file", "directory"], "description": "Item type"},
-                                "size": {"type": "integer", "description": "File size in bytes (0 for directories)"},
+                                "type": {
+                                    "type": "string",
+                                    "enum": ["file", "directory"],
+                                    "description": "Item type",
+                                },
+                                "size": {
+                                    "type": "integer",
+                                    "description": "File size in bytes (0 for directories)",
+                                },
                             },
                             "required": ["name", "type"],
                         },
@@ -1514,7 +1614,10 @@ async def list_tools() -> list[Tool]:
                 "type": "object",
                 "properties": {
                     "path": {"type": "string", "description": "Resolved file path"},
-                    "success": {"type": "boolean", "description": "Whether deletion was successful"},
+                    "success": {
+                        "type": "boolean",
+                        "description": "Whether deletion was successful",
+                    },
                     "message": {"type": "string", "description": "Success or error message"},
                 },
                 "required": ["path", "success", "message"],
@@ -1565,9 +1668,18 @@ async def list_tools() -> list[Tool]:
                 "properties": {
                     "expression": {"type": "string", "description": "Original expression"},
                     "result": {"type": "number", "description": "Calculation result"},
-                    "result_type": {"type": "string", "description": "Result type (int, float, complex)"},
-                    "formatted": {"type": "string", "description": "Human-readable formatted result"},
-                    "error": {"type": "string", "description": "Error message if calculation failed"},
+                    "result_type": {
+                        "type": "string",
+                        "description": "Result type (int, float, complex)",
+                    },
+                    "formatted": {
+                        "type": "string",
+                        "description": "Human-readable formatted result",
+                    },
+                    "error": {
+                        "type": "string",
+                        "description": "Error message if calculation failed",
+                    },
                 },
                 "required": ["expression"],
             },
@@ -1661,7 +1773,9 @@ async def call_tool(
 
             # Return both text content and structured JSON
             # Note: structuredContent is included as metadata in the text response
-            formatted_results += f"\n---\n<!-- structuredContent: {json.dumps(structured_content)} -->"
+            formatted_results += (
+                f"\n---\n<!-- structuredContent: {json.dumps(structured_content)} -->"
+            )
 
             return [TextContent(type="text", text=formatted_results)]
 
@@ -1710,7 +1824,9 @@ async def call_tool(
                 formatted_output += "\n"
 
             # Append structured content
-            formatted_output += f"\n---\n<!-- structuredContent: {json.dumps(structured_content)} -->"
+            formatted_output += (
+                f"\n---\n<!-- structuredContent: {json.dumps(structured_content)} -->"
+            )
 
             return [TextContent(type="text", text=formatted_output)]
 
@@ -1914,7 +2030,9 @@ async def call_tool(
                 formatted_results += f"\n**Abstract:** {paper.get('abstract', 'No abstract')}\n\n"
 
             # Append structured content
-            formatted_results += f"\n---\n<!-- structuredContent: {json.dumps(structured_content)} -->"
+            formatted_results += (
+                f"\n---\n<!-- structuredContent: {json.dumps(structured_content)} -->"
+            )
 
             return [TextContent(type="text", text=formatted_results)]
 
@@ -1955,14 +2073,20 @@ async def call_tool(
             formatted_results = "# GitHub Search Results\n\n"
             for i, repo in enumerate(results, 1):
                 formatted_results += f"## {i}. {repo.get('full_name', 'No name')}\n"
-                formatted_results += f"**Description:** {repo.get('description', 'No description')}\n"
+                formatted_results += (
+                    f"**Description:** {repo.get('description', 'No description')}\n"
+                )
                 formatted_results += f"**URL:** {repo.get('url', 'N/A')}\n"
-                formatted_results += f"**Stars:** {repo.get('stars', 0)} | **Forks:** {repo.get('forks', 0)}\n"
+                formatted_results += (
+                    f"**Stars:** {repo.get('stars', 0)} | **Forks:** {repo.get('forks', 0)}\n"
+                )
                 formatted_results += f"**Language:** {repo.get('language', 'N/A')}\n"
                 formatted_results += f"**Updated:** {repo.get('updated_at', 'N/A')}\n\n"
 
             # Append structured content
-            formatted_results += f"\n---\n<!-- structuredContent: {json.dumps(structured_content)} -->"
+            formatted_results += (
+                f"\n---\n<!-- structuredContent: {json.dumps(structured_content)} -->"
+            )
 
             return [TextContent(type="text", text=formatted_results)]
 
@@ -2187,113 +2311,113 @@ async def call_tool(
 
         elif name == "read_file":
             path = arguments.get("path")
-            
+
             if not path:
                 return [TextContent(type="text", text="Error: path parameter is required")]
-            
+
             logger.info(f"Reading file: {path}")
             result = await file_manager.read_file(path)
-            
+
             # Format output
             formatted_output = f"# File: {result['path']}\n\n"
             formatted_output += f"**Size:** {result['size']} bytes\n"
             formatted_output += f"**Exists:** {result['exists']}\n\n"
-            
-            if result['exists']:
+
+            if result["exists"]:
                 formatted_output += "## Content\n\n"
                 formatted_output += f"```\n{result['content']}\n```\n"
             else:
-                formatted_output += result['content']
-            
+                formatted_output += result["content"]
+
             return [TextContent(type="text", text=formatted_output)]
-        
+
         elif name == "write_file":
             path = arguments.get("path")
             content = arguments.get("content")
-            
+
             if not path:
                 return [TextContent(type="text", text="Error: path parameter is required")]
             if not content:
                 return [TextContent(type="text", text="Error: content parameter is required")]
-            
+
             logger.info(f"Writing file: {path}")
             result = await file_manager.write_file(path, content, append=False)
-            
+
             # Format output
             formatted_output = "# File Write Result\n\n"
             formatted_output += f"**Path:** {result['path']}\n"
             formatted_output += f"**Size:** {result['size']} bytes\n"
             formatted_output += f"**Status:** {result['message']}\n"
-            
+
             return [TextContent(type="text", text=formatted_output)]
-        
+
         elif name == "append_file":
             path = arguments.get("path")
             content = arguments.get("content")
-            
+
             if not path:
                 return [TextContent(type="text", text="Error: path parameter is required")]
             if not content:
                 return [TextContent(type="text", text="Error: content parameter is required")]
-            
+
             logger.info(f"Appending to file: {path}")
             result = await file_manager.write_file(path, content, append=True)
-            
+
             # Format output
             formatted_output = "# File Append Result\n\n"
             formatted_output += f"**Path:** {result['path']}\n"
             formatted_output += f"**Size:** {result['size']} bytes\n"
             formatted_output += f"**Status:** {result['message']}\n"
-            
+
             return [TextContent(type="text", text=formatted_output)]
-        
+
         elif name == "list_files":
             path = arguments.get("path", "")
-            
+
             logger.info(f"Listing directory: {path or 'default'}")
             result = await file_manager.list_directory(path)
-            
+
             # Format output
             formatted_output = f"# Directory: {result['path']}\n\n"
             formatted_output += f"**Total items:** {result['count']}\n\n"
-            
-            if result['items']:
+
+            if result["items"]:
                 formatted_output += "## Contents\n\n"
-                for item in result['items']:
-                    icon = "📁" if item['type'] == 'directory' else "📄"
+                for item in result["items"]:
+                    icon = "📁" if item["type"] == "directory" else "📄"
                     size_str = ""
-                    if item['type'] == 'file':
-                        size = item['size']
+                    if item["type"] == "file":
+                        size = item["size"]
                         if size < 1024:
                             size_str = f" ({size} bytes)"
                         elif size < 1024 * 1024:
                             size_str = f" ({size // 1024} KB)"
                         else:
                             size_str = f" ({size // 1024 // 1024} MB)"
-                    
+
                     formatted_output += f"- {icon} **{item['name']}**{size_str}\n"
             else:
                 formatted_output += "*Directory is empty*\n"
-            
+
             return [TextContent(type="text", text=formatted_output)]
-        
+
         elif name == "delete_file":
             path = arguments.get("path")
-            
+
             if not path:
                 return [TextContent(type="text", text="Error: path parameter is required")]
-            
+
             logger.info(f"Deleting file: {path}")
             result = await file_manager.delete_file(path)
-            
+
             # Format output
             formatted_output = "# File Deletion Result\n\n"
             formatted_output += f"**Path:** {result['path']}\n"
             formatted_output += f"**Success:** {result['success']}\n"
             formatted_output += f"**Message:** {result['message']}\n"
-            
+
             return [TextContent(type="text", text=formatted_output)]
-        
+
         elif name == "calculate":
             expression = arguments.get("expression")
 
@@ -2304,12 +2428,12 @@ async def call_tool(
             result = await calculator.calculate_async(expression)
 
             # Build structured content
-            if result['success']:
+            if result["success"]:
                 structured_content = {
-                    "expression": result['expression'],
-                    "result": result['result'],
-                    "result_type": result['type'],
-                    "formatted": result['formatted'],
+                    "expression": result["expression"],
+                    "result": result["result"],
+                    "result_type": result["type"],
+                    "formatted": result["formatted"],
                 }
 
                 formatted_output = "# Calculation Result\n\n"
@@ -2320,8 +2444,8 @@ async def call_tool(
                 formatted_output += f"```\n{result['formatted']}\n```\n"
             else:
                 structured_content = {
-                    "expression": result['expression'],
-                    "error": result.get('error', 'Unknown error'),
+                    "expression": result["expression"],
+                    "error": result.get("error", "Unknown error"),
                 }
 
                 formatted_output = "# Calculation Error\n\n"
@@ -2329,7 +2453,9 @@ async def call_tool(
                 formatted_output += f"**Error:** {result['error']}\n"
 
             # Append structured content
-            formatted_output += f"\n---\n<!-- structuredContent: {json.dumps(structured_content)} -->"
+            formatted_output += (
+                f"\n---\n<!-- structuredContent: {json.dumps(structured_content)} -->"
+            )
 
             return [TextContent(type="text", text=formatted_output)]
 
