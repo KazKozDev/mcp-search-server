@@ -4,9 +4,6 @@ import logging
 from typing import List, Dict, Optional
 
 from .duckduckgo import DuckDuckGoSearchTool
-from .brave_search import BraveSearchEngine
-from .startpage_search import StartpageSearchEngine
-from .qwant_search import QwantSearchEngine
 
 logger = logging.getLogger(__name__)
 
@@ -15,11 +12,7 @@ class SearchManager:
     """
     Manages multiple search engines with smart fallback.
 
-    Fallback order:
-    1. DuckDuckGo (fast, reliable)
-    2. Qwant (European search, API-based)
-    3. Brave Search (if others fail)
-    4. Startpage (Google proxy, last resort)
+    Currently uses DuckDuckGo as primary engine.
     """
 
     def __init__(self, min_results: int = 3):
@@ -31,18 +24,15 @@ class SearchManager:
         """
         self.min_results = min_results
 
-        # Initialize all search engines
+        # Initialize search engines
         self.engines = {
             "duckduckgo": DuckDuckGoSearchTool(),
-            "qwant": QwantSearchEngine(),
-            "brave": BraveSearchEngine(),
-            "startpage": StartpageSearchEngine(),
         }
 
-        # Default fallback order - Qwant first as backup since it has API
-        self.fallback_order = ["duckduckgo", "qwant", "brave", "startpage"]
+        # Fallback order
+        self.fallback_order = ["duckduckgo"]
 
-        logger.info(f"SearchManager initialized with fallback order: {self.fallback_order}")
+        logger.info(f"SearchManager initialized with engines: {self.fallback_order}")
 
     async def search(
         self,

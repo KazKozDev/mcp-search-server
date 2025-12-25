@@ -1,0 +1,2 @@
+Hello from MCP!
+This is a test.

@@ -1,9 +1,0 @@
-# Optional dependencies for browser-based search engines (Brave, Startpage)
-# Install with: pip install -r requirements-browser.txt
-
-# Playwright for browser automation
-playwright>=1.40.0
-
-# After installing playwright, run:
-# playwright install firefox    # Recommended (more stable on macOS)
-# playwright install chromium    # Alternative

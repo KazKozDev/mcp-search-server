@@ -1,0 +1,93 @@
+# MCP Search Server - Full Requirements
+# All dependencies for all tools to work
+# Install: pip install -r requirements-full.txt
+
+# ============================================
+# CORE DEPENDENCIES (Required)
+# ============================================
+mcp>=0.9.0
+aiohttp>=3.9.0
+beautifulsoup4>=4.12.0
+httpx>=0.28.1
+requests>=2.32.5
+pytz>=2024.0
+certifi>=2024.0.0
+
+# ============================================
+# SEARCH ENGINES
+# ============================================
+# DuckDuckGo
+ddgs>=0.1.0
+
+# ArXiv
+arxiv>=2.0.0
+
+# ============================================
+# CONTENT EXTRACTION & PARSING
+# ============================================
+# Link Parser (for extracting content from URLs)
+newspaper3k>=0.2.8
+readability-lxml>=0.8.1
+trafilatura>=2.0.0
+lxml>=5.0.0
+lxml_html_clean>=0.1.0
+
+# PDF Parser
+PyPDF2>=3.0.0
+pdfplumber>=0.10.0
+
+# RSS/Atom feeds
+feedparser>=6.0.11
+
+# ============================================
+# SPECIALIZED SEARCH TOOLS
+# ============================================
+# Wikipedia
+wikipedia-api>=0.6.0
+
+# PubMed (medical/scientific articles)
+biopython>=1.83
+
+# GDELT (global news)
+gdeltdoc>=2.0.0
+
+# ============================================
+# BROWSER AUTOMATION (for JS-heavy sites)
+# ============================================
+selenium>=4.0.0
+webdriver-manager>=4.0.0
+undetected-chromedriver>=3.5.0
+
+# Playwright (better for Brave/Startpage/Qwant)
+playwright>=1.40.0
+
+# ============================================
+# NLP & TEXT PROCESSING
+# ============================================
+# Summarizer
+nltk>=3.8
+
+# Credibility scoring
+python-whois>=0.8.0
+
+# ============================================
+# FILE HANDLING
+# ============================================
+# Word documents
+python-docx>=1.0.0
+
+# Excel files
+openpyxl>=3.1.0
+xlrd>=2.0.0
+
+# Images
+Pillow>=10.0.0
+
+# ============================================
+# DEVELOPMENT (Optional)
+# ============================================
+# pytest>=7.0.0
+# pytest-asyncio>=0.21.0
+# pytest-cov>=4.1.0
+# black>=23.0.0
+# ruff>=0.1.0

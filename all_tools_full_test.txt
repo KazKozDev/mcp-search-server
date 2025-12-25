@@ -1,0 +1,686 @@
+================================================================================
+TOOL: datetime_tool.get_current_datetime
+================================================================================
+
+INPUT: {"timezone": "Europe/Moscow"}
+
+OUTPUT:
+{
+  "datetime": "2025-12-25T18:59:54.491434+03:00",
+  "timezone": "Europe/Moscow",
+  "date": "2025-12-25",
+  "time": "18:59:54",
+  "timestamp": 1766678394,
+  "year": 2025,
+  "month": 12,
+  "day": 25,
+  "hour": 18,
+  "minute": 59,
+  "second": 54,
+  "day_of_week": "Thursday",
+  "day_of_week_num": 4,
+  "week_number": 52,
+  "formatted": {
+    "full": "Thursday, December 25, 2025 18:59:54 MSK",
+    "date_long": "December 25, 2025",
+    "date_short": "25/12/2025",
+    "time_12h": "06:59:54 PM",
+    "time_24h": "18:59:54"
+  }
+}
+
+
+================================================================================
+TOOL: datetime_tool.list_timezones
+================================================================================
+
+INPUT: {"region": "Europe"}
+
+OUTPUT:
+{
+  "region": "Europe",
+  "timezones": [
+    "Europe/Amsterdam",
+    "Europe/Andorra",
+    "Europe/Astrakhan",
+    "Europe/Athens",
+    "Europe/Belfast",
+    "Europe/Belgrade",
+    "Europe/Berlin",
+    "Europe/Bratislava",
+    "Europe/Brussels",
+    "Europe/Bucharest",
+    "Europe/Budapest",
+    "Europe/Busingen",
+    "Europe/Chisinau",
+    "Europe/Copenhagen",
+    "Europe/Dublin",
+    "Europe/Gibraltar",
+    "Europe/Guernsey",
+    "Europe/Helsinki",
+    "Europe/Isle_of_Man",
+    "Europe/Istanbul",
+    "Europe/Jersey",
+    "Europe/Kaliningrad",
+    "Europe/Kiev",
+    "Europe/Kirov",
+    "Europe/Kyiv",
+    "Europe/Lisbon",
+    "Europe/Ljubljana",
+    "Europe/London",
+    "Europe/Luxembourg",
+    "Europe/Madrid",
+    "Europe/Malta",
+    "Europe/Mariehamn",
+    "Europe/Minsk",
+    "Europe/Monaco",
+    "Europe/Moscow",
+    "Europe/Nicosia",
+    "Europe/Oslo",
+    "Europe/Paris",
+    "Europe/Podgorica",
+    "Europe/Prague",
+    "Europe/Riga",
+    "Europe/Rome",
+    "Europe/Samara",
+    "Eur
+
+
+================================================================================
+TOOL: geolocation.get_location_by_ip
+================================================================================
+
+INPUT: {"ip_address": "8.8.8.8"}
+
+OUTPUT:
+{
+  "ip": "8.8.8.8",
+  "country": "United States",
+  "country_code": "US",
+  "region": "Virginia",
+  "region_code": "VA",
+  "city": "Ashburn",
+  "zip": "20149",
+  "latitude": 39.03,
+  "longitude": -77.5,
+  "timezone": "America/New_York",
+  "isp": "Google LLC",
+  "organization": "Google Public DNS",
+  "as_number": "AS15169 Google LLC",
+  "coordinates": {
+    "lat": 39.03,
+    "lon": -77.5
+  }
+}
+
+
+================================================================================
+TOOL: geolocation.get_timezone_from_ip
+================================================================================
+
+INPUT: {"ip_address": "1.1.1.1"}
+
+OUTPUT:
+{
+  "ip": "1.1.1.1",
+  "timezone": "Asia/Hong_Kong",
+  "country": "Hong Kong",
+  "city": "Hong Kong"
+}
+
+
+================================================================================
+TOOL: github.search_github_repos
+================================================================================
+
+INPUT: {"query": "mcp server python"}
+
+OUTPUT:
+[
+  {
+    "name": "fastmcp",
+    "full_name": "jlowin/fastmcp",
+    "description": "🚀 The fast, Pythonic way to build MCP servers and clients",
+    "url": "https://github.com/jlowin/fastmcp",
+    "stars": 21417,
+    "language": "Python",
+    "updated_at": "2025-12-25",
+    "source": "github_repo"
+  },
+  {
+    "name": "mcp-use",
+    "full_name": "mcp-use/mcp-use",
+    "description": "mcp-use is the easiest way to interact with mcp servers with custom agents",
+    "url": "https://github.com/mcp-use/mcp-use",
+    "stars": 8761,
+    "language": "TypeScript",
+    "updated_at": "2025-12-25",
+    "source": "github_repo"
+  }
+]
+
+
+================================================================================
+TOOL: github.get_github_readme
+================================================================================
+
+INPUT: {"repo": "anthropics/anthropic-sdk-python"}
+
+OUTPUT:
+# Anthropic Python API library
+
+<!-- prettier-ignore -->
+[![PyPI version](https://img.shields.io/pypi/v/anthropic.svg?label=pypi%20(stable))](https://pypi.org/project/anthropic/)
+
+The Anthropic Python library provides convenient access to the Anthropic REST API from any Python 3.9+
+application. It includes type definitions for all request params and response fields,
+and offers both synchronous and asynchronous clients powered by [httpx](https://github.com/encode/httpx).
+
+## Documentation
+
+The REST API documentation can be found on [docs.anthropic.com](https://docs.anthropic.com/claude/reference/). The full API of this library can be found in [api.md](api.md).
+
+## Installation
+
+```sh
+# install from PyPI
+pip install anthropic
+```
+
+## Usage
+
+The full API of this library can be found in [api.m...
+
+
+================================================================================
+TOOL: github.list_github_files
+================================================================================
+
+INPUT: {"repo": "anthropics/anthropic-sdk-python"}
+
+OUTPUT:
+[
+  ".devcontainer",
+  ".github",
+  ".gitignore",
+  ".inline-snapshot",
+  ".python-version",
+  ".release-please-manifest.json",
+  ".stats.yml",
+  ".vscode",
+  "Brewfile",
+  "CHANGELOG.md",
+  "CONTRIBUTING.md",
+  "LICENSE",
+  "README.md",
+  "SECURITY.md",
+  "api.md",
+  "bin",
+  "examples",
+  "helpers.md",
+  "pyproject.toml",
+  "release-please-config.json",
+  "requirements-dev.lock",
+  "scripts",
+  "src",
+  "tests",
+  "tools.md",
+  "uv.lock"
+]
+
+
+================================================================================
+TOOL: arxiv.search
+================================================================================
+
+INPUT: {"query": "transformer attention", "max_results": 2}
+
+OUTPUT:
+[
+  {
+    "id": "2209.15001v3",
+    "title": "Dilated Neighborhood Attention Transformer",
+    "abstract": "Transformers are quickly becoming one of the most heavily applied deep learning architectures across modalities, domains, and tasks. In vision, on top of ongoing efforts into plain transformers, hierarchical transformers have also gained significant attention, thanks to their performance and easy integration into existing frameworks. These models typically employ localized attention mechanisms, such as the sliding-window Neighborhood Attention (NA) or Swin Transformer's Shifted Window Self Attention. While effective at reducing self attention's quadratic complexity, local attention weakens two of the most desirable properties of self attention: long range inter-dependency modeling, and global receptive field. In this paper, we introduce Dilated Neighborhood Attention (DiNA), a natural, flexible and efficient extension to NA that can capture more global context and expand receptive fields exponentially at no additional cost. NA's local attention and DiNA's sparse global attention complement each other, and therefore we introduce Dilated Neighborhood Attention Transformer (DiNAT), a new hierarchical vision transformer built upon both. DiNAT variants enjoy significant improvements over strong baselines such as NAT, Swin, and ConvNeXt. Our large model is faster and ahead of its Swin counterpart by 1.6% box AP in COCO object detection, 1.4% mask AP in COCO instance segmentation, and 1.4% mIoU in ADE20K semantic segmentation. Paired with new frameworks, our large variant is the new state of the art panoptic segmentation model on COCO (58.5 PQ) and ADE20K (49.4 PQ), and instance segmentation model on Cityscapes (45.1 AP) and ADE20K (35.4 AP) (no extra data). It also matches the state of the art specialized semantic segmentation models on ADE20K (58.1 mIoU), and ranks second on Cityscapes (84.5 mIoU) (no extra data).",
+    "authors": [
+      "Ali Hassani",
+      "Hump
+
+
+================================================================================
+TOOL: pubmed.search_pubmed
+================================================================================
+
+INPUT: {"query": "covid vaccine", "max_results": 2}
+
+OUTPUT:
+[
+  {
+    "title": "COVID Vaccine-Associated Uveitis.",
+    "abstract": "PURPOSE: Following the pandemic of coronavirus disease 2019 (COVID-19), caused by the severe acute respiratory syndrome coronavirus 2, different vaccines were developed and approved by the main medical authorities under emergency protocol regulations. Although highly effective and well-tolerated in most patients, vaccines can uncommonly cause ocular adverse effects. In this article, the current evidence related to vaccine-associated uveitis is reviewed. METHODS: A literature review of uveitis post various SARS-CoV-2 vaccinations. RESULTS: Uveitis was reported following various forms of vaccinations but was more commonly seen following the Pfizer mRNA vaccine which is the most used vaccination worldwide. In western countries, the most common uveitis is mild anterior uveitis, developing within a week of first or subsequent vaccination with good resolution following appropriate topical steroid therapy in most cases. Posterior uveitis and particularly Vogt-Koyanagi-Harada disease was more prevalent in Asia. Uveitis may develop among known uveitis patients and those with other autoimmune diseases. CONCLUSION: Uveitis following Covid vaccinations is uncommon and has a good prognosis.",
+    "authors": [
+      "Habot-Wilner Z",
+      "Neri P",
+      "Okada AA",
+      "Agrawal R",
+      "Xin Le N",
+      "Cohen S",
+      "Fischer N",
+      "Kilmartin F",
+      "Coman A",
+      "Kilmartin D"
+    ],
+    "journal": "Ocular immunology and inflammation",
+    "pub_date": "2023 Aug",
+    "pmid": "37145198",
+    "doi": "10.1080/09273948.2023.2200858",
+    "keywords": [
+      "COVID vaccination",
+      "SARS-Cov-2 vaccine-associated uveitis",
+      "SARS-Cov-2 vaccines",
+      "mRNA COVID vaccine",
+      "uveitis"
+    ],
+    "url": "https://pubmed.ncbi.nlm.nih.gov/37145198/",
+    "source": "pubmed"
+  },
+  {
+    "title": "COVID-19 vaccine hesitancy: misinformation and perceptions of vaccine safety.",
+    "abstrac
+
+
+================================================================================
+TOOL: gdelt.search_gdelt
+================================================================================
+
+INPUT: {"query": "technology", "max_results": 2}
+
+OUTPUT:
+[
+  {
+    "title": "Konya haberleri LİMALI gençler Milli Teknoloji Hamlesi ile yarına hazırlanıyor",
+    "url": "https://www.haber7.com/konya/3590953-limali-gencler-milli-teknoloji-hamlesi-ile-yarina-hazirlaniyor",
+    "domain": "haber7.com",
+    "country": "Turkey",
+    "date": "20251225T124500Z",
+    "source": "gdelt"
+  },
+  {
+    "title": "广东多部门联合发布工作方案 ， 推动金融服务科技强省建设 - 新华网",
+    "url": "http://www.gd.xinhuanet.com/20251225/fdd1fa13e436468891e1ddddbbead7b2/c.html",
+    "domain": "gd.xinhuanet.com",
+    "country": "China",
+    "date": "20251225T114500Z",
+    "source": "gdelt"
+  }
+]
+
+
+================================================================================
+TOOL: reddit.search_reddit
+================================================================================
+
+INPUT: {"query": "python programming", "limit": 2}
+
+OUTPUT:
+[
+  {
+    "title": "My first Python program #vibecoding",
+    "subreddit": "vibecoding",
+    "author": "nerdev_00",
+    "score": 220,
+    "num_comments": 128,
+    "url": "https://www.reddit.com/r/vibecoding/comments/1oqu30w/my_first_python_program_vibecoding/",
+    "text": "Wow!! Just finished my first *vibe-coded* Hello World program 😤  \n30 lines of pure Python genius — this has GOT to be the future 🔮",
+    "created_utc": "2025-11-07",
+    "source": "reddit"
+  },
+  {
+    "title": "List of 87 Programming Ideas for Beginners (with Python implementations)",
+    "subreddit": "Python",
+    "author": "AlSweigart",
+    "score": 226,
+    "num_comments": 33,
+    "url": "https://www.reddit.com/r/Python/comments/1nitzoz/list_of_87_programming_ideas_for_beginners_with/",
+    "text": "https://inventwithpython.com/blog/programming-ideas-beginners-big-book-python.html\n\nI've compiled a list of beginner-friendly programming projects, with example implementations in Python. These projects are drawn from my free Python books, but since they only use stdio text, you can implement them in any language.\n\nI got tired of the copy-paste \"1001 project\" posts that obviously were copied from other posts or generated by AI which included everything from \"make a coin flip program\" to \"make an...",
+    "created_utc": "2025-09-16",
+    "source": "reddit"
+  }
+]
+
+
+================================================================================
+TOOL: wikipedia.search_wikipedia
+================================================================================
+
+INPUT: {"query": "artificial intelligence"}
+
+OUTPUT:
+[
+  {
+    "title": "A.I. Artificial Intelligence",
+    "snippet": "A.I. Artificial Intelligence (or simply A.I.) is a 2001 science fiction drama film directed by Steven Spielberg. The screenplay by Spielberg and screen story by Ian Watson are loosely based on the 196...",
+    "url": "https://en.wikipedia.org/wiki/A.I._Artificial_Intelligence",
+    "pageid": 142224,
+    "size": 0,
+    "wordcount": 0
+  },
+  {
+    "title": "Artificial general intelligence",
+    "snippet": "Artificial general intelligence (AGI)—sometimes called human‑level AI—is a type of artificial intelligence that would match or surpass human capabilities across virtually all cognitive tasks. Beyond A...",
+    "url": "https://en.wikipedia.org/wiki/Artificial_general_intelligence",
+    "pageid": 586357,
+    "size": 0,
+    "wordcount": 0
+  },
+  {
+    "title": "Artificial intelligence",
+    "snippet": "Artificial intelligence (AI) is the capability of computational systems to perform tasks typically associated with human intelligence, such as learning, reasoning, problem-solving, perception, and dec...",
+    "url": "https://en.wikipedia.org/wiki/Artificial_intelligence",
+    "pageid": 1164,
+    "size": 0,
+    "wordcount": 0
+  }
+]
+
+
+================================================================================
+TOOL: wikipedia.get_wikipedia_summary
+================================================================================
+
+INPUT: {"title": "Python (programming language)"}
+
+OUTPUT:
+{
+  "title": "Python (programming language)",
+  "pageid": 23862,
+  "url": "https://en.wikipedia.org/wiki/Python_(programming_language)",
+  "language": "en",
+  "extract": "Python is a high-level, general-purpose programming language. Its design philosophy emphasizes code readability with the use of significant indentation. Python is dynamically type-checked and garbage-collected. It supports multiple programming paradigms, including structured (particularly procedural), object-oriented and functional programming.\nGuido van Rossum began working on Python in the late 1980s as a successor to the ABC programming language. Python 3.0, released in 2008, was a major revision and not completely backward-compatible with earlier versions. Beginning with Python 3.5, capabilities and keywords for typing were added to the language, allowing optional static typing. As of 2025, the Python Software Foundation supports Python 3.10, 3.11, 3.12, 3.13, and 3.14, following the projects annual release cycle and five-year support policy. Earlier versions in the 3.x series have reached end-of-life and no longer receive security updates. \nPython has gained widespread use in the machine learning community. It is widely taught as an introductory programming language. Since 2003, Python has consistently ranked in the top ten of the most popular programming languages in the TIOBE Programming Community Index, which ranks based on searches in 24 platforms.\n\n",
+  "summary": "Python is a high-level, gener
+
+
+================================================================================
+TOOL: credibility.assess_source_credibility
+================================================================================
+
+INPUT: {"url": "https://nature.com/articles/example"}
+
+OUTPUT:
+{
+  "url": "https://nature.com/articles/example",
+  "domain": "nature.com",
+  "category": "academic",
+  "credibility_score": 0.896,
+  "confidence_interval": [
+    0.842,
+    0.95
+  ],
+  "uncertainty": 0.054,
+  "prior": 0.88,
+  "likelihood_ratio": 0.02,
+  "pagerank": 0.0,
+  "signals": {
+    "domain_age_signal": 1.0,
+    "domain_reputation": 0.7,
+    "https_secure": 1.0,
+    "domain_entropy": 0.17,
+    "subdomain_depth": 1.0,
+    "title_formality": 0.0,
+    "title_specificity": 0.0,
+    "title_sentiment_neutrality": 1.0,
+    "title_length_norm": 0.19,
+    "peer_reviewed": 0.3,
+    "multi_author": 0.0,
+    "citation_impact": 0.0,
+    "has_doi": 0.5
+  },
+  "recommendation": "✓✓ Excellent source"
+}
+
+
+================================================================================
+TOOL: summarizer.summarize_text
+================================================================================
+
+INPUT: {"text": "[text]", "strategy": "auto"}
+
+OUTPUT:
+{
+  "summary": "Deep learning neural networks have achieved remarkable results in image recognition, natural language processing, and game playing.",
+  "method": "extractive-tfidf",
+  "stats": {
+    "sentences_original": 6,
+    "sentences_summary": 1,
+    "compression_ratio": "30%",
+    "chars_original": 640,
+    "chars_summary": 131
+  }
+}
+
+
+================================================================================
+TOOL: calculator.calculate
+================================================================================
+
+INPUT: {"expression": "2 + 2 * 3"}
+
+OUTPUT:
+2 + 2 * 3 = 8
+
+
+================================================================================
+TOOL: calculator.calculate
+================================================================================
+
+INPUT: {"expression": "sqrt(16) + sin(pi/2)"}
+
+OUTPUT:
+sqrt(16) + sin(pi/2) = 5
+
+
+================================================================================
+TOOL: calculator.calculate_async
+================================================================================
+
+INPUT: {"expression": "log(100)/log(10)"}
+
+OUTPUT:
+{
+  "success": true,
+  "expression": "log(100)/log(10)",
+  "result": 2,
+  "formatted": "log(100)/log(10) = 2",
+  "type": "int",
+  "error": null
+}
+
+
+================================================================================
+TOOL: file_manager.write_file
+================================================================================
+
+INPUT: {"path": "test_all.txt"}
+
+OUTPUT:
+{
+  "path": "/Users/artemk/projects/mcp-search-server/data/files/test_all.txt",
+  "message": "Content successfully written to file: /Users/artemk/projects/mcp-search-server/data/files/test_all.txt",
+  "size": 26,
+  "exists": true
+}
+
+
+================================================================================
+TOOL: file_manager.read_file
+================================================================================
+
+INPUT: {"path": "test_all.txt"}
+
+OUTPUT:
+{
+  "path": "/Users/artemk/projects/mcp-search-server/data/files/test_all.txt",
+  "content": "Test content\nLine 2\nLine 3",
+  "size": 26,
+  "exists": true
+}
+
+
+================================================================================
+TOOL: file_manager.append_file
+================================================================================
+
+INPUT: {"path": "test_all.txt"}
+
+OUTPUT:
+{
+  "path": "/Users/artemk/projects/mcp-search-server/data/files/test_all.txt",
+  "message": "Content successfully appended to file: /Users/artemk/projects/mcp-search-server/data/files/test_all.txt",
+  "size": 40,
+  "exists": true
+}
+
+
+================================================================================
+TOOL: file_manager.list_directory
+================================================================================
+
+INPUT: {"path": "."}
+
+OUTPUT:
+{
+  "path": "/Users/artemk/projects/mcp-search-server/data/files",
+  "items": [
+    {
+      "name": "test_all.txt",
+      "type": "file",
+      "size": 40
+    }
+  ],
+  "count": 1,
+  "listing": "Contents of directory '/Users/artemk/projects/mcp-search-server/data/files':\n\n  test_all.txt (file) (40 bytes)"
+}
+
+
+================================================================================
+TOOL: file_manager.delete_file
+================================================================================
+
+INPUT: {"path": "test_all.txt"}
+
+OUTPUT:
+{
+  "success": true,
+  "message": "File deleted successfully: /Users/artemk/projects/mcp-search-server/data/files/test_all.txt",
+  "path": "/Users/artemk/projects/mcp-search-server/data/files/test_all.txt"
+}
+
+
+================================================================================
+TOOL: maps_tool.search_maps
+================================================================================
+
+INPUT: {"query": "Eiffel Tower, Paris"}
+
+OUTPUT:
+[
+  {
+    "title": "Tour Eiffel, 5, Avenue Anatole France, Quartier du Gros-Caillou, Paris 7e Arrondissement, Paris, Île-de-France, France métropolitaine, 75007, France",
+    "url": "https://www.openstreetmap.org/way/5013364",
+    "snippet": "lat=48.8582599, lon=2.2945006",
+    "lat": "48.8582599",
+    "lon": "2.2945006",
+    "source": "nominatim"
+  }
+]
+
+
+================================================================================
+TOOL: pdf_parser.parse_pdf
+================================================================================
+
+INPUT: {}
+
+OUTPUT:
+Function imported successfully (parse_pdf available)
+
+
+================================================================================
+TOOL: link_parser.extract_content_from_url
+================================================================================
+
+INPUT: {"url": "https://example.com"}
+
+OUTPUT:
+This domain is for use in documentation examples without needing permission. Avoid use in operations.
+
+
+================================================================================
+TOOL: duckduckgo.search_duckduckgo
+================================================================================
+
+INPUT: {"query": "Python programming", "limit": 2}
+
+OUTPUT:
+[
+  {
+    "title": "Python (programming language)",
+    "url": "https://en.wikipedia.org/wiki/Python_(programming_language)",
+    "snippet": "Python is a high-level, general-purpose programming language. Its design philosophy emphasizes code readability with the use of significant indentation. Python is dynamically type-checked and garbage-collected. It supports multiple programming paradigms, including structured (particularly procedural), object-oriented and functional programming.Guido van Rossum began working on Python in the late 1980s as a successor to the ABC programming language. Python 3.0, released in 2008, was a major revision and not completely backward-compatible with earlier versions. Beginning with Python 3.5, capabilities and keywords for typing were added to the language, allowing optional static typing. As of 2025, the Python Software Foundation supports Python 3.10, 3.11, 3.12, 3.13, and 3.14, following the projects annual release cycle and five-year support policy. Earlier versions in the 3.x series have reached end-of-life and no longer receive security updates. Python has gained widespread use in the machine learning community. It is widely taught as an introductory programming language. Since 2003, Python has consistently ranked in the top ten of the most popular programming languages in the TIOBE Programming Community Index, which ranks based on searches in 24 platforms.",
+    "source": "duckduckgo"
+  }
+]
+
+
+================================================================================
+TOOL: search_manager.search
+================================================================================
+
+INPUT: {"query": "machine learning", "max_results": 2}
+
+OUTPUT:
+[
+  {
+    "title": "Machine learning",
+    "url": "https://en.wikipedia.org/wiki/Machine_learning",
+    "snippet": "Machine learning (ML) is a field of study in artificial intelligence concerned with the development and study of statistical algorithms that can learn from data and generalise to unseen data, and thus perform tasks without explicit instructions. Within a subdiscipline in machine learning, advances in the field of deep learning have allowed neural networks, a class of statistical algorithms, to surpass many previous machine learning approaches in performance.ML finds application in many fields, including natural language processing, computer vision, speech recognition, email filtering, agriculture, and medicine. The application of ML to business problems is known as predictive analytics.Statistics and mathematical optimisation (mathematical programming) methods comprise the foundations of machine learning. Data mining is a related field of study, focusing on exploratory data analysis (EDA) through unsupervised learning.From a theoretical viewpoint, probably approximately correct learning provides a mathematical and statistical framework for describing machine learning. Most traditional machine learning and deep learning algorithms can be described as empirical risk minimisation under this framework.",
+    "source": "duckduckgo"
+  },
+  {
+    "title": "Machine learning",
+    "url": "https://grokipedia.com/page/Machine_learning",
+    "snippet": "AI hierarchyMachine learning is the study of algorithms that improve their performance at a task through experience with data, enabling computers to identify patterns and make...",
+    "source": "duckduckgo"
+  }
+]
+
+
+================================================================================
+TOOL: brave_search.BraveSearchEngine
+================================================================================
+
+INPUT: {}
+
+OUTPUT:
+Class imported successfully (requires API key to search)
+
+
+================================================================================
+TOOL: qwant_search.search
+================================================================================
+
+INPUT: {"query": "Python", "max_results": 2}
+
+OUTPUT:
+Empty (403 forbidden)
+
+
+================================================================================
+TOOL: startpage_search.search
+================================================================================
+
+INPUT: {"query": "Python programming", "max_results": 2}
+
+OUTPUT:
+None
+
+

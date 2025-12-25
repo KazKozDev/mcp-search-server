@@ -40,6 +40,8 @@ All tools work out of the box using free public APIs. **No API keys required. No
 - **News Search**: GDELT global news database
 - **🆕 Credibility Assessment**: Bayesian source credibility scoring with 30+ signals, domain age (WHOIS), citation network (PageRank), and uncertainty quantification - **no API keys required**
 - **🆕 Text Summarization**: Multi-strategy summarization (TF-IDF extractive, keyword-based, heuristic) - fast, accurate, **no API keys required**
+- **🆕 File Management**: Read/write files with support for text, PDF, Word, Excel, and images - fully async, secure, **no external services required**
+- **🆕 Calculator**: Advanced mathematical calculations with trigonometry, logarithms, constants (pi, e), and more - safe expression evaluation, **no eval() vulnerabilities**
 
 ## Installation
 
@@ -447,6 +449,240 @@ pip install mcp-search-server[summarizer]
 - Condense research papers for quick review
 - Extract key points from long documents
 - Generate previews for search results
+
+---
+
+### 12. File Management Tools 🆕
+
+Comprehensive file operations supporting text, PDF, Word, Excel, and images.
+
+#### read_file
+
+Read content from a file (text, PDF, Word, Excel, images).
+
+**Parameters:**
+- `path` (string, required): File path (relative paths use `data/files/` as base)
+
+**Example:**
+```json
+{
+  "path": "notes.txt"
+}
+```
+
+**Returns:**
+- File content (text, extracted PDF/Word text, Excel data, or image metadata)
+- File metadata (size, path, existence status)
+
+#### write_file
+
+Write or create a file.
+
+**Parameters:**
+- `path` (string, required): File path (relative paths use `data/files/` as base)
+- `content` (string, required): Content to write (UTF-8 text)
+
+**Example:**
+```json
+{
+  "path": "output.txt",
+  "content": "Hello, World!"
+}
+```
+
+**Returns:**
+- Success message with file metadata
+
+#### append_file
+
+Append content to an existing file (or create if doesn't exist).
+
+**Parameters:**
+- `path` (string, required): File path
+- `content` (string, required): Content to append
+
+**Example:**
+```json
+{
+  "path": "log.txt",
+  "content": "\nNew log entry"
+}
+```
+
+#### list_files
+
+List contents of a directory.
+
+**Parameters:**
+- `path` (string, optional): Directory path (empty for default `data/files/`)
+
+**Example:**
+```json
+{
+  "path": ""
+}
+```
+
+**Returns:**
+- List of files and directories with sizes and types
+
+#### delete_file
+
+Delete a file (security: only within `data/files/`).
+
+**Parameters:**
+- `path` (string, required): File path to delete
+
+**Example:**
+```json
+{
+  "path": "temp.txt"
+}
+```
+
+**File Management Features:**
+- **Supported Formats:**
+  - Text files (UTF-8)
+  - PDF documents (via pypdf)
+  - Word documents (.docx via python-docx)
+  - Excel spreadsheets (.xlsx/.xls via openpyxl/xlrd)
+  - Images (JPG, PNG, GIF, BMP, WebP, TIFF via Pillow)
+- **Security:**
+  - All files stored in `data/files/` directory
+  - Protection against path traversal attacks
+  - Validation of file paths
+- **Limits:**
+  - Maximum file size: 10 MB
+  - UTF-8 encoding for text files
+- **Async Support:** All operations are non-blocking
+
+**Optional Dependencies for Advanced Formats:**
+```bash
+pip install pypdf python-docx openpyxl xlrd Pillow
+```
+
+**Use Cases:**
+- Save search results to files
+- Log activity and errors
+- Read configuration files
+- Process uploaded documents
+- Extract data from PDFs and Excel files
+- Manage conversation history
+
+**See also:** [File Manager Integration Guide](FILE_MANAGER_GUIDE.md) for detailed documentation and examples.
+
+---
+
+### 13. Calculator 🆕
+
+Perform advanced mathematical calculations safely.
+
+**Parameters:**
+- `expression` (string, required): Mathematical expression to calculate
+
+**Example:**
+```json
+{
+  "expression": "sqrt(144) + sin(pi/2) * 10"
+}
+```
+
+**Returns:**
+- Calculation result with formatted output
+- Expression type (int/float)
+- Error message if calculation fails
+
+**Supported Operations:**
+- **Arithmetic:** `+`, `-`, `*`, `/`, `**` (power), `%` (modulo), `//` (floor division)
+- **Parentheses:** Full support for nested parentheses
+- **Constants:**
+  - `pi` - π (3.14159...)
+  - `e` - Euler's number (2.71828...)
+  - `tau` - τ (2π)
+  - `inf` - Infinity
+  - `nan` - Not a Number
+
+**Mathematical Functions:**
+
+*Basic Functions:*
+- `abs(x)` - Absolute value
+- `round(x)` - Round to nearest integer
+- `min(x, y, ...)` - Minimum value
+- `max(x, y, ...)` - Maximum value
+- `sqrt(x)` - Square root
+- `pow(x, y)` - Power (x^y)
+
+*Logarithmic Functions:*
+- `log(x)` - Natural logarithm (base e)
+- `log10(x)` - Base-10 logarithm
+- `log2(x)` - Base-2 logarithm
+- `exp(x)` - e^x
+
+*Trigonometric Functions:*
+- `sin(x)`, `cos(x)`, `tan(x)` - Basic trig functions (radians)
+- `asin(x)`, `acos(x)`, `atan(x)` - Inverse trig functions
+- `atan2(y, x)` - Two-argument arctangent
+- `degrees(x)` - Convert radians to degrees
+- `radians(x)` - Convert degrees to radians
+
+*Hyperbolic Functions:*
+- `sinh(x)`, `cosh(x)`, `tanh(x)` - Hyperbolic functions
+- `asinh(x)`, `acosh(x)`, `atanh(x)` - Inverse hyperbolic functions
+
+*Other Functions:*
+- `ceil(x)` - Round up to nearest integer
+- `floor(x)` - Round down to nearest integer
+- `factorial(n)` - n! (factorial)
+- `gcd(a, b)` - Greatest common divisor
+- `lcm(a, b)` - Least common multiple
+
+**Usage Examples:**
+```python
+# Basic arithmetic
+"2 + 2"                    # 4
+"(5 + 3) * 2"             # 16
+"2**8"                    # 256 (2^8)
+"17 % 5"                  # 2 (modulo)
+
+# Square roots and powers
+"sqrt(144)"               # 12
+"pow(2, 10)"              # 1024
+
+# Trigonometry
+"sin(pi/2)"               # 1.0
+"cos(0)"                  # 1.0
+"tan(pi/4)"               # 1.0
+"degrees(pi)"             # 180.0
+
+# Logarithms
+"log(e)"                  # 1.0 (ln(e))
+"log10(100)"              # 2.0
+"log2(1024)"              # 10.0
+
+# Complex expressions
+"sqrt(pow(3,2) + pow(4,2))"  # 5 (Pythagorean theorem)
+"factorial(5)"            # 120
+"gcd(48, 18)"            # 6
+```
+
+**Safety Features:**
+- **No eval():** Uses AST parsing for safe evaluation
+- **Sandboxed:** Only whitelisted functions allowed
+- **Type validation:** Prevents code injection
+- **Error handling:** Graceful error messages for invalid expressions
+
+**Performance:**
+- Fast: ~1ms for simple calculations
+- Non-blocking: Async support for integration
+- Memory efficient: No external dependencies
+
+**Use Cases:**
+- Scientific calculations
+- Engineering computations
+- Financial calculations (compound interest, NPV)
+- Geometry and trigonometry
+- Statistical computations
+- Unit conversions with formulas
 
 ## Development
 
