@@ -1,5 +1,6 @@
 """Tests for file manager functionality."""
 
+import os
 import pytest
 from pathlib import Path
 import tempfile
@@ -123,13 +124,14 @@ class TestFileManager:
     @pytest.mark.asyncio
     async def test_path_normalization(self):
         """Test that paths are normalized correctly."""
-        # Test with relative path
-        test_filename = "subdir/test_normalize.txt"
+        # Test with relative path (use os.sep for cross-platform compatibility)
+        test_filename = os.path.join("subdir", "test_normalize.txt")
         content = "Testing path normalization"
 
         write_result = await file_manager.write_file(test_filename, content)
         assert write_result["exists"]
-        assert "data/files" in write_result["path"]
+        # Check path contains 'data' and 'files' directories (cross-platform)
+        assert "data" in write_result["path"] and "files" in write_result["path"]
 
         # Read it back
         read_result = await file_manager.read_file(test_filename)
