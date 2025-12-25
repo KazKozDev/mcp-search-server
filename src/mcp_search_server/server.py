@@ -13,7 +13,6 @@ from mcp.types import (
 )
 import mcp.server.stdio
 
-from .tools.duckduckgo import search_duckduckgo
 from .tools.unified_search import search_with_fallback
 from .tools.maps_tool import search_maps
 from .tools.wikipedia import search_wikipedia, get_wikipedia_summary, get_wikipedia_content

@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 # Try to import browser engine
 try:
-    from .browser_engine import BrowserEngine, HAS_PLAYWRIGHT
+    from .browser_engine import HAS_PLAYWRIGHT
 except ImportError:
     HAS_PLAYWRIGHT = False
     logger.warning("Browser engine not available")

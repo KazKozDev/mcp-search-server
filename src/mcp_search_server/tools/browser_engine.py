@@ -1,6 +1,5 @@
 """Browser-based search engine using Playwright for JavaScript rendering."""
 
-import asyncio
 import logging
 from typing import List, Dict, Optional
 from bs4 import BeautifulSoup
