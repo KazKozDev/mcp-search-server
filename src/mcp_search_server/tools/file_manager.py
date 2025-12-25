@@ -59,6 +59,10 @@ class FileManager:
         Returns:
             Normalized Path object
         """
+        # Empty string means default files directory
+        if not file_path or file_path.strip() == "":
+            return self.default_files_dir
+            
         path = Path(file_path)
 
         # Forbid absolute paths; treat them as filenames under default dir
@@ -68,7 +72,7 @@ class FileManager:
         # Avoid double prefix if user already starts with data/files
         parts = path.parts
         if len(parts) >= 2 and parts[0] == 'data' and parts[1] == 'files':
-            project_root = Path(__file__).parent.parent.parent
+            project_root = Path(__file__).parent.parent.parent.parent
             return project_root / path
 
         # Treat all other paths as relative to default_files_dir
@@ -400,9 +404,8 @@ class FileManager:
         Returns:
             Dictionary with directory listing
         """
-        path_to_list = dir_path if dir_path else str(self.default_files_dir)
-        content = await asyncio.to_thread(self._list_directory, path_to_list)
-        path = self._normalize_path(path_to_list)
+        path = self._normalize_path(dir_path)
+        content = await asyncio.to_thread(self._list_directory, dir_path)
         
         # Parse directory contents
         items = []
