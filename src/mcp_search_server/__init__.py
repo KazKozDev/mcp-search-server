@@ -1,3 +1,3 @@
 """MCP Search Server - Web search, PDF parsing, and content extraction."""
 
-__version__ = "0.1.2"
+__version__ = "0.1.5"

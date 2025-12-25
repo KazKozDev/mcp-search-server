@@ -25,7 +25,11 @@ All tools work out of the box using free public APIs. **No API keys required. No
 
 - **DateTime Tool**: Get current date and time with timezone awareness
 - **Geolocation**: IP-based location detection with timezone, coordinates, and ISP info
-- **Web Search**: Search the web using DuckDuckGo
+- **Web Search**: Smart multi-engine search with automatic fallback
+  - **DuckDuckGo** (primary): Fast, reliable, works out of the box
+  - **Brave Search** (fallback): Browser-based with anti-bot bypass
+  - **Startpage** (fallback): Privacy-focused Google proxy
+  - **Qwant** (fallback): European search engine
 - **Wikipedia Search**: Search and retrieve Wikipedia articles
 - **Web Content Extraction**: Extract clean text from web pages using multiple parsing methods
 - **PDF Parsing**: Extract text from PDF files
@@ -57,6 +61,23 @@ git clone https://github.com/KazKozDev/mcp-search-server.git
 cd mcp-search-server
 pip install -e .
 ```
+
+### Optional: Browser-based search engines
+
+To enable **Brave Search** and **Startpage** with anti-bot bypass (using Playwright):
+
+```bash
+# Install optional browser dependencies
+pip install -e ".[browser]"
+
+# Install Firefox browser (recommended - more stable on macOS)
+playwright install firefox
+
+# Alternative: Install Chromium browser
+playwright install chromium
+```
+
+**Note**: DuckDuckGo works perfectly without Playwright. Browser support is only needed for Brave and Startpage fallback engines.
 
 ## Usage
 
@@ -115,18 +136,35 @@ The server uses stdio transport, so it can be integrated with any MCP client tha
 
 ### 1. search_web
 
-Search the web using DuckDuckGo with optional time filtering.
+Search the web with smart multi-engine fallback (DuckDuckGo → Qwant → Brave → Startpage).
 
 **Parameters:**
 - `query` (string, required): The search query
 - `limit` (integer, optional): Maximum number of results (default: 10)
+- `mode` (string, optional): Search mode - `'web'` (default) or `'news'`
 - `timelimit` (string, optional): Filter by time - `'d'` (past day), `'w'` (past week), `'m'` (past month), `'y'` (past year), `null` (all time, default)
+- `engine` (string, optional): Specific search engine - `'duckduckgo'`, `'brave'`, `'startpage'`, `'qwant'` (default: auto-fallback)
+- `use_fallback` (boolean, optional): Enable automatic fallback to other engines (default: `true`)
+- `no_cache` (boolean, optional): Disable cache (default: `false`)
 
 **Examples:**
+
+Auto-fallback search (recommended):
 ```json
 {
   "query": "Python async programming",
-  "limit": 5
+  "limit": 5,
+  "use_fallback": true
+}
+```
+
+Search using specific engine:
+```json
+{
+  "query": "machine learning",
+  "limit": 10,
+  "engine": "brave",
+  "use_fallback": false
 }
 ```
 
@@ -135,6 +173,7 @@ Search for recent news (past day):
 {
   "query": "latest AI developments",
   "limit": 10,
+  "mode": "news",
   "timelimit": "d"
 }
 ```

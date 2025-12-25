@@ -24,9 +24,6 @@ except ImportError:
     logger.warning("Cache utilities not available")
 
 
-# Region detection removed - DuckDuckGo auto-detects language from query
-
-
 class DuckDuckGoSearchTool:
     """Enhanced DuckDuckGo search tool with anti-blocking features"""
 
@@ -119,7 +116,6 @@ class DuckDuckGoSearchTool:
     ) -> List[Dict]:
         """Synchronous search (called in executor)"""
         try:
-            # Don't use region parameter - let DuckDuckGo auto-detect based on query
             with self.DDGS(proxy=self.proxy, timeout=10) as ddgs:
                 results = list(
                     ddgs.text(
@@ -210,7 +206,6 @@ async def search_duckduckgo(
     limit: int = 10,
     timelimit: Optional[str] = None,
     mode: str = "web",
-    region: Optional[str] = None,
     no_cache: bool = False,
 ) -> List[Dict]:
     """
@@ -221,13 +216,11 @@ async def search_duckduckgo(
         limit: Maximum number of results
         timelimit: Time limit filter ('d', 'w', 'm', 'y')
         mode: Search mode (web or news)
-        region: Region for search
         no_cache: Disable caching
 
     Returns:
         List of search results
     """
-    # Region removed - DuckDuckGo auto-detects from query language
     cache_key = f"mode={mode}|timelimit={timelimit}|q={query}"
 
     # Check cache first

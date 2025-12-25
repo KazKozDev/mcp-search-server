@@ -14,6 +14,7 @@ from mcp.types import (
 import mcp.server.stdio
 
 from .tools.duckduckgo import search_duckduckgo
+from .tools.unified_search import search_with_fallback
 from .tools.maps_tool import search_maps
 from .tools.wikipedia import search_wikipedia, get_wikipedia_summary, get_wikipedia_content
 from .tools.link_parser import extract_content_from_url
@@ -43,14 +44,14 @@ async def list_tools() -> list[Tool]:
     return [
         Tool(
             name="search_web",
-            description="Search the web using DuckDuckGo. Returns a list of search results with titles, URLs, and snippets. Supports filtering by time for recent results.",
+            description="Search the web with smart fallback across multiple engines (DuckDuckGo, Qwant, Brave, Startpage). Returns search results with titles, URLs, and snippets. Auto-fallback ensures results even if primary engine fails.",
             inputSchema={
                 "type": "object",
                 "properties": {
                     "query": {"type": "string", "description": "The search query"},
                     "mode": {
                         "type": "string",
-                        "description": "Search mode: 'web' for regular web search, 'news' for DuckDuckGo News",
+                        "description": "Search mode: 'web' for regular web search, 'news' for news search",
                         "enum": ["web", "news"],
                         "default": "web",
                     },
@@ -64,9 +65,15 @@ async def list_tools() -> list[Tool]:
                         "description": "Filter results by time: 'd' (past day), 'w' (past week), 'm' (past month), 'y' (past year), null (all time)",
                         "enum": ["d", "w", "m", "y", None],
                     },
-                    "region": {
+                    "engine": {
                         "type": "string",
-                        "description": "DuckDuckGo region/locale code (e.g., 'ru-ru', 'us-en', 'wt-wt'). If omitted, server picks a default based on the query.",
+                        "description": "Specific search engine to use: 'duckduckgo', 'qwant', 'brave', 'startpage', or leave empty for smart fallback (default: auto-fallback)",
+                        "enum": ["duckduckgo", "qwant", "brave", "startpage"],
+                    },
+                    "use_fallback": {
+                        "type": "boolean",
+                        "description": "Enable automatic fallback to other engines if primary fails (default: true)",
+                        "default": True,
                     },
                     "no_cache": {
                         "type": "boolean",
@@ -420,7 +427,8 @@ async def call_tool(
             mode = arguments.get("mode")
             limit = arguments.get("limit", 10)
             timelimit = arguments.get("timelimit")
-            region = arguments.get("region")
+            engine = arguments.get("engine")
+            use_fallback = arguments.get("use_fallback", True)
             no_cache = arguments.get("no_cache", False)
             do_enrich = arguments.get("enrich_results", False)
             enrich_top_k = arguments.get("enrich_top_k", 3)
@@ -438,15 +446,19 @@ async def call_tool(
                 )
 
             logger.info(
-                f"Searching web for: {query} (mode={mode}, timelimit={timelimit}, region={region})"
+                f"Searching web for: {query} (mode={mode}, timelimit={timelimit}, "
+                f"engine={engine or 'auto'}, fallback={use_fallback})"
             )
-            results = await search_duckduckgo(
+
+            # Use unified search with fallback
+            results = await search_with_fallback(
                 query=query,
                 limit=limit,
                 timelimit=timelimit,
                 mode=mode,
-                region=region,
+                engine=engine,
                 no_cache=no_cache,
+                use_fallback=use_fallback,
             )
 
             if do_enrich and results:

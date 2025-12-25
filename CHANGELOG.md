@@ -13,17 +13,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - None
 
-### Deprecated
-- None
-
-### Removed
-- None
-
 ### Fixed
 - None
 
-### Security
-- None
+## [0.1.5] - 2025-12-25
+
+### Added
+- **Smart multi-engine search fallback** - Automatic fallback between DuckDuckGo → Qwant → Brave → Startpage
+- **Brave Search integration** - Browser-based search with Playwright for anti-bot bypass
+- **Startpage Search integration** - Privacy-focused Google proxy with browser rendering
+- **Qwant Search integration** - European search engine support
+- **Playwright browser automation** - Firefox (primary) and Chromium (fallback) support for JavaScript-heavy sites
+- **Search engine selection** - New `engine` parameter to choose specific search engine
+- **Fallback control** - New `use_fallback` parameter to enable/disable automatic fallback
+- **Browser optional dependency** - Install Playwright separately via `pip install -e ".[browser]"`
+- **requirements-browser.txt** - Dedicated requirements file for browser dependencies
+- **MIGRATION.md** - Complete migration guide from v0.1.4 to v0.1.5
+- **FALLBACK_ENGINES.md** - Detailed documentation for search engine fallback system
+
+### Changed
+- **search_web tool** - Now supports multiple search engines with smart fallback
+- **Browser strategy** - Firefox preferred over Chromium for better macOS stability
+- **CSS selectors** - Updated Brave Search parsing to handle dynamic `data-type="web"` attributes
+- **Browser timeout** - Changed from `networkidle` to `domcontentloaded` for faster page loads
+- **README.md** - Updated with multi-engine search documentation and installation instructions
+
+### Fixed
+- **Chromium crashes** - Resolved SEGV_ACCERR crashes on macOS by switching to Firefox
+- **Anti-bot protection** - Browser rendering bypasses Cloudflare and JavaScript challenges
+- **Brave Search parsing** - Custom parser `_parse_browser_results()` handles new HTML structure
+- **Browser detection** - Disabled webdriver flags to avoid detection
 
 ## [0.1.4] - 2025-12-24
 
