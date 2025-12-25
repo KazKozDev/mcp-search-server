@@ -1,7 +1,6 @@
 """MCP Search Server - Web search, PDF parsing, and content extraction."""
 
 import asyncio
-import json
 import logging
 from typing import Any
 
