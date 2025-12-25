@@ -9,7 +9,7 @@
 
 mcp-name: io.github.KazKozDev/search
 
-[![PyPI version](https://badge.fury.io/py/mcp-search-server.svg)](https://badge.fury.io/py/mcp-search-server)
+[![PyPI version](https://img.shields.io/pypi/v/mcp-search-server.svg)](https://pypi.org/project/mcp-search-server/)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![CI](https://github.com/KazKozDev/mcp-search-server/actions/workflows/ci.yml/badge.svg)](https://github.com/KazKozDev/mcp-search-server/actions/workflows/ci.yml)
