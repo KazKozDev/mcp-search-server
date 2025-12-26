@@ -1713,7 +1713,10 @@ async def call_tool(
             enrich_max_chars = arguments.get("enrich_max_chars", 600)
 
             if not query:
-                return [TextContent(type="text", text="Error: query parameter is required")]
+                return (
+                    [TextContent(type="text", text="Error: query parameter is required")],
+                    {"error": "query parameter is required", "results": [], "total_results": 0},
+                )
 
             if mode is None:
                 lowered_query = query.lower()
@@ -1748,7 +1751,10 @@ async def call_tool(
                 )
 
             if not results:
-                return [TextContent(type="text", text="No results found")]
+                return (
+                    [TextContent(type="text", text="No results found")],
+                    {"results": [], "total_results": 0, "engine_used": engine or "auto-fallback"},
+                )
 
             # Build structured content for programmatic access
             structured_results = []
@@ -1790,7 +1796,10 @@ async def call_tool(
             country_codes = arguments.get("country_codes")
             no_cache = arguments.get("no_cache", False)
             if not query:
-                return [TextContent(type="text", text="Error: query parameter is required")]
+                return (
+                    [TextContent(type="text", text="Error: query parameter is required")],
+                    {"error": "query parameter is required", "places": [], "total_results": 0},
+                )
 
             logger.info(f"Searching maps for: {query}")
             results = await search_maps(
@@ -1800,7 +1809,10 @@ async def call_tool(
                 no_cache=no_cache,
             )
             if not results:
-                return [TextContent(type="text", text="No results found")]
+                return (
+                    [TextContent(type="text", text="No results found")],
+                    {"places": [], "total_results": 0},
+                )
 
             # Build structured content for programmatic access
             structured_places = []
@@ -1839,13 +1851,19 @@ async def call_tool(
             limit = arguments.get("limit", 5)
 
             if not query:
-                return [TextContent(type="text", text="Error: query parameter is required")]
+                return (
+                    [TextContent(type="text", text="Error: query parameter is required")],
+                    {"error": "query parameter is required", "articles": [], "total_results": 0},
+                )
 
             logger.info(f"Searching Wikipedia for: {query}")
             results = await search_wikipedia(query, limit)
 
             if not results:
-                return [TextContent(type="text", text="No results found")]
+                return (
+                    [TextContent(type="text", text="No results found")],
+                    {"articles": [], "total_results": 0},
+                )
 
             # Build structured content
             structured_articles = []
@@ -1877,7 +1895,10 @@ async def call_tool(
             title = arguments.get("title")
 
             if not title:
-                return [TextContent(type="text", text="Error: title parameter is required")]
+                return (
+                    [TextContent(type="text", text="Error: title parameter is required")],
+                    {"error": "title parameter is required", "title": "", "url": "", "extract": ""},
+                )
 
             logger.info(f"Getting Wikipedia summary for: {title}")
             result = await get_wikipedia_summary(title)
@@ -1904,13 +1925,19 @@ async def call_tool(
             url = arguments.get("url")
 
             if not url:
-                return [TextContent(type="text", text="Error: url parameter is required")]
+                return (
+                    [TextContent(type="text", text="Error: url parameter is required")],
+                    {"error": "url parameter is required", "url": "", "content": ""},
+                )
 
             logger.info(f"Extracting content from: {url}")
             content = await extract_content_from_url(url)
 
             if content.startswith("Error"):
-                return [TextContent(type="text", text=content)]
+                return (
+                    [TextContent(type="text", text=content)],
+                    {"error": content, "url": url, "content": ""},
+                )
 
             # Build structured content
             structured_content = {
@@ -1930,13 +1957,19 @@ async def call_tool(
             max_chars = arguments.get("max_chars", 50000)
 
             if not url:
-                return [TextContent(type="text", text="Error: url parameter is required")]
+                return (
+                    [TextContent(type="text", text="Error: url parameter is required")],
+                    {"error": "url parameter is required", "url": "", "content": ""},
+                )
 
             logger.info(f"Parsing PDF from: {url}")
             content = await parse_pdf(url, max_chars)
 
             if content.startswith("Error"):
-                return [TextContent(type="text", text=content)]
+                return (
+                    [TextContent(type="text", text=content)],
+                    {"error": content, "url": url, "content": ""},
+                )
 
             # Build structured content
             structured_content = {
@@ -1965,7 +1998,10 @@ async def call_tool(
                     formatted_output += "## Available timezones (sample):\n"
                     for tz in result["available_timezones_sample"]:
                         formatted_output += f"- {tz}\n"
-                return [TextContent(type="text", text=formatted_output)]
+                return (
+                    [TextContent(type="text", text=formatted_output)],
+                    {"error": result["error"], "datetime": "", "timezone": "", "date": "", "time": ""},
+                )
 
             # Format successful result
             formatted_output = "# 🕐 Current Date and Time\n\n"
@@ -2007,7 +2043,10 @@ async def call_tool(
             if "error" in result:
                 formatted_output = f"# ❌ Error\n\n{result['error']}\n"
                 formatted_output += f"**IP:** {result.get('ip', 'unknown')}\n"
-                return [TextContent(type="text", text=formatted_output)]
+                return (
+                    [TextContent(type="text", text=formatted_output)],
+                    {"error": result["error"], "ip": result.get("ip", "")},
+                )
 
             # Format successful result
             formatted_output = "# 📍 Location Information\n\n"
@@ -2047,7 +2086,10 @@ async def call_tool(
             category = arguments.get("category")
 
             if not query:
-                return [TextContent(type="text", text="Error: query parameter is required")]
+                return (
+                    [TextContent(type="text", text="Error: query parameter is required")],
+                    {"error": "query parameter is required", "papers": [], "total_results": 0},
+                )
 
             logger.info(f"Searching arXiv for: {query}")
 
@@ -2057,7 +2099,10 @@ async def call_tool(
                 results = await search_arxiv(query, max_results)
 
             if not results:
-                return [TextContent(type="text", text="No arXiv papers found")]
+                return (
+                    [TextContent(type="text", text="No arXiv papers found")],
+                    {"papers": [], "total_results": 0},
+                )
 
             # Build structured content
             structured_papers = []
@@ -2104,13 +2149,19 @@ async def call_tool(
             max_results = arguments.get("max_results", 5)
 
             if not query:
-                return [TextContent(type="text", text="Error: query parameter is required")]
+                return (
+                    [TextContent(type="text", text="Error: query parameter is required")],
+                    {"error": "query parameter is required", "repositories": [], "total_results": 0},
+                )
 
             logger.info(f"Searching GitHub for: {query}")
             results = await search_github_repos(query, sort, max_results)
 
             if not results:
-                return [TextContent(type="text", text="No GitHub repositories found")]
+                return (
+                    [TextContent(type="text", text="No GitHub repositories found")],
+                    {"repositories": [], "total_results": 0},
+                )
 
             # Build structured content
             structured_repos = []
@@ -2155,13 +2206,19 @@ async def call_tool(
             repo = arguments.get("repo")
 
             if not repo:
-                return [TextContent(type="text", text="Error: repo parameter is required")]
+                return (
+                    [TextContent(type="text", text="Error: repo parameter is required")],
+                    {"error": "repo parameter is required", "repo": "", "content": ""},
+                )
 
             logger.info(f"Getting README for: {repo}")
             content = await get_github_readme(repo)
 
             if not content:
-                return [TextContent(type="text", text=f"README not found for {repo}")]
+                return (
+                    [TextContent(type="text", text=f"README not found for {repo}")],
+                    {"repo": repo, "content": ""},
+                )
 
             # Build structured content
             structured_content = {
@@ -2182,13 +2239,19 @@ async def call_tool(
             time_filter = arguments.get("time_filter", "all")
 
             if not query:
-                return [TextContent(type="text", text="Error: query parameter is required")]
+                return (
+                    [TextContent(type="text", text="Error: query parameter is required")],
+                    {"error": "query parameter is required", "posts": [], "total_results": 0},
+                )
 
             logger.info(f"Searching Reddit for: {query}")
             results = await search_reddit(query, subreddit, limit, "relevance", time_filter)
 
             if not results:
-                return [TextContent(type="text", text="No Reddit posts found")]
+                return (
+                    [TextContent(type="text", text="No Reddit posts found")],
+                    {"posts": [], "total_results": 0},
+                )
 
             # Build structured content
             structured_posts = []
@@ -2232,15 +2295,19 @@ async def call_tool(
             limit = arguments.get("limit", 10)
 
             if not url:
-                return [TextContent(type="text", text="Error: url parameter is required")]
+                return (
+                    [TextContent(type="text", text="Error: url parameter is required")],
+                    {"error": "url parameter is required", "comments": [], "post_url": "", "total_comments": 0},
+                )
 
             logger.info(f"Getting Reddit comments from: {url}")
             results = await get_reddit_comments(url, limit)
 
             if not results:
-                return [
-                    TextContent(type="text", text="No comments found or error fetching comments")
-                ]
+                return (
+                    [TextContent(type="text", text="No comments found or error fetching comments")],
+                    {"comments": [], "post_url": url, "total_comments": 0},
+                )
 
             # Build structured content
             structured_comments = []
@@ -2277,13 +2344,19 @@ async def call_tool(
             max_results = arguments.get("max_results", 10)
 
             if not query:
-                return [TextContent(type="text", text="Error: query parameter is required")]
+                return (
+                    [TextContent(type="text", text="Error: query parameter is required")],
+                    {"error": "query parameter is required", "articles": [], "total_results": 0},
+                )
 
             logger.info(f"Searching PubMed for: {query}")
             results = await search_pubmed(query, max_results)
 
             if not results:
-                return [TextContent(type="text", text="No PubMed articles found")]
+                return (
+                    [TextContent(type="text", text="No PubMed articles found")],
+                    {"articles": [], "total_results": 0},
+                )
 
             # Build structured content
             structured_articles = []
@@ -2328,13 +2401,19 @@ async def call_tool(
             max_results = arguments.get("max_results", 10)
 
             if not query:
-                return [TextContent(type="text", text="Error: query parameter is required")]
+                return (
+                    [TextContent(type="text", text="Error: query parameter is required")],
+                    {"error": "query parameter is required", "articles": [], "total_results": 0},
+                )
 
             logger.info(f"Searching GDELT for: {query}")
             results = await search_gdelt(query, timespan, max_results)
 
             if not results:
-                return [TextContent(type="text", text="No GDELT news articles found")]
+                return (
+                    [TextContent(type="text", text="No GDELT news articles found")],
+                    {"articles": [], "total_results": 0},
+                )
 
             # Build structured content
             structured_articles = []
@@ -2373,10 +2452,17 @@ async def call_tool(
             metadata = arguments.get("metadata")
 
             if not url:
-                return [TextContent(type="text", text="Error: url parameter is required")]
+                return (
+                    [TextContent(type="text", text="Error: url parameter is required")],
+                    {"error": "url parameter is required", "url": "", "domain": "", "credibility_score": 0},
+                )
 
             logger.info(f"Assessing credibility of: {url}")
             result = await assess_source_credibility(url, title, content, metadata)
+
+            # Convert tuple to list for JSON schema validation
+            if isinstance(result.get("confidence_interval"), tuple):
+                result["confidence_interval"] = list(result["confidence_interval"])
 
             # Format output
             formatted_output = f"# Credibility Assessment for {result['domain']}\n\n"
@@ -2417,13 +2503,19 @@ async def call_tool(
             compression_ratio = arguments.get("compression_ratio", 0.3)
 
             if not text:
-                return [TextContent(type="text", text="Error: text parameter is required")]
+                return (
+                    [TextContent(type="text", text="Error: text parameter is required")],
+                    {"error": "text parameter is required", "summary": "", "method": ""},
+                )
 
             logger.info(f"Summarizing text ({len(text)} chars) with strategy: {strategy}")
             result = await summarize_text(text, strategy, compression_ratio)
 
             if not result:
-                return [TextContent(type="text", text="Error: Failed to summarize text")]
+                return (
+                    [TextContent(type="text", text="Error: Failed to summarize text")],
+                    {"error": "Failed to summarize text", "summary": "", "method": ""},
+                )
 
             # Format output
             formatted_output = "# Text Summary\n\n"
@@ -2447,13 +2539,19 @@ async def call_tool(
             lang = arguments.get("lang", "en")
 
             if not title:
-                return [TextContent(type="text", text="Error: title parameter is required")]
+                return (
+                    [TextContent(type="text", text="Error: title parameter is required")],
+                    {"error": "title parameter is required", "title": "", "url": "", "sections": []},
+                )
 
             logger.info(f"Getting Wikipedia content for: {title}")
             result = await get_wikipedia_content(title, lang)
 
             if not result:
-                return [TextContent(type="text", text=f"Wikipedia article not found: {title}")]
+                return (
+                    [TextContent(type="text", text=f"Wikipedia article not found: {title}")],
+                    {"title": title, "url": "", "sections": []},
+                )
 
             formatted_result = f"# {result.get('title', 'Wikipedia Article')}\n\n"
             formatted_result += f"**URL:** {result.get('url', 'N/A')}\n\n"
@@ -2481,7 +2579,10 @@ async def call_tool(
             path = arguments.get("path")
 
             if not path:
-                return [TextContent(type="text", text="Error: path parameter is required")]
+                return (
+                    [TextContent(type="text", text="Error: path parameter is required")],
+                    {"error": "path parameter is required", "path": "", "content": "", "exists": False},
+                )
 
             logger.info(f"Reading file: {path}")
             result = await file_manager.read_file(path)
@@ -2508,9 +2609,15 @@ async def call_tool(
             content = arguments.get("content")
 
             if not path:
-                return [TextContent(type="text", text="Error: path parameter is required")]
+                return (
+                    [TextContent(type="text", text="Error: path parameter is required")],
+                    {"error": "path parameter is required", "path": "", "message": ""},
+                )
             if not content:
-                return [TextContent(type="text", text="Error: content parameter is required")]
+                return (
+                    [TextContent(type="text", text="Error: content parameter is required")],
+                    {"error": "content parameter is required", "path": path, "message": ""},
+                )
 
             logger.info(f"Writing file: {path}")
             result = await file_manager.write_file(path, content, append=False)
@@ -2532,9 +2639,15 @@ async def call_tool(
             content = arguments.get("content")
 
             if not path:
-                return [TextContent(type="text", text="Error: path parameter is required")]
+                return (
+                    [TextContent(type="text", text="Error: path parameter is required")],
+                    {"error": "path parameter is required", "path": "", "message": ""},
+                )
             if not content:
-                return [TextContent(type="text", text="Error: content parameter is required")]
+                return (
+                    [TextContent(type="text", text="Error: content parameter is required")],
+                    {"error": "content parameter is required", "path": path, "message": ""},
+                )
 
             logger.info(f"Appending to file: {path}")
             result = await file_manager.write_file(path, content, append=True)
@@ -2589,7 +2702,10 @@ async def call_tool(
             path = arguments.get("path")
 
             if not path:
-                return [TextContent(type="text", text="Error: path parameter is required")]
+                return (
+                    [TextContent(type="text", text="Error: path parameter is required")],
+                    {"error": "path parameter is required", "path": "", "success": False, "message": ""},
+                )
 
             logger.info(f"Deleting file: {path}")
             result = await file_manager.delete_file(path)
@@ -2610,7 +2726,10 @@ async def call_tool(
             expression = arguments.get("expression")
 
             if not expression:
-                return [TextContent(type="text", text="Error: expression parameter is required")]
+                return (
+                    [TextContent(type="text", text="Error: expression parameter is required")],
+                    {"error": "expression parameter is required", "expression": ""},
+                )
 
             logger.info(f"Calculating: {expression}")
             result = await calculator.calculate_async(expression)

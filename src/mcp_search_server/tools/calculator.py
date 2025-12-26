@@ -92,6 +92,9 @@ class Calculator:
         # Remove all whitespace
         expression = expression.replace(" ", "")
 
+        # Convert ^ to ** for power (common math notation)
+        expression = expression.replace("^", "**")
+
         # Handle implicit multiplication for parentheses
         # )(  -> )*(
         expression = re.sub(r"\)\(", r")*(", expression)

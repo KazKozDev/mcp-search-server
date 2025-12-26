@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "mcp-search-server"
-version = "0.1.8"
+version = "0.1.9"
 description = "MCP server for web search, PDF parsing, and content extraction"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -31,7 +31,7 @@ dependencies = [
     "undetected-chromedriver>=3.5.0",
     "ddgs>=0.1.0",
     "biopython>=1.83",
-    "gdelt>=0.1.0",
+    "gdeltdoc>=1.0.0",
     "arxiv>=2.0.0",
     "certifi>=2024.0.0",
 ]
