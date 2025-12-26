@@ -39,7 +39,9 @@ Add to `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS)
 <details>
 <summary><b>search_web</b> - Multi-engine web search with smart fallback</summary>
 
-Search the web using DuckDuckGo, Brave, Startpage, or Qwant with automatic fallback if one engine fails.
+**Why LLMs need this:** LLMs have a knowledge cutoff date and cannot access current information. This tool gives them real-time access to the web, enabling answers about recent events, current prices, latest news, and up-to-date documentation.
+
+**What it does:** Searches the web using DuckDuckGo, Brave, Startpage, or Qwant with automatic fallback if one engine fails. Supports web and news modes with time filtering.
 
 **Parameters:**
 - `query` (required): Search query
@@ -57,7 +59,9 @@ Search the web using DuckDuckGo, Brave, Startpage, or Qwant with automatic fallb
 <details>
 <summary><b>search_maps</b> - Location and places search</summary>
 
-Search for places, addresses, and locations with geographic coordinates.
+**Why LLMs need this:** LLMs cannot look up real addresses, business locations, or geographic data. This tool enables location-based queries like finding nearby businesses, getting addresses, and working with geographic coordinates.
+
+**What it does:** Searches for places, addresses, and locations with geographic coordinates. Returns structured location data including names, addresses, and coordinates.
 
 **Parameters:**
 - `query` (required): Place or address to search
@@ -72,7 +76,9 @@ Search for places, addresses, and locations with geographic coordinates.
 <details>
 <summary><b>extract_webpage_content</b> - Extract clean text from web pages</summary>
 
-Extract readable content from any webpage, removing ads, navigation, and boilerplate. Uses multiple parsing methods with automatic fallback.
+**Why LLMs need this:** Raw HTML is cluttered with navigation, ads, and scripts. LLMs need clean, readable text to understand and summarize web content effectively. This tool extracts just the main content.
+
+**What it does:** Extracts readable content from any webpage, removing ads, navigation, and boilerplate. Uses multiple parsing methods (Readability, Newspaper3k, BeautifulSoup) with automatic fallback.
 
 **Parameters:**
 - `url` (required): URL to extract content from
@@ -86,7 +92,9 @@ Extract readable content from any webpage, removing ads, navigation, and boilerp
 <details>
 <summary><b>parse_pdf</b> - Extract text from PDF files</summary>
 
-Download and extract text content from PDF documents.
+**Why LLMs need this:** PDFs are a common format for research papers, reports, and documentation, but LLMs cannot read binary files directly. This tool converts PDF content to text for analysis.
+
+**What it does:** Downloads and extracts text content from PDF documents using PyPDF2 or pdfplumber with automatic library selection.
 
 **Parameters:**
 - `url` (required): PDF URL
@@ -103,7 +111,9 @@ Download and extract text content from PDF documents.
 <details>
 <summary><b>search_wikipedia</b> - Search Wikipedia articles</summary>
 
-Search Wikipedia for articles matching a query.
+**Why LLMs need this:** Wikipedia is a reliable, structured knowledge base. While LLMs have some Wikipedia knowledge from training, this tool provides access to the latest content and helps find specific articles on any topic.
+
+**What it does:** Searches Wikipedia for articles matching a query. Returns article titles, snippets, and URLs.
 
 **Parameters:**
 - `query` (required): Search query
@@ -118,7 +128,9 @@ Search Wikipedia for articles matching a query.
 <details>
 <summary><b>get_wikipedia_summary</b> - Get article summary</summary>
 
-Get a concise summary of a Wikipedia article.
+**Why LLMs need this:** Quick factual lookups need concise, authoritative information. Wikipedia summaries provide verified facts without the overhead of full articles, perfect for answering specific questions.
+
+**What it does:** Gets a concise summary of a Wikipedia article - the introductory paragraphs that define the topic.
 
 **Parameters:**
 - `title` (required): Article title
@@ -132,7 +144,9 @@ Get a concise summary of a Wikipedia article.
 <details>
 <summary><b>get_wikipedia_content</b> - Get full article content</summary>
 
-Get the complete content of a Wikipedia article with all sections.
+**Why LLMs need this:** For in-depth research, LLMs need complete information with all sections, references, and details. This tool provides the full Wikipedia article for comprehensive analysis.
+
+**What it does:** Gets the complete content of a Wikipedia article with all sections, supporting multiple languages.
 
 **Parameters:**
 - `title` (required): Article title
@@ -149,7 +163,9 @@ Get the complete content of a Wikipedia article with all sections.
 <details>
 <summary><b>search_arxiv</b> - Search arXiv papers</summary>
 
-Search arXiv for academic papers in physics, mathematics, computer science, and more.
+**Why LLMs need this:** Scientific research moves fast. arXiv hosts the latest preprints in physics, math, CS, and more. This tool gives LLMs access to cutting-edge research before it's even published in journals.
+
+**What it does:** Searches arXiv for academic papers with filtering by category. Returns titles, abstracts, authors, and links.
 
 **Parameters:**
 - `query` (required): Search query
@@ -165,7 +181,9 @@ Search arXiv for academic papers in physics, mathematics, computer science, and 
 <details>
 <summary><b>search_pubmed</b> - Search medical/biomedical papers</summary>
 
-Search PubMed for biomedical and life science research papers.
+**Why LLMs need this:** Medical and health questions require peer-reviewed sources. PubMed is the authoritative database for biomedical research, enabling LLMs to cite real studies rather than general knowledge.
+
+**What it does:** Searches PubMed for biomedical and life science research papers. Returns titles, abstracts, authors, DOIs, and publication info.
 
 **Parameters:**
 - `query` (required): Search query
@@ -180,7 +198,9 @@ Search PubMed for biomedical and life science research papers.
 <details>
 <summary><b>search_gdelt</b> - Search global news (GDELT)</summary>
 
-Search the GDELT database for global news articles and events.
+**Why LLMs need this:** For current events and global news analysis, LLMs need access to worldwide media coverage. GDELT monitors news from every country, enabling analysis of how stories develop globally.
+
+**What it does:** Searches the GDELT database for global news articles and events with time filtering.
 
 **Parameters:**
 - `query` (required): Search query
@@ -198,7 +218,9 @@ Search the GDELT database for global news articles and events.
 <details>
 <summary><b>search_github</b> - Search GitHub repositories</summary>
 
-Search GitHub for repositories by keywords, with sorting options.
+**Why LLMs need this:** Developers ask about libraries, frameworks, and code examples. This tool helps LLMs find relevant repositories, compare alternatives, and recommend tools based on real popularity metrics (stars, forks).
+
+**What it does:** Searches GitHub for repositories by keywords with sorting by stars, forks, or update date.
 
 **Parameters:**
 - `query` (required): Search query
@@ -214,7 +236,9 @@ Search GitHub for repositories by keywords, with sorting options.
 <details>
 <summary><b>get_github_readme</b> - Get repository README</summary>
 
-Fetch the README file content from a GitHub repository.
+**Why LLMs need this:** README files contain installation instructions, API docs, and usage examples. This tool lets LLMs read actual documentation to provide accurate, up-to-date guidance on using any library.
+
+**What it does:** Fetches the README file content from a GitHub repository in markdown format.
 
 **Parameters:**
 - `repo` (required): Repository in "owner/repo" format
@@ -230,7 +254,9 @@ Fetch the README file content from a GitHub repository.
 <details>
 <summary><b>search_reddit</b> - Search Reddit posts</summary>
 
-Search Reddit for posts across all subreddits or within a specific one.
+**Why LLMs need this:** Reddit contains real user experiences, reviews, and discussions. For questions like "what's the best X" or "how do people feel about Y", Reddit provides authentic community perspectives that formal sources lack.
+
+**What it does:** Searches Reddit for posts across all subreddits or within a specific one, with time filtering.
 
 **Parameters:**
 - `query` (required): Search query
@@ -247,7 +273,9 @@ Search Reddit for posts across all subreddits or within a specific one.
 <details>
 <summary><b>get_reddit_comments</b> - Get post comments</summary>
 
-Fetch comments from a specific Reddit post.
+**Why LLMs need this:** The real value of Reddit is in the comments - detailed explanations, counterarguments, and community voting. This tool extracts comment threads for deeper analysis of discussions.
+
+**What it does:** Fetches comments from a specific Reddit post with scores and hierarchy.
 
 **Parameters:**
 - `url` (required): Reddit post URL
@@ -264,7 +292,9 @@ Fetch comments from a specific Reddit post.
 <details>
 <summary><b>get_current_datetime</b> - Get current date/time with timezone</summary>
 
-Get the current date and time for any timezone. Essential for time-aware AI responses.
+**Why LLMs need this:** LLMs have no concept of "now" - they don't know the current date or time. This tool enables time-aware responses: scheduling, deadlines, "is it open now?", age calculations, and timezone conversions.
+
+**What it does:** Gets the current date and time for any timezone with detailed components (day of week, week number, Unix timestamp).
 
 **Parameters:**
 - `timezone`: Timezone name (default: "UTC")
@@ -281,7 +311,9 @@ Get the current date and time for any timezone. Essential for time-aware AI resp
 <details>
 <summary><b>get_location_by_ip</b> - IP geolocation lookup</summary>
 
-Get geographic location from an IP address: country, city, timezone, coordinates, ISP.
+**Why LLMs need this:** LLMs have no concept of "here" - they don't know where the user is. This tool enables location-aware responses: local weather, nearby services, correct timezone, and region-specific information.
+
+**What it does:** Gets geographic location from an IP address including country, city, timezone, coordinates, and ISP info.
 
 **Parameters:**
 - `ip_address`: IP to lookup (optional, uses server IP if omitted)
@@ -299,7 +331,9 @@ Get geographic location from an IP address: country, city, timezone, coordinates
 <details>
 <summary><b>assess_source_credibility</b> - Bayesian credibility scoring</summary>
 
-Assess web source credibility using 30+ signals, domain age (WHOIS), and citation network analysis.
+**Why LLMs need this:** Not all sources are equal. When citing information, LLMs need to distinguish between peer-reviewed research, reputable news, and random blogs. This tool provides objective credibility metrics to support source evaluation.
+
+**What it does:** Assesses web source credibility using 30+ signals including domain age (WHOIS), citation network (PageRank), and content analysis with Bayesian confidence intervals.
 
 **Parameters:**
 - `url` (required): URL to assess
@@ -318,7 +352,9 @@ Assess web source credibility using 30+ signals, domain age (WHOIS), and citatio
 <details>
 <summary><b>summarize_text</b> - Multi-strategy text summarization</summary>
 
-Summarize long text using TF-IDF, keyword extraction, or heuristic methods.
+**Why LLMs need this:** Long documents exceed context limits. Before analyzing a large PDF or article, this tool can create a concise summary, letting LLMs work with more sources without running out of context.
+
+**What it does:** Summarizes long text using TF-IDF extraction, keyword-based selection, or fast heuristic methods. Runs locally with no external APIs.
 
 **Parameters:**
 - `text` (required): Text to summarize
@@ -336,7 +372,9 @@ Summarize long text using TF-IDF, keyword extraction, or heuristic methods.
 <details>
 <summary><b>calculate</b> - Safe mathematical calculator</summary>
 
-Perform mathematical calculations with trigonometry, logarithms, and constants. Uses AST parsing for safety (no eval).
+**Why LLMs need this:** LLMs are notoriously bad at math. Even simple arithmetic can produce wrong answers. This tool provides accurate calculations for everything from basic math to trigonometry and logarithms.
+
+**What it does:** Performs mathematical calculations using safe AST parsing (no eval). Supports arithmetic, trigonometry, logarithms, factorials, and mathematical constants.
 
 **Parameters:**
 - `expression` (required): Math expression
@@ -354,7 +392,9 @@ Perform mathematical calculations with trigonometry, logarithms, and constants. 
 <details>
 <summary><b>read_file</b> - Read file content</summary>
 
-Read content from text, PDF, Word, Excel, or image files.
+**Why LLMs need this:** Users often want to discuss files on their system. This tool lets LLMs read text, PDFs, Word docs, and more to answer questions about file contents, analyze data, or help with editing.
+
+**What it does:** Reads content from text, PDF, Word, Excel, or image files with automatic format detection.
 
 **Parameters:**
 - `path` (required): File path (relative paths use `data/files/` as base)
@@ -368,7 +408,9 @@ Read content from text, PDF, Word, Excel, or image files.
 <details>
 <summary><b>write_file</b> - Write/create file</summary>
 
-Write content to a file (creates if doesn't exist).
+**Why LLMs need this:** LLMs can generate code, documents, and data, but without file writing they can only display output. This tool lets them save generated content to actual files users can use.
+
+**What it does:** Writes content to a file, creating it if it doesn't exist. UTF-8 text files only.
 
 **Parameters:**
 - `path` (required): File path
@@ -383,7 +425,9 @@ Write content to a file (creates if doesn't exist).
 <details>
 <summary><b>append_file</b> - Append to file</summary>
 
-Append content to an existing file.
+**Why LLMs need this:** For logging, note-taking, and incremental data collection, appending is safer than overwriting. This tool adds content to existing files without losing previous data.
+
+**What it does:** Appends content to an existing file or creates a new one.
 
 **Parameters:**
 - `path` (required): File path
@@ -398,7 +442,9 @@ Append content to an existing file.
 <details>
 <summary><b>list_files</b> - List directory contents</summary>
 
-List files and directories with sizes and types.
+**Why LLMs need this:** Before reading or writing files, LLMs need to know what exists. This tool provides directory listings with file sizes and types, enabling file management workflows.
+
+**What it does:** Lists files and directories with sizes and types.
 
 **Parameters:**
 - `path`: Directory path (default: `data/files/`)
@@ -412,7 +458,9 @@ List files and directories with sizes and types.
 <details>
 <summary><b>delete_file</b> - Delete file</summary>
 
-Delete a file (restricted to `data/files/` for security).
+**Why LLMs need this:** Complete file management requires deletion. This tool enables cleanup of temporary files, old outputs, and user-requested deletions with security restrictions.
+
+**What it does:** Deletes a file (restricted to `data/files/` directory for security).
 
 **Parameters:**
 - `path` (required): File path to delete
