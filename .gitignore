@@ -134,8 +134,9 @@ dmypy.json
 Thumbs.db
 
 # Test scripts
-test_chat_with_mcp.py
-test_news_search.py
+test_*.py
+test_*.txt
+*_test.txt
 
 # MCP Cache
 .mcp-search-cache/
