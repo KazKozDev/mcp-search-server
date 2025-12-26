@@ -2000,7 +2000,13 @@ async def call_tool(
                         formatted_output += f"- {tz}\n"
                 return (
                     [TextContent(type="text", text=formatted_output)],
-                    {"error": result["error"], "datetime": "", "timezone": "", "date": "", "time": ""},
+                    {
+                        "error": result["error"],
+                        "datetime": "",
+                        "timezone": "",
+                        "date": "",
+                        "time": "",
+                    },
                 )
 
             # Format successful result
@@ -2151,7 +2157,11 @@ async def call_tool(
             if not query:
                 return (
                     [TextContent(type="text", text="Error: query parameter is required")],
-                    {"error": "query parameter is required", "repositories": [], "total_results": 0},
+                    {
+                        "error": "query parameter is required",
+                        "repositories": [],
+                        "total_results": 0,
+                    },
                 )
 
             logger.info(f"Searching GitHub for: {query}")
@@ -2297,7 +2307,12 @@ async def call_tool(
             if not url:
                 return (
                     [TextContent(type="text", text="Error: url parameter is required")],
-                    {"error": "url parameter is required", "comments": [], "post_url": "", "total_comments": 0},
+                    {
+                        "error": "url parameter is required",
+                        "comments": [],
+                        "post_url": "",
+                        "total_comments": 0,
+                    },
                 )
 
             logger.info(f"Getting Reddit comments from: {url}")
@@ -2454,7 +2469,12 @@ async def call_tool(
             if not url:
                 return (
                     [TextContent(type="text", text="Error: url parameter is required")],
-                    {"error": "url parameter is required", "url": "", "domain": "", "credibility_score": 0},
+                    {
+                        "error": "url parameter is required",
+                        "url": "",
+                        "domain": "",
+                        "credibility_score": 0,
+                    },
                 )
 
             logger.info(f"Assessing credibility of: {url}")
@@ -2541,7 +2561,12 @@ async def call_tool(
             if not title:
                 return (
                     [TextContent(type="text", text="Error: title parameter is required")],
-                    {"error": "title parameter is required", "title": "", "url": "", "sections": []},
+                    {
+                        "error": "title parameter is required",
+                        "title": "",
+                        "url": "",
+                        "sections": [],
+                    },
                 )
 
             logger.info(f"Getting Wikipedia content for: {title}")
@@ -2581,7 +2606,12 @@ async def call_tool(
             if not path:
                 return (
                     [TextContent(type="text", text="Error: path parameter is required")],
-                    {"error": "path parameter is required", "path": "", "content": "", "exists": False},
+                    {
+                        "error": "path parameter is required",
+                        "path": "",
+                        "content": "",
+                        "exists": False,
+                    },
                 )
 
             logger.info(f"Reading file: {path}")
@@ -2704,7 +2734,12 @@ async def call_tool(
             if not path:
                 return (
                     [TextContent(type="text", text="Error: path parameter is required")],
-                    {"error": "path parameter is required", "path": "", "success": False, "message": ""},
+                    {
+                        "error": "path parameter is required",
+                        "path": "",
+                        "success": False,
+                        "message": "",
+                    },
                 )
 
             logger.info(f"Deleting file: {path}")
