@@ -1,124 +1,26 @@
 
-
 <p align="center">
-  <img width="304" alt="log" src="https://github.com/user-attachments/assets/d831a711-9ddd-406a-b984-46e5693959c8" />
+  <img width="304" alt="logo" src="https://github.com/user-attachments/assets/d831a711-9ddd-406a-b984-46e5693959c8" />
 </p>
 
 # MCP Search Server
-<!-- mcp-name: io.github.KazKozDev/search -->
-
-mcp-name: io.github.KazKozDev/search
 
 [![PyPI version](https://img.shields.io/pypi/v/mcp-search-server.svg)](https://pypi.org/project/mcp-search-server/)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![CI](https://github.com/KazKozDev/mcp-search-server/actions/workflows/ci.yml/badge.svg)](https://github.com/KazKozDev/mcp-search-server/actions/workflows/ci.yml)
-[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
-MCP (Model Context Protocol) server for web search, content extraction, and PDF parsing.
-
-All tools work out of the box using free public APIs. **No API keys required. No registration needed.**
-
-**Context-Aware AI**: Built-in tools for real-time datetime and geolocation detection give LLMs the ability to understand "here and now" - enabling timezone-aware responses, location-based content, and time-sensitive information without manual configuration.
-
-## Features
-
-- **DateTime Tool**: Get current date and time with timezone awareness
-- **Geolocation**: IP-based location detection with timezone, coordinates, and ISP info
-- **Web Search**: Smart multi-engine search with automatic fallback
-  - **DuckDuckGo** (primary): Fast, reliable, works out of the box
-  - **Brave Search** (fallback): Browser-based with anti-bot bypass
-  - **Startpage** (fallback): Privacy-focused Google proxy
-  - **Qwant** (fallback): European search engine
-- **Wikipedia Search**: Search and retrieve Wikipedia articles
-- **Web Content Extraction**: Extract clean text from web pages using multiple parsing methods
-- **PDF Parsing**: Extract text from PDF files
-- **Multi-Source Search**: Parallel search across multiple sources
-- **Academic Search**: Search arXiv, PubMed for scientific papers
-- **GitHub Search**: Find repositories and README files
-- **Reddit Search**: Search posts and comments
-- **News Search**: GDELT global news database
-- **🆕 Credibility Assessment**: Bayesian source credibility scoring with 30+ signals, domain age (WHOIS), citation network (PageRank), and uncertainty quantification - **no API keys required**
-- **🆕 Text Summarization**: Multi-strategy summarization (TF-IDF extractive, keyword-based, heuristic) - fast, accurate, **no API keys required**
-- **🆕 File Management**: Read/write files with support for text, PDF, Word, Excel, and images - fully async, secure, **no external services required**
-- **🆕 Calculator**: Advanced mathematical calculations with trigonometry, logarithms, constants (pi, e), and more - safe expression evaluation, **no eval() vulnerabilities**
+MCP server providing **24 tools** for web search, content extraction, and data processing. **No API keys required.**
 
 ## Installation
-
-### Prerequisites
-
-- Python 3.10 or higher
-- pip
-
-### Install from PyPI (recommended)
 
 ```bash
 pip install mcp-search-server
 ```
 
-### Install from source
+### Claude Desktop Configuration
 
-```bash
-git clone https://github.com/KazKozDev/mcp-search-server.git
-cd mcp-search-server
-pip install -e .
-```
-
-### Optional: Browser-based search engines
-
-To enable **Brave Search** and **Startpage** with anti-bot bypass (using Playwright):
-
-```bash
-# Install optional browser dependencies
-pip install -e ".[browser]"
-
-# Install Firefox browser (recommended - more stable on macOS)
-playwright install firefox
-
-# Alternative: Install Chromium browser
-playwright install chromium
-```
-
-**Note**: DuckDuckGo works perfectly without Playwright. Browser support is only needed for Brave and Startpage fallback engines.
-
-## Usage
-
-### Running the server
-
-The server can be run directly:
-
-```bash
-python -m mcp_search_server.server
-```
-
-Or using the installed script:
-
-```bash
-mcp-search-server
-```
-
-### Configuration for Claude Desktop
-
-Add this to your Claude Desktop configuration file:
-
-**MacOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
-**Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
-
-```json
-{
-  "mcpServers": {
-    "search": {
-      "command": "python",
-      "args": [
-        "-m",
-        "mcp_search_server.server"
-      ]
-    }
-  }
-}
-```
-
-Or if you installed it as a package:
+Add to `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) or `%APPDATA%\Claude\claude_desktop_config.json` (Windows):
 
 ```json
 {
@@ -130,652 +32,413 @@ Or if you installed it as a package:
 }
 ```
 
-### Configuration for other MCP clients
+## Available Tools (24)
 
-The server uses stdio transport, so it can be integrated with any MCP client that supports stdio.
+### Web Search & Content
 
-## Available Tools
+<details>
+<summary><b>search_web</b> - Multi-engine web search with smart fallback</summary>
 
-### 1. search_web
-
-Search the web with smart multi-engine fallback (DuckDuckGo → Qwant → Brave → Startpage).
-
-**Parameters:**
-- `query` (string, required): The search query
-- `limit` (integer, optional): Maximum number of results (default: 10)
-- `mode` (string, optional): Search mode - `'web'` (default) or `'news'`
-- `timelimit` (string, optional): Filter by time - `'d'` (past day), `'w'` (past week), `'m'` (past month), `'y'` (past year), `null` (all time, default)
-- `engine` (string, optional): Specific search engine - `'duckduckgo'`, `'brave'`, `'startpage'`, `'qwant'` (default: auto-fallback)
-- `use_fallback` (boolean, optional): Enable automatic fallback to other engines (default: `true`)
-- `no_cache` (boolean, optional): Disable cache (default: `false`)
-
-**Examples:**
-
-Auto-fallback search (recommended):
-```json
-{
-  "query": "Python async programming",
-  "limit": 5,
-  "use_fallback": true
-}
-```
-
-Search using specific engine:
-```json
-{
-  "query": "machine learning",
-  "limit": 10,
-  "engine": "brave",
-  "use_fallback": false
-}
-```
-
-Search for recent news (past day):
-```json
-{
-  "query": "latest AI developments",
-  "limit": 10,
-  "mode": "news",
-  "timelimit": "d"
-}
-```
-
-### 2. search_wikipedia
-
-Search Wikipedia for articles.
+Search the web using DuckDuckGo, Brave, Startpage, or Qwant with automatic fallback if one engine fails.
 
 **Parameters:**
-- `query` (string, required): The search query
-- `limit` (integer, optional): Maximum number of results (default: 5)
+- `query` (required): Search query
+- `limit`: Max results (default: 10)
+- `mode`: `"web"` or `"news"`
+- `timelimit`: `"d"` (day), `"w"` (week), `"m"` (month), `"y"` (year)
+- `engine`: `"duckduckgo"`, `"brave"`, `"startpage"`, `"qwant"` (default: auto)
 
 **Example:**
 ```json
-{
-  "query": "Machine Learning",
-  "limit": 3
-}
+{"query": "Python async programming", "limit": 5, "mode": "news"}
 ```
+</details>
 
-### 3. get_wikipedia_summary
+<details>
+<summary><b>search_maps</b> - Location and places search</summary>
 
-Get a summary of a specific Wikipedia article.
+Search for places, addresses, and locations with geographic coordinates.
 
 **Parameters:**
-- `title` (string, required): The Wikipedia article title
+- `query` (required): Place or address to search
+- `limit`: Max results (default: 5)
 
 **Example:**
 ```json
-{
-  "title": "Artificial Intelligence"
-}
+{"query": "coffee shops near Times Square NYC", "limit": 3}
 ```
+</details>
 
-### 4. extract_webpage_content
+<details>
+<summary><b>extract_webpage_content</b> - Extract clean text from web pages</summary>
 
-Extract clean text content from a web page.
+Extract readable content from any webpage, removing ads, navigation, and boilerplate. Uses multiple parsing methods with automatic fallback.
 
 **Parameters:**
-- `url` (string, required): The URL to extract content from
+- `url` (required): URL to extract content from
 
 **Example:**
 ```json
-{
-  "url": "https://example.com/article"
-}
+{"url": "https://example.com/article"}
 ```
+</details>
 
-**Features:**
-- Multiple parsing methods (Readability, Newspaper3k, BeautifulSoup)
-- Automatic fallback if one method fails
-- Cleans boilerplate content (ads, navigation, etc.)
+<details>
+<summary><b>parse_pdf</b> - Extract text from PDF files</summary>
 
-### 5. parse_pdf
-
-Extract text from PDF files.
+Download and extract text content from PDF documents.
 
 **Parameters:**
-- `url` (string, required): The URL of the PDF file
-- `max_chars` (integer, optional): Maximum characters to extract (default: 50000)
+- `url` (required): PDF URL
+- `max_chars`: Maximum characters to extract (default: 50000)
 
 **Example:**
 ```json
-{
-  "url": "https://example.com/document.pdf",
-  "max_chars": 100000
-}
+{"url": "https://arxiv.org/pdf/2303.08774.pdf", "max_chars": 100000}
 ```
+</details>
 
-**Features:**
-- Supports PyPDF2 and pdfplumber
-- Automatic library selection
+### Wikipedia
 
-### 6. search_multi
+<details>
+<summary><b>search_wikipedia</b> - Search Wikipedia articles</summary>
 
-Search multiple sources in parallel (web + Wikipedia).
+Search Wikipedia for articles matching a query.
 
 **Parameters:**
-- `query` (string, required): The search query
-- `web_limit` (integer, optional): Max web results (default: 5)
-- `wiki_limit` (integer, optional): Max Wikipedia results (default: 3)
+- `query` (required): Search query
+- `limit`: Max results (default: 5)
 
 **Example:**
 ```json
-{
-  "query": "Python programming",
-  "web_limit": 5,
-  "wiki_limit": 3
-}
+{"query": "machine learning", "limit": 3}
 ```
+</details>
 
-**Features:**
-- Runs searches in parallel for faster results
-- Combines results from multiple sources
-- Returns structured output with clear source attribution
+<details>
+<summary><b>get_wikipedia_summary</b> - Get article summary</summary>
 
-### 7. get_current_datetime
-
-Get current date and time with timezone information. Essential for time-aware AI responses.
+Get a concise summary of a Wikipedia article.
 
 **Parameters:**
-- `timezone` (string, optional): Timezone name (default: "UTC")
-- `include_details` (boolean, optional): Include additional details (default: true)
+- `title` (required): Article title
 
 **Example:**
 ```json
-{
-  "timezone": "Europe/Moscow",
-  "include_details": true
-}
+{"title": "Artificial Intelligence"}
 ```
+</details>
 
-**Returns:**
-- ISO datetime string
-- Date and time components
-- Day of week, week number
-- Multiple formatted representations
-- Unix timestamp
+<details>
+<summary><b>get_wikipedia_content</b> - Get full article content</summary>
 
-**Features:**
-- Supports 596+ timezones worldwide
-- Automatic timezone conversion
-- Detailed formatting options
-- Graceful error handling for invalid timezones
-
-### 8. list_timezones
-
-List available timezones by region.
+Get the complete content of a Wikipedia article with all sections.
 
 **Parameters:**
-- `region` (string, optional): Region filter - "all", "Europe", "America", "Asia", "Africa", "Australia" (default: "all")
+- `title` (required): Article title
+- `lang`: Language code (default: "en")
 
 **Example:**
 ```json
-{
-  "region": "Europe"
-}
+{"title": "Quantum computing", "lang": "en"}
 ```
+</details>
 
-**Features:**
-- Lists all available timezone names
-- Filter by continent/region
-- Useful for discovering correct timezone names
+### Academic & Research
 
-### 9. get_location_by_ip
+<details>
+<summary><b>search_arxiv</b> - Search arXiv papers</summary>
 
-Get geolocation information based on IP address. Returns country, city, timezone, coordinates, ISP, and more.
+Search arXiv for academic papers in physics, mathematics, computer science, and more.
 
 **Parameters:**
-- `ip_address` (string, optional): IP address to lookup (e.g., "8.8.8.8"). If not provided, detects the server's public IP location.
+- `query` (required): Search query
+- `max_results`: Max results (default: 10)
+- `category`: arXiv category (e.g., "cs.AI", "physics")
 
 **Example:**
 ```json
-{
-  "ip_address": "8.8.8.8"
-}
+{"query": "transformer neural networks", "max_results": 5, "category": "cs.AI"}
 ```
+</details>
 
-**Returns:**
-- IP address
-- Country, region, city, ZIP code
-- Timezone (can be used with get_current_datetime!)
-- Latitude and longitude coordinates
-- ISP and organization information
-- AS number
+<details>
+<summary><b>search_pubmed</b> - Search medical/biomedical papers</summary>
 
-**Features:**
-- Free API, no API key required
-- Automatic timezone detection for location-aware responses
-- Works with both IPv4 and IPv6
-- Graceful error handling for invalid/private IPs
-- Perfect companion to datetime tool for automatic timezone detection
-
-**Use Cases:**
-- Auto-detect user's timezone for time-aware responses
-- Location-based content customization
-- Network diagnostics and IP analysis
-- Geographic data for analytics
-
-### 10. assess_source_credibility 🆕
-
-Assess the credibility of web sources using advanced Bayesian analysis with 30+ signals.
+Search PubMed for biomedical and life science research papers.
 
 **Parameters:**
-- `url` (string, required): URL to assess
-- `title` (string, optional): Document title
-- `content` (string, optional): Full text content (improves accuracy)
-- `metadata` (object, optional): Structured metadata (year, authors, citations, doi, is_peer_reviewed)
+- `query` (required): Search query
+- `max_results`: Max results (default: 10)
 
 **Example:**
 ```json
-{
-  "url": "https://arxiv.org/abs/2301.00234",
-  "title": "Deep Learning for Medical Imaging",
-  "metadata": {
-    "year": 2023,
-    "is_peer_reviewed": true,
-    "citations": 42
-  }
-}
+{"query": "CRISPR gene therapy", "max_results": 5}
 ```
+</details>
 
-**Returns:**
-- Credibility score (0-1)
-- Confidence interval (e.g., 0.75 ± 0.08)
-- Category (academic, news, code, forum, blog, government)
-- PageRank score from citation network
-- 30+ individual signal scores
-- Recommendation (✓✓ Excellent / ✓ Good / ⚠ Caution / ✗ Limited)
+<details>
+<summary><b>search_gdelt</b> - Search global news (GDELT)</summary>
 
-**Features:**
-- **Real Domain Age**: WHOIS-based domain registration date checking
-- **Citation Network**: PageRank algorithm for link analysis
-- **Bayesian Inference**: Prior probabilities + likelihood + posterior
-- **30+ Signals**: Domain reputation, content quality, metadata analysis
-- **Uncertainty Quantification**: Confidence intervals based on evidence
-- **No API Keys Required**: All analysis runs locally
-
-**Optional Enhancement:**
-Install WHOIS support for real domain age checking:
-```bash
-pip install mcp-search-server[credibility]
-```
-
-**Documentation:**
-See [docs/CREDIBILITY_ASSESSMENT.md](docs/CREDIBILITY_ASSESSMENT.md) for detailed usage, examples, and technical details.
-
-### 11. summarize_text 🆕
-
-Summarize long text using multiple strategies (TF-IDF, keyword-based, or heuristic).
+Search the GDELT database for global news articles and events.
 
 **Parameters:**
-- `text` (string, required): Text to summarize
-- `strategy` (string, optional): "auto" (default), "extractive_tfidf", "extractive_keyword", "heuristic"
-- `compression_ratio` (number, optional): Target compression 0.1-0.9 (default: 0.3 = 30%)
+- `query` (required): Search query
+- `timespan`: `"1d"`, `"7d"`, or `"1m"` (default: "1d")
+- `max_results`: Max results (default: 10)
 
 **Example:**
 ```json
-{
-  "text": "Long article text here...",
-  "strategy": "extractive_tfidf",
-  "compression_ratio": 0.3
-}
+{"query": "climate summit", "timespan": "7d", "max_results": 5}
 ```
+</details>
 
-**Returns:**
-- Summary text
-- Method used (extractive-tfidf, extractive-keyword, heuristic-3sent)
-- Statistics (original/summary length, compression ratio, sentences)
+### GitHub
 
-**Strategies:**
-- **extractive_tfidf** (best): Uses TF-IDF scoring to select important sentences. Requires NLTK.
-- **extractive_keyword**: Prioritizes sentences with entities and key terms. Requires NLTK.
-- **heuristic**: Ultra-fast fallback (first + middle + last sentences). No dependencies.
-- **auto**: Automatically picks best available strategy.
+<details>
+<summary><b>search_github</b> - Search GitHub repositories</summary>
 
-**Features:**
-- **Fast**: ~50ms for typical article (with NLTK), ~5ms (heuristic)
-- **No API Keys**: All processing local
-- **Smart Selection**: Maintains original sentence order
-- **Graceful Degradation**: Falls back if NLTK unavailable
-
-**Optional Enhancement:**
-Install NLTK for better quality:
-```bash
-pip install mcp-search-server[summarizer]
-```
-
-**Use Cases:**
-- Summarize web articles before credibility assessment
-- Condense research papers for quick review
-- Extract key points from long documents
-- Generate previews for search results
-
----
-
-### 12. File Management Tools 🆕
-
-Comprehensive file operations supporting text, PDF, Word, Excel, and images.
-
-#### read_file
-
-Read content from a file (text, PDF, Word, Excel, images).
+Search GitHub for repositories by keywords, with sorting options.
 
 **Parameters:**
-- `path` (string, required): File path (relative paths use `data/files/` as base)
+- `query` (required): Search query
+- `max_results`: Max results (default: 5)
+- `sort`: `"stars"`, `"forks"`, `"updated"` (default: "stars")
 
 **Example:**
 ```json
-{
-  "path": "notes.txt"
-}
+{"query": "python web framework", "max_results": 10, "sort": "stars"}
 ```
+</details>
 
-**Returns:**
-- File content (text, extracted PDF/Word text, Excel data, or image metadata)
-- File metadata (size, path, existence status)
+<details>
+<summary><b>get_github_readme</b> - Get repository README</summary>
 
-#### write_file
-
-Write or create a file.
+Fetch the README file content from a GitHub repository.
 
 **Parameters:**
-- `path` (string, required): File path (relative paths use `data/files/` as base)
-- `content` (string, required): Content to write (UTF-8 text)
+- `repo` (required): Repository in "owner/repo" format
 
 **Example:**
 ```json
-{
-  "path": "output.txt",
-  "content": "Hello, World!"
-}
+{"repo": "langchain-ai/langchain"}
 ```
+</details>
 
-**Returns:**
-- Success message with file metadata
+### Reddit
 
-#### append_file
+<details>
+<summary><b>search_reddit</b> - Search Reddit posts</summary>
 
-Append content to an existing file (or create if doesn't exist).
+Search Reddit for posts across all subreddits or within a specific one.
 
 **Parameters:**
-- `path` (string, required): File path
-- `content` (string, required): Content to append
+- `query` (required): Search query
+- `subreddit`: Specific subreddit (optional)
+- `limit`: Max results (default: 10)
+- `time_filter`: `"hour"`, `"day"`, `"week"`, `"month"`, `"year"`, `"all"`
 
 **Example:**
 ```json
-{
-  "path": "log.txt",
-  "content": "\nNew log entry"
-}
+{"query": "best programming languages 2024", "subreddit": "programming", "limit": 5}
 ```
+</details>
 
-#### list_files
+<details>
+<summary><b>get_reddit_comments</b> - Get post comments</summary>
 
-List contents of a directory.
+Fetch comments from a specific Reddit post.
 
 **Parameters:**
-- `path` (string, optional): Directory path (empty for default `data/files/`)
+- `url` (required): Reddit post URL
+- `limit`: Max comments (default: 10)
 
 **Example:**
 ```json
-{
-  "path": ""
-}
+{"url": "https://www.reddit.com/r/Python/comments/abc123/post_title/", "limit": 20}
 ```
+</details>
 
-**Returns:**
-- List of files and directories with sizes and types
+### Date, Time & Location
 
-#### delete_file
+<details>
+<summary><b>get_current_datetime</b> - Get current date/time with timezone</summary>
 
-Delete a file (security: only within `data/files/`).
+Get the current date and time for any timezone. Essential for time-aware AI responses.
 
 **Parameters:**
-- `path` (string, required): File path to delete
+- `timezone`: Timezone name (default: "UTC")
+- `include_details`: Include additional info (default: true)
 
 **Example:**
 ```json
-{
-  "path": "temp.txt"
-}
+{"timezone": "America/New_York", "include_details": true}
 ```
 
-**File Management Features:**
-- **Supported Formats:**
-  - Text files (UTF-8)
-  - PDF documents (via pypdf)
-  - Word documents (.docx via python-docx)
-  - Excel spreadsheets (.xlsx/.xls via openpyxl/xlrd)
-  - Images (JPG, PNG, GIF, BMP, WebP, TIFF via Pillow)
-- **Security:**
-  - All files stored in `data/files/` directory
-  - Protection against path traversal attacks
-  - Validation of file paths
-- **Limits:**
-  - Maximum file size: 10 MB
-  - UTF-8 encoding for text files
-- **Async Support:** All operations are non-blocking
+**Returns:** ISO datetime, date/time components, day of week, week number, Unix timestamp.
+</details>
 
-**Optional Dependencies for Advanced Formats:**
-```bash
-pip install pypdf python-docx openpyxl xlrd Pillow
-```
+<details>
+<summary><b>get_location_by_ip</b> - IP geolocation lookup</summary>
 
-**Use Cases:**
-- Save search results to files
-- Log activity and errors
-- Read configuration files
-- Process uploaded documents
-- Extract data from PDFs and Excel files
-- Manage conversation history
-
-**See also:** [File Manager Integration Guide](FILE_MANAGER_GUIDE.md) for detailed documentation and examples.
-
----
-
-### 13. Calculator 🆕
-
-Perform advanced mathematical calculations safely.
+Get geographic location from an IP address: country, city, timezone, coordinates, ISP.
 
 **Parameters:**
-- `expression` (string, required): Mathematical expression to calculate
+- `ip_address`: IP to lookup (optional, uses server IP if omitted)
 
 **Example:**
 ```json
-{
-  "expression": "sqrt(144) + sin(pi/2) * 10"
-}
+{"ip_address": "8.8.8.8"}
 ```
 
-**Returns:**
-- Calculation result with formatted output
-- Expression type (int/float)
-- Error message if calculation fails
+**Returns:** Country, region, city, ZIP, timezone, lat/lon, ISP, AS number.
+</details>
 
-**Supported Operations:**
-- **Arithmetic:** `+`, `-`, `*`, `/`, `**` (power), `%` (modulo), `//` (floor division)
-- **Parentheses:** Full support for nested parentheses
-- **Constants:**
-  - `pi` - π (3.14159...)
-  - `e` - Euler's number (2.71828...)
-  - `tau` - τ (2π)
-  - `inf` - Infinity
-  - `nan` - Not a Number
+### Analysis & Processing
 
-**Mathematical Functions:**
+<details>
+<summary><b>assess_source_credibility</b> - Bayesian credibility scoring</summary>
 
-*Basic Functions:*
-- `abs(x)` - Absolute value
-- `round(x)` - Round to nearest integer
-- `min(x, y, ...)` - Minimum value
-- `max(x, y, ...)` - Maximum value
-- `sqrt(x)` - Square root
-- `pow(x, y)` - Power (x^y)
+Assess web source credibility using 30+ signals, domain age (WHOIS), and citation network analysis.
 
-*Logarithmic Functions:*
-- `log(x)` - Natural logarithm (base e)
-- `log10(x)` - Base-10 logarithm
-- `log2(x)` - Base-2 logarithm
-- `exp(x)` - e^x
+**Parameters:**
+- `url` (required): URL to assess
+- `title`: Document title (optional)
+- `content`: Full text content (optional, improves accuracy)
+- `metadata`: Additional metadata (year, authors, citations, doi, is_peer_reviewed)
 
-*Trigonometric Functions:*
-- `sin(x)`, `cos(x)`, `tan(x)` - Basic trig functions (radians)
-- `asin(x)`, `acos(x)`, `atan(x)` - Inverse trig functions
-- `atan2(y, x)` - Two-argument arctangent
-- `degrees(x)` - Convert radians to degrees
-- `radians(x)` - Convert degrees to radians
-
-*Hyperbolic Functions:*
-- `sinh(x)`, `cosh(x)`, `tanh(x)` - Hyperbolic functions
-- `asinh(x)`, `acosh(x)`, `atanh(x)` - Inverse hyperbolic functions
-
-*Other Functions:*
-- `ceil(x)` - Round up to nearest integer
-- `floor(x)` - Round down to nearest integer
-- `factorial(n)` - n! (factorial)
-- `gcd(a, b)` - Greatest common divisor
-- `lcm(a, b)` - Least common multiple
-
-**Usage Examples:**
-```python
-# Basic arithmetic
-"2 + 2"                    # 4
-"(5 + 3) * 2"             # 16
-"2**8"                    # 256 (2^8)
-"17 % 5"                  # 2 (modulo)
-
-# Square roots and powers
-"sqrt(144)"               # 12
-"pow(2, 10)"              # 1024
-
-# Trigonometry
-"sin(pi/2)"               # 1.0
-"cos(0)"                  # 1.0
-"tan(pi/4)"               # 1.0
-"degrees(pi)"             # 180.0
-
-# Logarithms
-"log(e)"                  # 1.0 (ln(e))
-"log10(100)"              # 2.0
-"log2(1024)"              # 10.0
-
-# Complex expressions
-"sqrt(pow(3,2) + pow(4,2))"  # 5 (Pythagorean theorem)
-"factorial(5)"            # 120
-"gcd(48, 18)"            # 6
+**Example:**
+```json
+{"url": "https://arxiv.org/abs/2301.00234", "metadata": {"is_peer_reviewed": true}}
 ```
 
-**Safety Features:**
-- **No eval():** Uses AST parsing for safe evaluation
-- **Sandboxed:** Only whitelisted functions allowed
-- **Type validation:** Prevents code injection
-- **Error handling:** Graceful error messages for invalid expressions
+**Returns:** Credibility score (0-1), confidence interval, category, PageRank, 30+ signal scores.
+</details>
 
-**Performance:**
-- Fast: ~1ms for simple calculations
-- Non-blocking: Async support for integration
-- Memory efficient: No external dependencies
+<details>
+<summary><b>summarize_text</b> - Multi-strategy text summarization</summary>
 
-**Use Cases:**
-- Scientific calculations
-- Engineering computations
-- Financial calculations (compound interest, NPV)
-- Geometry and trigonometry
-- Statistical computations
-- Unit conversions with formulas
+Summarize long text using TF-IDF, keyword extraction, or heuristic methods.
+
+**Parameters:**
+- `text` (required): Text to summarize
+- `strategy`: `"auto"`, `"extractive_tfidf"`, `"extractive_keyword"`, `"heuristic"`
+- `compression_ratio`: Target ratio 0.1-0.9 (default: 0.3)
+
+**Example:**
+```json
+{"text": "Long article text here...", "strategy": "extractive_tfidf", "compression_ratio": 0.3}
+```
+
+**Returns:** Summary, method used, statistics (original/summary length, compression ratio).
+</details>
+
+<details>
+<summary><b>calculate</b> - Safe mathematical calculator</summary>
+
+Perform mathematical calculations with trigonometry, logarithms, and constants. Uses AST parsing for safety (no eval).
+
+**Parameters:**
+- `expression` (required): Math expression
+
+**Supported:** `+`, `-`, `*`, `/`, `**`, `^`, `%`, `//`, `sqrt`, `sin`, `cos`, `tan`, `log`, `log10`, `exp`, `factorial`, `pi`, `e`, and more.
+
+**Example:**
+```json
+{"expression": "sqrt(144) + sin(pi/2) * 10"}
+```
+</details>
+
+### File Management
+
+<details>
+<summary><b>read_file</b> - Read file content</summary>
+
+Read content from text, PDF, Word, Excel, or image files.
+
+**Parameters:**
+- `path` (required): File path (relative paths use `data/files/` as base)
+
+**Example:**
+```json
+{"path": "notes.txt"}
+```
+</details>
+
+<details>
+<summary><b>write_file</b> - Write/create file</summary>
+
+Write content to a file (creates if doesn't exist).
+
+**Parameters:**
+- `path` (required): File path
+- `content` (required): Content to write
+
+**Example:**
+```json
+{"path": "output.txt", "content": "Hello, World!"}
+```
+</details>
+
+<details>
+<summary><b>append_file</b> - Append to file</summary>
+
+Append content to an existing file.
+
+**Parameters:**
+- `path` (required): File path
+- `content` (required): Content to append
+
+**Example:**
+```json
+{"path": "log.txt", "content": "\nNew log entry"}
+```
+</details>
+
+<details>
+<summary><b>list_files</b> - List directory contents</summary>
+
+List files and directories with sizes and types.
+
+**Parameters:**
+- `path`: Directory path (default: `data/files/`)
+
+**Example:**
+```json
+{"path": ""}
+```
+</details>
+
+<details>
+<summary><b>delete_file</b> - Delete file</summary>
+
+Delete a file (restricted to `data/files/` for security).
+
+**Parameters:**
+- `path` (required): File path to delete
+
+**Example:**
+```json
+{"path": "temp.txt"}
+```
+</details>
 
 ## Development
 
-### Install development dependencies
-
 ```bash
+# Install dev dependencies
 pip install -e ".[dev]"
-```
 
-### Running tests
-
-```bash
+# Run tests
 pytest
-```
 
-### Code formatting
-
-```bash
+# Format code
 black src/
-```
 
-### Linting
-
-```bash
+# Lint
 ruff check src/
 ```
-
-## Architecture
-
-### Tools
-
-- **DuckDuckGo Search** ([tools/duckduckgo.py](src/mcp_search_server/tools/duckduckgo.py))
-  - Async web scraping from DuckDuckGo HTML and Lite versions
-  - Result caching (24 hours)
-  - Retry logic with backoff
-
-- **Wikipedia** ([tools/wikipedia.py](src/mcp_search_server/tools/wikipedia.py))
-  - Wikipedia API integration
-  - Article search and summary retrieval
-  - HTML cleaning
-
-- **Link Parser** ([tools/link_parser.py](src/mcp_search_server/tools/link_parser.py))
-  - Multiple parsing methods (Readability, Newspaper3k, BeautifulSoup)
-  - Early exit optimization
-  - Content cleaning
-
-- **PDF Parser** ([tools/pdf_parser.py](src/mcp_search_server/tools/pdf_parser.py))
-  - PyPDF2 and pdfplumber support
-  - Automatic library selection
-  - Page-by-page extraction with limits
-
-## Caching
-
-The server uses local caching for search results:
-
-- **Location**: `~/.mcp-search-cache/`
-- **TTL**: 24 hours
-- **Format**: JSON
-
-## Troubleshooting
-
-### PDF parsing not working
-
-Install one of the PDF libraries:
-
-```bash
-pip install PyPDF2
-# or
-pip install pdfplumber
-```
-
-### Web content extraction fails
-
-The server tries multiple methods automatically:
-1. Readability (best for articles)
-2. Newspaper3k (good for news sites)
-3. BeautifulSoup (fallback for all sites)
-
-If all methods fail, check:
-- The URL is accessible
-- The site doesn't block automated access
-- Your internet connection
-
-### Wikipedia search returns no results
-
-- Check your internet connection
-- Try a different search term
-- The Wikipedia API might be temporarily unavailable
 
 ## License
 
 MIT
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
