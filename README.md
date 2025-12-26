@@ -15,8 +15,18 @@ MCP server providing **24 tools** for web search, content extraction, and data p
 
 ## Installation
 
+### From PyPI (recommended)
+
 ```bash
 pip install mcp-search-server
+```
+
+### From source
+
+```bash
+git clone https://github.com/KazKozDev/mcp-search-server.git
+cd mcp-search-server
+pip install -e .
 ```
 
 ### Claude Desktop Configuration
