@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "mcp-search-server"
-version = "0.2.0"
+version = "0.2.1"
 description = "MCP server with 27 tools for web search, content extraction, and data processing"
 readme = "README.md"
 requires-python = ">=3.10"
