@@ -3,21 +3,21 @@
 import logging
 from typing import List, Dict, Optional
 
-from .search_manager import _search_manager
+from ..search_manager import _search_manager
 
 logger = logging.getLogger(__name__)
 
 # Import cache utilities if available
 try:
-    from ..cache_store import get_cached_json, set_cached_json
-    from ..config_loader import (
+    from ...cache_store import get_cached_json, set_cached_json
+    from ...config_loader import (
         get_cache_ttl_seconds,
         get_dedupe_enabled,
         get_normalize_urls_enabled,
         get_results_max_per_domain,
         get_title_similarity_threshold,
     )
-    from ..result_utils import dedupe_and_limit_results
+    from ...result_utils import dedupe_and_limit_results
 
     HAS_CACHE = True
 except ImportError:
@@ -111,3 +111,7 @@ async def search_with_fallback(
         set_cached_json(cache_key, results, no_cache=no_cache)
 
     return results[:limit]
+
+
+# Backward compatibility alias
+search_web = search_with_fallback

@@ -7,8 +7,8 @@ from typing import Any, Dict, List, Optional
 
 import aiohttp
 
-from ..cache_store import get_cached_json, set_cached_json
-from ..config_loader import get_cache_ttl_seconds, get_maps_config
+from ...cache_store import get_cached_json, set_cached_json
+from ...config_loader import get_cache_ttl_seconds, get_maps_config
 
 logger = logging.getLogger(__name__)
 

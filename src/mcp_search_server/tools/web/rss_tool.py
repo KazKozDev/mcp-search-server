@@ -11,8 +11,8 @@ from typing import Any, Dict, List, Optional
 import aiohttp
 import feedparser
 
-from ..cache_store import get_cached_json, set_cached_json
-from ..config_loader import (
+from ...cache_store import get_cached_json, set_cached_json
+from ...config_loader import (
     get_cache_ttl_seconds,
     get_dedupe_enabled,
     get_normalize_urls_enabled,
@@ -20,7 +20,7 @@ from ..config_loader import (
     get_rss_sources,
     get_title_similarity_threshold,
 )
-from ..result_utils import dedupe_and_limit_results
+from ...result_utils import dedupe_and_limit_results
 
 logger = logging.getLogger(__name__)
 

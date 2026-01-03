@@ -3,7 +3,7 @@
 import logging
 from typing import List, Dict, Optional
 
-from .duckduckgo import DuckDuckGoSearchTool
+from .web.duckduckgo import DuckDuckGoSearchTool
 
 logger = logging.getLogger(__name__)
 
@@ -79,7 +79,7 @@ class SearchManager:
                     else:
                         # For DuckDuckGo, use the existing search method
                         if engine_name == "duckduckgo":
-                            from .duckduckgo import _ddg_tool
+                            from .web.duckduckgo import _ddg_tool
 
                             results = await _ddg_tool.search_news(
                                 query=query,
@@ -99,7 +99,7 @@ class SearchManager:
                     else:
                         # For DuckDuckGo, use existing search method
                         if engine_name == "duckduckgo":
-                            from .duckduckgo import _ddg_tool
+                            from .web.duckduckgo import _ddg_tool
 
                             results = await _ddg_tool.search(
                                 query=query,
@@ -185,7 +185,7 @@ class SearchManager:
                         timelimit=timelimit,
                     )
                 elif engine == "duckduckgo":
-                    from .duckduckgo import _ddg_tool
+                    from .web.duckduckgo import _ddg_tool
 
                     return await _ddg_tool.search_news(
                         query=query,
@@ -200,7 +200,7 @@ class SearchManager:
                         timelimit=timelimit,
                     )
                 elif engine == "duckduckgo":
-                    from .duckduckgo import _ddg_tool
+                    from .web.duckduckgo import _ddg_tool
 
                     return await _ddg_tool.search(
                         query=query,

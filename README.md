@@ -11,7 +11,9 @@
 [![CI](https://github.com/KazKozDev/mcp-search-server/actions/workflows/ci.yml/badge.svg)](https://github.com/KazKozDev/mcp-search-server/actions/workflows/ci.yml)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
-MCP server providing **24 tools** for web search, content extraction, and data processing. **No API keys required.**
+MCP server providing **27 tools** for web search, content extraction, and data processing. **No API keys required.**
+
+Built with a **modular registry architecture** for dynamic tool loading, categorization, and discovery.
 
 ## Installation
 
@@ -43,27 +45,74 @@ Add to `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS)
 }
 ```
 
-## Available Tools (24)
+## Available Tools (27)
+
+### Meta Tools - Tool Discovery
+
+<details>
+<summary><b>search_tools</b> - Find tools by query</summary>
+
+**Why LLMs need this:** With 27 tools available, finding the right one for a task is challenging. This meta-tool enables LLMs to search through available tools by keywords, categories, or use cases.
+
+**What it does:** Searches the tool registry by name, description, category, or tags. Returns ranked results with relevance scores.
+
+**Parameters:**
+- `query` (required): Search query (e.g., "find web pages", "date time", "github")
+- `limit`: Max results (default: 5)
+
+**Example:**
+```json
+{"query": "search academic papers", "limit": 3}
+```
+</details>
+
+<details>
+<summary><b>list_tool_categories</b> - List all tool categories</summary>
+
+**Why LLMs need this:** Tools are organized into categories (web, knowledge, social, etc.). This tool helps discover what categories exist and how many tools are in each.
+
+**What it does:** Returns all available tool categories with counts.
+
+**Example:**
+```json
+{}
+```
+</details>
+
+<details>
+<summary><b>get_tool_info</b> - Get detailed info about a tool</summary>
+
+**Why LLMs need this:** Before using a tool, LLMs need to understand its parameters, return format, and usage examples. This tool provides complete documentation for any registered tool.
+
+**What it does:** Returns detailed metadata for a specific tool including description, parameters, category, priority, and usage info.
+
+**Parameters:**
+- `tool_name` (required): Name of the tool
+
+**Example:**
+```json
+{"tool_name": "search_arxiv"}
+```
+</details>
 
 ### Web Search & Content
 
 <details>
-<summary><b>search_web</b> - Multi-engine web search with smart fallback</summary>
+<summary><b>search_duckduckgo</b> - DuckDuckGo web search</summary>
 
 **Why LLMs need this:** LLMs have a knowledge cutoff date and cannot access current information. This tool gives them real-time access to the web, enabling answers about recent events, current prices, latest news, and up-to-date documentation.
 
-**What it does:** Searches the web using DuckDuckGo, Brave, Startpage, or Qwant with automatic fallback if one engine fails. Supports web and news modes with time filtering.
+**What it does:** Searches the web using DuckDuckGo with support for web and news modes, time filtering, and region-specific results.
 
 **Parameters:**
 - `query` (required): Search query
 - `limit`: Max results (default: 10)
 - `mode`: `"web"` or `"news"`
 - `timelimit`: `"d"` (day), `"w"` (week), `"m"` (month), `"y"` (year)
-- `engine`: `"duckduckgo"`, `"brave"`, `"startpage"`, `"qwant"` (default: auto)
 
 **Example:**
 ```json
-{"query": "Python async programming", "limit": 5, "mode": "news"}
+{"query": "Python async programming", "limit": 5, "mode": "news", "timelimit": "w"}
 ```
 </details>
 
@@ -481,6 +530,20 @@ Add to `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS)
 {"path": "temp.txt"}
 ```
 </details>
+
+## Architecture
+
+The server uses a **modular registry architecture**:
+
+- **Dynamic Tool Loading**: Tools are registered in a central registry with metadata (category, priority, tags)
+- **Category-Based Organization**: Tools organized into 7 categories: `meta`, `web`, `knowledge`, `social`, `analysis`, `context`, `files`
+- **Meta-Tool Discovery**: Built-in tools (`search_tools`, `list_tool_categories`, `get_tool_info`) help LLMs discover and understand available capabilities
+- **Extensible**: Easy to add new tools by implementing `BaseTool` and registering in the configuration
+
+Key files:
+- [server.py](src/mcp_search_server/server.py) - Main MCP server with registry integration
+- [registry/](src/mcp_search_server/registry/) - Tool registry and loader
+- [tools/](src/mcp_search_server/tools/) - Tool implementations organized by category
 
 ## Development
 

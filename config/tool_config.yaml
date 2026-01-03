@@ -1,0 +1,260 @@
+# Tool Configuration
+# Maps each tool to its category, priority, and loading settings
+
+tools:
+  # ============================================================================
+  # WEB CATEGORY - Web Search & Content (6 tools)
+  # ============================================================================
+  
+
+  extract_webpage_content:
+    category: web
+    priority: HIGH
+    defer_loading: false  # Frequently used, always loaded
+    version: "1.0.0"
+    tags: ["parse", "extract", "webpage", "content", "html"]
+    estimated_duration_ms: 3000
+    requires_network: true
+    
+  parse_pdf:
+    category: web
+    priority: MEDIUM
+    defer_loading: true
+    version: "1.0.0"
+    tags: ["pdf", "parse", "extract", "document"]
+    estimated_duration_ms: 5000
+    requires_network: true
+    
+  search_maps:
+    category: web
+    priority: MEDIUM
+    defer_loading: true
+    version: "1.0.0"
+    tags: ["maps", "location", "places", "geocoding"]
+    estimated_duration_ms: 2000
+    requires_network: true
+    
+
+  search_duckduckgo:
+    category: web
+    priority: MEDIUM
+    defer_loading: true
+    version: "1.0.0"
+    tags: ["search", "duckduckgo", "web"]
+    estimated_duration_ms: 2000
+    requires_network: true
+  
+  # ============================================================================
+  # KNOWLEDGE CATEGORY - Wikipedia & Academic (6 tools)
+  # ============================================================================
+  
+  search_wikipedia:
+    category: knowledge
+    priority: MEDIUM
+    defer_loading: true
+    version: "1.0.0"
+    tags: ["wikipedia", "search", "encyclopedia"]
+    estimated_duration_ms: 1500
+    requires_network: true
+    
+  get_wikipedia_summary:
+    category: knowledge
+    priority: MEDIUM
+    defer_loading: true
+    version: "1.0.0"
+    tags: ["wikipedia", "summary", "encyclopedia"]
+    estimated_duration_ms: 1500
+    requires_network: true
+    
+  get_wikipedia_content:
+    category: knowledge
+    priority: MEDIUM
+    defer_loading: true
+    version: "1.0.0"
+    tags: ["wikipedia", "content", "article", "encyclopedia"]
+    estimated_duration_ms: 2000
+    requires_network: true
+    
+  search_arxiv:
+    category: knowledge
+    priority: MEDIUM
+    defer_loading: true
+    version: "1.0.0"
+    tags: ["arxiv", "academic", "papers", "research", "science"]
+    estimated_duration_ms: 2500
+    requires_network: true
+    
+  search_pubmed:
+    category: knowledge
+    priority: MEDIUM
+    defer_loading: true
+    version: "1.0.0"
+    tags: ["pubmed", "medical", "research", "biomedical", "papers"]
+    estimated_duration_ms: 2500
+    requires_network: true
+    
+  search_gdelt:
+    category: knowledge
+    priority: MEDIUM
+    defer_loading: true
+    version: "1.0.0"
+    tags: ["gdelt", "news", "global", "events"]
+    estimated_duration_ms: 3000
+    requires_network: true
+  
+  # ============================================================================
+  # SOCIAL CATEGORY - GitHub & Reddit (4 tools)
+  # ============================================================================
+  
+  search_github:
+    category: social
+    priority: MEDIUM
+    defer_loading: true
+    version: "1.0.0"
+    tags: ["github", "repositories", "code", "search"]
+    estimated_duration_ms: 2000
+    requires_network: true
+    
+  get_github_readme:
+    category: social
+    priority: MEDIUM
+    defer_loading: true
+    version: "1.0.0"
+    tags: ["github", "readme", "documentation"]
+    estimated_duration_ms: 1500
+    requires_network: true
+    
+  search_reddit:
+    category: social
+    priority: MEDIUM
+    defer_loading: true
+    version: "1.0.0"
+    tags: ["reddit", "search", "posts", "community"]
+    estimated_duration_ms: 2000
+    requires_network: true
+    
+  get_reddit_comments:
+    category: social
+    priority: MEDIUM
+    defer_loading: true
+    version: "1.0.0"
+    tags: ["reddit", "comments", "discussion"]
+    estimated_duration_ms: 2000
+    requires_network: true
+  
+  # ============================================================================
+  # ANALYSIS CATEGORY - Analysis & Processing (3 tools)
+  # ============================================================================
+  
+  assess_source_credibility:
+    category: analysis
+    priority: MEDIUM
+    defer_loading: true
+    version: "1.0.0"
+    tags: ["credibility", "trust", "source", "verification"]
+    estimated_duration_ms: 3000
+    requires_network: true
+    
+  summarize_text:
+    category: analysis
+    priority: MEDIUM
+    defer_loading: true
+    version: "1.0.0"
+    tags: ["summarize", "text", "nlp", "compression"]
+    estimated_duration_ms: 2000
+    requires_network: false
+    
+  calculator:
+    category: analysis
+    priority: HIGH
+    defer_loading: false  # Frequently used, always loaded
+    version: "1.0.0"
+    tags: ["math", "calculator", "compute", "arithmetic"]
+    estimated_duration_ms: 100
+    requires_network: false
+  
+  # ============================================================================
+  # CONTEXT CATEGORY - Date, Time & Location (2 tools)
+  # ============================================================================
+  
+  get_current_datetime:
+    category: context
+    priority: HIGH
+    defer_loading: false  # Context tool, always loaded
+    version: "1.0.0"
+    tags: ["datetime", "time", "date", "timezone"]
+    estimated_duration_ms: 50
+    requires_network: false
+    
+  get_location_by_ip:
+    category: context
+    priority: HIGH
+    defer_loading: false  # Context tool, always loaded
+    version: "1.0.0"
+    tags: ["geolocation", "ip", "location", "geoip"]
+    estimated_duration_ms: 500
+    requires_network: true
+  
+  # ============================================================================
+  # FILES CATEGORY - File Management (5 tools)
+  # ============================================================================
+  
+  read_file:
+    category: files
+    priority: MEDIUM
+    defer_loading: true
+    version: "1.0.0"
+    tags: ["file", "read", "filesystem"]
+    estimated_duration_ms: 500
+    requires_network: false
+    requires_filesystem: true
+    
+  write_file:
+    category: files
+    priority: MEDIUM
+    defer_loading: true
+    version: "1.0.0"
+    tags: ["file", "write", "filesystem", "create"]
+    estimated_duration_ms: 500
+    requires_network: false
+    requires_filesystem: true
+    
+  append_file:
+    category: files
+    priority: MEDIUM
+    defer_loading: true
+    version: "1.0.0"
+    tags: ["file", "append", "filesystem"]
+    estimated_duration_ms: 500
+    requires_network: false
+    requires_filesystem: true
+    
+  list_files:
+    category: files
+    priority: MEDIUM
+    defer_loading: true
+    version: "1.0.0"
+    tags: ["file", "list", "directory", "filesystem"]
+    estimated_duration_ms: 200
+    requires_network: false
+    requires_filesystem: true
+    
+  delete_file:
+    category: files
+    priority: MEDIUM
+    defer_loading: true
+    version: "1.0.0"
+    tags: ["file", "delete", "remove", "filesystem"]
+    estimated_duration_ms: 200
+    requires_network: false
+    requires_filesystem: true
+
+# Default settings for new tools
+defaults:
+  priority: MEDIUM
+  defer_loading: true
+  version: "1.0.0"
+  estimated_duration_ms: 2000
+  requires_network: false
+  requires_filesystem: false
+  tags: []

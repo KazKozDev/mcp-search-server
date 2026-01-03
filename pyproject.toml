@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "mcp-search-server"
-version = "0.1.9"
-description = "MCP server for web search, PDF parsing, and content extraction"
+version = "0.2.0"
+description = "MCP server with 27 tools for web search, content extraction, and data processing"
 readme = "README.md"
 requires-python = ">=3.10"
 authors = [
@@ -58,7 +58,18 @@ browser = [
 mcp-search-server = "mcp_search_server.server:run"
 
 [tool.setuptools]
-packages = ["mcp_search_server", "mcp_search_server.tools"]
+packages = [
+    "mcp_search_server",
+    "mcp_search_server.tools",
+    "mcp_search_server.tools.web",
+    "mcp_search_server.tools.knowledge",
+    "mcp_search_server.tools.social",
+    "mcp_search_server.tools.analysis",
+    "mcp_search_server.tools.context",
+    "mcp_search_server.tools.files",
+    "mcp_search_server.tools.meta",
+    "mcp_search_server.registry",
+]
 package-dir = {"" = "src"}
 
 [tool.black]

@@ -1,0 +1,134 @@
+# Tool Categories Configuration
+# Defines all tool categories with their priorities and settings
+
+categories:
+  web:
+    name: "Web Search & Content"
+    description: "Web search, content extraction, PDF parsing, maps, and RSS feeds"
+    priority: HIGH
+    icon: "🌐"
+    defer_loading: false  # Critical category, always load
+    tools_count: 6
+    examples:
+      - "Search the web for information"
+      - "Extract content from a webpage"
+      - "Parse PDF documents"
+      - "Search for locations on maps"
+      - "Parse RSS feeds"
+    
+  knowledge:
+    name: "Knowledge & Academic"
+    description: "Wikipedia, arXiv, PubMed, GDELT academic and encyclopedic sources"
+    priority: MEDIUM
+    icon: "📚"
+    defer_loading: true  # Load on demand
+    tools_count: 6
+    examples:
+      - "Search Wikipedia articles"
+      - "Find academic papers on arXiv"
+      - "Search medical research on PubMed"
+      - "Get global news from GDELT"
+    
+  social:
+    name: "Social & Code"
+    description: "GitHub repositories, Reddit discussions and community content"
+    priority: MEDIUM
+    icon: "💬"
+    defer_loading: true  # Load on demand
+    tools_count: 4
+    examples:
+      - "Search GitHub repositories"
+      - "Get repository README"
+      - "Search Reddit posts"
+      - "Get Reddit comments"
+    
+  analysis:
+    name: "Analysis & Processing"
+    description: "Source credibility assessment, text summarization, calculations"
+    priority: HIGH
+    icon: "🔍"
+    defer_loading: false  # Critical tools, always load
+    tools_count: 3
+    examples:
+      - "Assess source credibility"
+      - "Summarize long text"
+      - "Perform calculations"
+    
+  context:
+    name: "Context & Location"
+    description: "Date/time information and geolocation services"
+    priority: HIGH
+    icon: "📍"
+    defer_loading: false  # Context tools, always load
+    tools_count: 2
+    examples:
+      - "Get current date and time"
+      - "Get location by IP address"
+    
+  files:
+    name: "File Management"
+    description: "Read, write, append, list, and delete files"
+    priority: MEDIUM
+    icon: "📁"
+    defer_loading: true  # Load on demand
+    tools_count: 5
+    examples:
+      - "Read file content"
+      - "Write to a file"
+      - "List directory contents"
+      - "Delete files"
+    
+  meta:
+    name: "Tool Discovery"
+    description: "Search and discover available tools"
+    priority: HIGH
+    icon: "🔧"
+    defer_loading: false  # Always available for tool discovery
+    tools_count: 1
+    examples:
+      - "Search for available tools"
+      - "Find tools by category"
+
+# Priority definitions
+priorities:
+  HIGH:
+    description: "Critical tools, always loaded at startup"
+    load_immediately: true
+    max_tools: 10  # Limit to keep token usage low
+    
+  MEDIUM:
+    description: "Load on demand when category is accessed"
+    load_immediately: false
+    load_on_first_use: true
+    
+  LOW:
+    description: "Load only when explicitly requested"
+    load_immediately: false
+    load_on_first_use: false
+
+# Loading strategy
+loading:
+  strategy: "category_based"  # Load by category
+  enable_defer_loading: true  # Enable deferred loading
+  preload_categories:  # Categories to load at startup
+    - web
+    - analysis
+    - context
+    - meta
+  
+  # Token optimization
+  initial_tool_limit: 10  # Max tools in initial list_tools()
+  enable_tool_search: true  # Enable search_tools for discovery
+  
+  # Performance settings
+  lazy_import: true  # Import modules only when needed
+  cache_loaded_tools: true  # Cache loaded tools in memory
+  parallel_loading: false  # Load tools sequentially (safer)
+
+# Metrics and monitoring
+metrics:
+  enabled: true
+  track_execution_time: true
+  track_error_rate: true
+  track_load_time: true
+  log_tool_usage: true

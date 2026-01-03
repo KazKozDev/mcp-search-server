@@ -135,10 +135,7 @@ dmypy.json
 .DS_Store
 Thumbs.db
 
-# Test scripts
-test_*.py
-test_*.txt
-*_test.txt
+
 
 # MCP Cache
 .mcp-search-cache/

@@ -8,15 +8,15 @@ logger = logging.getLogger(__name__)
 
 # Import cache and config utilities
 try:
-    from ..cache_store import get_cached_json, set_cached_json
-    from ..config_loader import (
+    from ...cache_store import get_cached_json, set_cached_json
+    from ...config_loader import (
         get_cache_ttl_seconds,
         get_dedupe_enabled,
         get_normalize_urls_enabled,
         get_results_max_per_domain,
         get_title_similarity_threshold,
     )
-    from ..result_utils import dedupe_and_limit_results
+    from ...result_utils import dedupe_and_limit_results
 
     HAS_CACHE = True
 except ImportError:
