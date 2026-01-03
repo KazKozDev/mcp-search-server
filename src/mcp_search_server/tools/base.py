@@ -38,16 +38,16 @@ class ToolMetadata:
     tags: List[str] = field(default_factory=list)
     examples: List[Dict[str, Any]] = field(default_factory=list)
     defer_loading: bool = True  # Load on demand by default
-    
+
     # MCP-specific metadata
     input_schema: Optional[Dict[str, Any]] = None
     output_schema: Optional[Dict[str, Any]] = None
-    
+
     # Performance hints
     estimated_duration_ms: Optional[int] = None  # Estimated execution time
     requires_network: bool = False
     requires_filesystem: bool = False
-    
+
     def to_dict(self) -> Dict[str, Any]:
         """Convert metadata to dictionary."""
         return {
@@ -70,13 +70,13 @@ class ToolMetadata:
 class BaseTool(ABC):
     """
     Base class for all MCP tools.
-    
+
     Provides:
     - Metadata management (category, priority, version)
     - Standardized registration interface
     - Execution wrapper with error handling
     - Performance tracking
-    
+
     Usage:
         class MyTool(BaseTool):
             def __init__(self):
@@ -87,7 +87,7 @@ class BaseTool(ABC):
                     priority=ToolPriority.HIGH,
                 )
                 super().__init__(metadata)
-            
+
             async def execute(self, **kwargs) -> Any:
                 # Tool implementation
                 return result
@@ -96,7 +96,7 @@ class BaseTool(ABC):
     def __init__(self, metadata: ToolMetadata):
         """
         Initialize tool with metadata.
-        
+
         Args:
             metadata: Tool metadata including name, category, priority
         """
@@ -139,13 +139,13 @@ class BaseTool(ABC):
     async def execute(self, **kwargs) -> Any:
         """
         Execute the tool with given arguments.
-        
+
         Args:
             **kwargs: Tool-specific arguments
-            
+
         Returns:
             Tool-specific result
-            
+
         Raises:
             ValueError: If arguments are invalid
             RuntimeError: If execution fails
@@ -155,13 +155,13 @@ class BaseTool(ABC):
     async def execute_with_tracking(self, **kwargs) -> Any:
         """
         Execute tool with performance tracking and error handling.
-        
+
         Args:
             **kwargs: Tool-specific arguments
-            
+
         Returns:
             Tool execution result
-            
+
         Raises:
             Exception: Re-raises any exception from execute()
         """
@@ -181,7 +181,7 @@ class BaseTool(ABC):
     def get_statistics(self) -> Dict[str, Any]:
         """
         Get tool execution statistics.
-        
+
         Returns:
             Dictionary with execution stats
         """
@@ -202,7 +202,7 @@ class BaseTool(ABC):
     def to_mcp_tool(self) -> Dict[str, Any]:
         """
         Convert to MCP Tool definition.
-        
+
         Returns:
             MCP Tool definition dictionary
         """
@@ -210,44 +210,44 @@ class BaseTool(ABC):
             "name": self.name,
             "description": self.description,
         }
-        
+
         if self.metadata.input_schema:
             tool_def["inputSchema"] = self.metadata.input_schema
-            
+
         if self.metadata.output_schema:
             tool_def["outputSchema"] = self.metadata.output_schema
-            
+
         return tool_def
 
     def matches_query(self, query: str) -> bool:
         """
         Check if tool matches a search query.
-        
+
         Args:
             query: Search query string
-            
+
         Returns:
             True if tool matches query
         """
         query_lower = query.lower()
-        
+
         # Check name
         if query_lower in self.name.lower():
             return True
-        
+
         # Check description
         if query_lower in self.description.lower():
             return True
-        
+
         # Check tags
         for tag in self.metadata.tags:
             if query_lower in tag.lower():
                 return True
-        
+
         # Check category
         if query_lower in self.category.value.lower():
             return True
-        
+
         return False
 
     def __repr__(self) -> str:
@@ -263,38 +263,39 @@ class BaseTool(ABC):
 class FunctionTool(BaseTool):
     """
     Wrapper for function-based tools.
-    
+
     Allows wrapping existing async functions as BaseTool instances.
-    
+
     Usage:
         async def my_function(arg1: str, arg2: int) -> str:
             return f"Result: {arg1} {arg2}"
-        
+
         metadata = ToolMetadata(
             name="my_function",
             description="Example function",
             category=ToolCategory.WEB,
         )
-        
+
         tool = FunctionTool(metadata, my_function)
     """
 
     def __init__(self, metadata: ToolMetadata, func: Callable):
         """
         Initialize function-based tool.
-        
+
         Args:
             metadata: Tool metadata
             func: Async function to wrap
         """
         super().__init__(metadata)
         self.func = func
-        
+
         # Auto-generate schema if not provided
         if not self.metadata.input_schema:
             try:
                 # Import here to avoid circular dependencies if any
                 from ..registry.schema import generate_input_schema
+
                 self.metadata.input_schema = generate_input_schema(func)
             except ImportError:
                 # Fallback if registry not found/initialized

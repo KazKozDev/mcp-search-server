@@ -535,21 +535,26 @@ file_manager = FileManager()
 
 # Wrapper functions for direct tool access
 
+
 async def read_file(file_path: str) -> Dict[str, Any]:
     """Read content from a file."""
     return await file_manager.read_file(file_path)
+
 
 async def write_file(file_path: str, content: str) -> Dict[str, Any]:
     """Write content to a file."""
     return await file_manager.write_file(file_path, content, append=False)
 
+
 async def append_file(file_path: str, content: str) -> Dict[str, Any]:
     """Append content to a file."""
     return await file_manager.write_file(file_path, content, append=True)
 
+
 async def list_files(dir_path: str = "") -> Dict[str, Any]:
     """List contents of a directory."""
     return await file_manager.list_directory(dir_path)
+
 
 async def delete_file(file_path: str) -> Dict[str, Any]:
     """Delete a file."""

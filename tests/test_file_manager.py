@@ -6,7 +6,7 @@ from pathlib import Path
 import tempfile
 import shutil
 
-from mcp_search_server.tools.file_manager import file_manager
+from mcp_search_server.tools.files.file_manager import file_manager
 
 
 class TestFileManager:

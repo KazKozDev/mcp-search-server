@@ -3,7 +3,7 @@
 import pytest
 import math
 
-from mcp_search_server.tools.calculator import calculator
+from mcp_search_server.tools.analysis.calculator import calculator
 
 
 class TestCalculator:

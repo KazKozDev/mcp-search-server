@@ -91,6 +91,7 @@ async def call_tool(
 
             # For backward compatibility with existing tools that return raw dicts
             import json
+
             text_output = json.dumps(result, indent=2, ensure_ascii=False)
             return [TextContent(type="text", text=text_output)]
 
@@ -100,6 +101,7 @@ async def call_tool(
                 return result
             # Or list of data
             import json
+
             text_output = json.dumps(result, indent=2, ensure_ascii=False)
             return [TextContent(type="text", text=text_output)]
 
@@ -127,11 +129,8 @@ async def main():
 
     # Run server
     async with mcp.server.stdio.stdio_server() as (read_stream, write_stream):
-        await app.run(
-            read_stream,
-            write_stream,
-            app.create_initialization_options()
-        )
+        await app.run(read_stream, write_stream, app.create_initialization_options())
+
 
 if __name__ == "__main__":
     asyncio.run(main())
