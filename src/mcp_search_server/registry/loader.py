@@ -1,16 +1,14 @@
 """Tool loader with automatic registration from categories."""
 
-import asyncio
 import logging
 import importlib
-from typing import List, Callable, Dict, Any, Optional
+from typing import List, Dict, Any
 
 from mcp.server import Server
 from mcp.types import Tool
 
 from ..tools.base import ToolCategory, ToolPriority, ToolMetadata, FunctionTool, BaseTool
 from .tool_registry import ToolRegistry, get_global_registry
-from .category_manager import CategoryManager
 
 logger = logging.getLogger(__name__)
 

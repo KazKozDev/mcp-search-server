@@ -174,7 +174,7 @@ class BaseTool(ABC):
             duration_ms = int((time.time() - start_time) * 1000)
             self._total_duration_ms += duration_ms
             return result
-        except Exception as e:
+        except Exception:
             self._error_count += 1
             raise
 
@@ -300,7 +300,7 @@ class FunctionTool(BaseTool):
             except ImportError:
                 # Fallback if registry not found/initialized
                 pass
-            except Exception as e:
+            except Exception:
                 # Log but continue
                 pass
 

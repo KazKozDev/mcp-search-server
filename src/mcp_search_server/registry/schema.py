@@ -1,6 +1,6 @@
 import inspect
 import typing
-from typing import Any, Dict, List, Optional, get_type_hints, Union
+from typing import Any, Dict, List, get_type_hints, Union
 
 
 def get_json_type(py_type: Any) -> str:
@@ -8,21 +8,21 @@ def get_json_type(py_type: Any) -> str:
     origin = typing.get_origin(py_type)
     args = typing.get_args(py_type)
 
-    if py_type == str:
+    if py_type is str:
         return "string"
-    elif py_type == int:
+    elif py_type is int:
         return "integer"
-    elif py_type == float:
+    elif py_type is float:
         return "number"
-    elif py_type == bool:
+    elif py_type is bool:
         return "boolean"
-    elif py_type == list or origin == list or origin == List:
+    elif py_type is list or origin is list or origin is List:
         return "array"
-    elif py_type == dict or origin == dict or origin == Dict:
+    elif py_type is dict or origin is dict or origin is Dict:
         return "object"
-    elif origin == Union:
+    elif origin is Union:
         # Handle Optional[X] which is Union[X, None]
-        non_none = [a for a in args if a != type(None)]
+        non_none = [a for a in args if a is not type(None)]
         if len(non_none) == 1:
             return get_json_type(non_none[0])
         # Union of multiple types - just default to string or create complex schema?
@@ -72,6 +72,6 @@ def generate_input_schema(func: Any) -> Dict[str, Any]:
                 required.append(name)
 
         return {"type": "object", "properties": properties, "required": required}
-    except Exception as e:
+    except Exception:
         # Fallback for when inspection failed
         return {"type": "object", "properties": {}, "required": []}
