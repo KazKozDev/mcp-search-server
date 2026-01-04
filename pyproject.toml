@@ -34,6 +34,8 @@ dependencies = [
     "gdeltdoc>=1.0.0",
     "arxiv>=2.0.0",
     "certifi>=2024.0.0",
+    "uvicorn>=0.27.0",
+    "starlette>=0.36.0",
 ]
 
 [project.optional-dependencies]
