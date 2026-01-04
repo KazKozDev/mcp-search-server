@@ -1,0 +1,16 @@
+{
+  "name": "mcp-search-server",
+  "description": "MCP server providing 27 tools for web search, content extraction, and data processing. No API keys required.",
+  "version": "0.2.1",
+  "auth": {
+    "type": "none"
+  },
+  "config": {
+    "type": "object",
+    "properties": {},
+    "required": []
+  },
+  "transport": {
+    "type": "stdio"
+  }
+}
