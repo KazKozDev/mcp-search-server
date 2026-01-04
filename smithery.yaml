@@ -1,0 +1,12 @@
+runtime: "python"
+startCommand:
+  type: stdio
+  configSchema:
+    type: object
+    properties: {}
+    required: []
+  commandFunction: |
+    (config) => ({
+      "command": "mcp-search-server",
+      "args": []
+    })
