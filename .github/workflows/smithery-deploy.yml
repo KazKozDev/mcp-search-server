@@ -1,0 +1,17 @@
+name: Deploy to Smithery
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Notify Smithery webhook
+        run: |
+          echo "Smithery will auto-deploy from GitHub repo on push"
+          echo "Manual deployment required at: https://smithery.ai/new"
